@@ -64,10 +64,17 @@ jobs:
       - name: Build and Test
         run: ./gradlew -i clean build --no-daemon
 
+      - name: Debug working directory
+        run: pwd # 현재 작업 디렉토리 확인
+
       - name: Copy build artifacts
         run: |
           mkdir docker-context
           cp -r build docker-context/ # build 디렉토리 전체를 복사
+          ls -al docker-context # docker-context 디렉토리 내용 확인
+
+      - name: Debug directory
+        run: ls -al # 현재 디렉토리 내용 확인
 
   docker-build-and-push:
     name: Build and Push Docker Image
@@ -75,15 +82,29 @@ jobs:
     needs: build-and-test
 
     steps:
+      - name: Download docker-context artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: docker-context
+
       - name: Checkout Repository
         uses: actions/checkout@v3
+
+      - name: Debug working directory
+        run: pwd # 현재 작업 디렉토리 확인
+
+      - name: Debug directory
+        run: ls -al # 현재 디렉토리 내용 확인
+
+      - name: Debug docker-context directory
+        run: ls -al docker-context # docker-context 디렉토리 권한 확인
 
       - name: Log in to Docker Hub
         run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
 
       - name: Build Docker Image
         run: |
-          docker build -t ${{ secrets.DOCKERHUB_REPO }}:latest -f Dockerfile docker-context/ # 컨텍스트를 명시적으로 지정
+          docker build -t ${{ secrets.DOCKERHUB_REPO }}:latest -f Dockerfile $(pwd)/docker-context/ # 절대 경로 사용
 
       - name: Push Docker Image to Docker Hub
         run: |
