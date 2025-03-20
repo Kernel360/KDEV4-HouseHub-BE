@@ -64,6 +64,11 @@ jobs:
       - name: Build and Test
         run: ./gradlew -i clean build --no-daemon
 
+      - name: Copy build artifacts
+        run: |
+          mkdir docker-context
+          cp -r build docker-context/ # build 디렉토리 전체를 복사
+
   docker-build-and-push:
     name: Build and Push Docker Image
     runs-on: ubuntu-latest
@@ -78,7 +83,7 @@ jobs:
 
       - name: Build Docker Image
         run: |
-          docker build -t ${{ secrets.DOCKERHUB_REPO }}:latest .
+          docker build -t ${{ secrets.DOCKERHUB_REPO }}:latest -f Dockerfile docker-context/ # 컨텍스트를 명시적으로 지정
 
       - name: Push Docker Image to Docker Hub
         run: |
