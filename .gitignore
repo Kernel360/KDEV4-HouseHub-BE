@@ -2,6 +2,8 @@
 # Edit at https://www.toptal.com/developers/gitignore?templates=intellij,java,eclipse,gradle,windows,macos,git,visualstudiocode
 
 src/main/resources/application.yml
+# 개발용 docker-compose 파일을 숨김처리
+docker-compose.yml
 
 ### Eclipse ###
 .metadata
