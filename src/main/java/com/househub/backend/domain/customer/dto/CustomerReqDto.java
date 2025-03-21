@@ -33,8 +33,9 @@ public class CustomerReqDto {
                 .email(entity.getEmail())
                 .memo(entity.getMemo())
                 .gender(entity.getGender())
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
+                .createdAt(entity.getCreatedAt())
+                .updatedAt(entity.getUpdatedAt())
+                .deletedAt(entity.getDeletedAt())
                 .build();
     }
 
