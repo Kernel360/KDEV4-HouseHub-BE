@@ -17,23 +17,10 @@ public class CustomerController {
 
     private final CustomerService customerService;
 
-    // 고객 목록 조회
-    @GetMapping("")
-    public ResponseEntity<List<CustomerResDto>> getAllCustomer(){
-        List<Customer> customers = customerService.getAllCustomer();
-        List<CustomerResDto> list = customers.stream().map(CustomerResDto::toDto).toList();
-
-        if(list != null){
-            return ResponseEntity.ok().body(list);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
     // 고객 등록
     @PostMapping("")
-    public ResponseEntity addCustomer(@RequestBody CustomerReqDto request) {
-        Long id = customerService.addCustomer(request);
+    public ResponseEntity createCustomer(@RequestBody CustomerReqDto request) {
+        Long id = customerService.createCustomer(request);
 
         if(id != null){
             return ResponseEntity.ok("정상적으로 처리되었습니다.");
@@ -42,11 +29,32 @@ public class CustomerController {
         }
     }
 
-//    // 고객 상세 정보 조회
-//    @GetMapping("/{id}")
-//    public ResponseEntity<CustomerResDto> getCustomer(){
-//
-//    }
+    // 고객 목록 조회
+    @GetMapping("")
+    public ResponseEntity<List<CustomerResDto>> findAllCustomer(){
+        List<Customer> customers = customerService.findAllCustomer();
+
+
+        if(customers != null){
+            List<CustomerResDto> list = customers.stream().map(CustomerResDto::toDto).toList();
+            return ResponseEntity.ok().body(list);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    // 고객 상세 정보 조회
+    @GetMapping("/{id}")
+    public ResponseEntity<CustomerResDto> findOneCustomer(@PathVariable Long id){
+        Customer customer = customerService.findOne(id);
+
+        if(customer != null){
+            CustomerResDto dto = CustomerResDto.toDto(customer);
+            return ResponseEntity.ok().body(dto);
+        }  else {
+            return ResponseEntity.notFound().build();
+        }
+    }
 //
 //    // 고객 수정
 //    @PutMapping("/{id}")

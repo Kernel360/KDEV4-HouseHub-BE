@@ -14,13 +14,17 @@ public class CustomerService {
 
     private final CustomerRepository customerRepository;
 
-    public Long addCustomer(CustomerReqDto dto) {
+    public Long createCustomer(CustomerReqDto dto) {
         Customer customer = dto.toEntity();
         Customer savedCustomer = customerRepository.save(customer);
         return savedCustomer.getId();
     }
 
-    public List<Customer> getAllCustomer() {
+    public List<Customer> findAllCustomer() {
         return customerRepository.findAll();
+    }
+
+    public Customer findOne(Long id) {
+        return customerRepository.findOneById(id);
     }
 };
