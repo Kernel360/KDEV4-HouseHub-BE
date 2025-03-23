@@ -6,6 +6,7 @@ src/main/resources/application.yml
 docker-compose.yml
 /node_modules
 
+
 ### Eclipse ###
 .metadata
 bin/
