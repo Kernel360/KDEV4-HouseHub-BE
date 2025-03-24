@@ -27,8 +27,8 @@ public class PropertyServiceImpl implements PropertyService {
         // dto -> entity
         Property property = dto.toEntity();
 
-        // 도로명 주소로 해당 매물이 이미 존재하는지 확인
-        boolean isExist = propertyRepository.existsByRoadAddress(property.getRoadAddress());
+        // 전체 주소(도로명 주소 + 상세 주소)로 해당 매물이 이미 존재하는지 확인
+        boolean isExist = propertyRepository.existsByRoadAddressAndDetailAddress(property.getRoadAddress(), property.getDetailAddress());
         if(isExist) {
             throw new AlreadyExistsException("이미 존재하는 매물 입니다.", "PROPERTY_ALREADY_EXISTS");
         }
