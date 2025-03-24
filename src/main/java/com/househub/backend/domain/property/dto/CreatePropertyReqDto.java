@@ -1,12 +1,14 @@
 package com.househub.backend.domain.property.dto;
 
 import com.househub.backend.domain.property.entity.Property;
+import com.househub.backend.domain.property.enums.PropertyType;
+import com.househub.backend.domain.property.enums.TransactionType;
 import lombok.Getter;
 
 import java.math.BigDecimal;
 
 @Getter
-public class CreatePropertyDto {
+public class CreatePropertyReqDto {
     private String propertyType;
     private String transactionType;
     private String memo;
@@ -24,8 +26,8 @@ public class CreatePropertyDto {
 
     public Property toEntity() {
         Property property = Property.builder()
-                .propertyType(Property.PropertyType.valueOf(this.propertyType))
-                .transactionType(Property.TransactionType.valueOf(this.transactionType))
+                .propertyType(PropertyType.valueOf(this.propertyType))
+                .transactionType(TransactionType.valueOf(this.transactionType))
                 .memo(this.memo)
                 .roadAddress(this.roadAddress)
                 .detailAddress(this.detailAddress)

@@ -1,5 +1,8 @@
 package com.househub.backend.domain.property.entity;
 
+import com.househub.backend.domain.property.enums.PropertyStatus;
+import com.househub.backend.domain.property.enums.PropertyType;
+import com.househub.backend.domain.property.enums.TransactionType;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -77,17 +80,4 @@ public class Property {
         updatedAt = LocalDateTime.now();
     }
 
-
-    // 내부 Enum 선언
-    public enum PropertyType {
-        APARTMENT, VILLA, OFFICETEL, COMMERCIAL, ONE_ROOM, TWO_ROOM
-    }
-
-    public enum TransactionType {
-        SALE, JEONSE, MONTHLY_RENT
-    }
-
-    public enum PropertyStatus {
-        ON_SALE, SOLD_OUT
-    }
 }
