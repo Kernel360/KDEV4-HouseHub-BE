@@ -2,7 +2,9 @@ package com.househub.backend.domain.property.controller;
 
 import com.househub.backend.domain.property.dto.CreatePropertyReqDto;
 import com.househub.backend.domain.property.dto.CreatePropertyResDto;
+import com.househub.backend.domain.property.dto.FindPropertyResDto;
 import com.househub.backend.domain.property.service.PropertyService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,8 +19,8 @@ public class PropertyController {
 
     // 매물 등록
     @PostMapping
-    public ResponseEntity createProperty(@RequestBody CreatePropertyReqDto postPropertyDto) {
-        CreatePropertyResDto response = propertyService.createProperty(postPropertyDto);
+    public ResponseEntity createProperty(@RequestBody @Valid CreatePropertyReqDto createPropertyDto) {
+        CreatePropertyResDto response = propertyService.createProperty(createPropertyDto);
         return new ResponseEntity(response, HttpStatus.CREATED);
     }
 

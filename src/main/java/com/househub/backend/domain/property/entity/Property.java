@@ -4,12 +4,16 @@ import com.househub.backend.domain.property.enums.PropertyStatus;
 import com.househub.backend.domain.property.enums.PropertyType;
 import com.househub.backend.domain.property.enums.TransactionType;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
 @Getter
 @Entity

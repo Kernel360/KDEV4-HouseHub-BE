@@ -26,9 +26,7 @@ public class PropertyServiceImpl implements PropertyService {
         propertyRepository.save(property);
 
         // 응답 객체 리턴
-        return CreatePropertyResDto.builder()
-                .propertyId(property.getPropertyId())
-                .build();
+        return new CreatePropertyResDto(property.getPropertyId());
     }
 
     @Override // 매물 상세 조회
