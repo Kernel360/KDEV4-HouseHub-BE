@@ -3,11 +3,13 @@ package com.househub.backend.domain.auth.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.househub.backend.common.config.WebSecurityConfig;
 import com.househub.backend.domain.auth.dto.SignUpRequestDto;
+import com.househub.backend.domain.auth.service.AuthService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
@@ -16,6 +18,9 @@ import org.springframework.security.test.context.support.WithMockUser;
 @WebMvcTest(controllers = AuthController.class)
 @Import(WebSecurityConfig.class)
 public class AuthControllerTest {
+
+    @MockitoBean
+    private AuthService authService;
     @Autowired
     private MockMvc mockMvc;
 
