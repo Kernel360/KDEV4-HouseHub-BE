@@ -1,16 +1,14 @@
 package com.househub.backend.domain.property.service.impl;
 
+import com.househub.backend.common.exception.AlreadyExistsException;
 import com.househub.backend.domain.property.dto.CreatePropertyReqDto;
 import com.househub.backend.domain.property.dto.CreatePropertyResDto;
-//import com.househub.backend.domain.property.dto.FindPropertyResDto;
-//import com.househub.backend.domain.property.dto.UpdatePropertyReqDto;
 import com.househub.backend.domain.property.entity.Property;
 import com.househub.backend.domain.property.repository.PropertyRepository;
 import com.househub.backend.domain.property.service.PropertyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-//import java.util.List;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -18,10 +16,22 @@ public class PropertyServiceImpl implements PropertyService {
 
     private final PropertyRepository propertyRepository;
 
+    /**
+     *
+     * @param dto 매물 등록 정보 DTO
+     * @return 등록된 매물 id 를 반환하는 DTO
+     */
+    @Transactional
     @Override // 매물 등록
     public CreatePropertyResDto createProperty(CreatePropertyReqDto dto) {
         // dto -> entity
         Property property = dto.toEntity();
+
+        // 도로명 주소로 해당 매물이 이미 존재하는지 확인
+        boolean isExist = propertyRepository.existsByRoadAddress(property.getRoadAddress());
+        if(isExist) {
+            throw new AlreadyExistsException("이미 존재하는 매물 입니다.", "PROPERTY_ALREADY_EXISTS");
+        }
 
         // db에 저장
         propertyRepository.save(property);
