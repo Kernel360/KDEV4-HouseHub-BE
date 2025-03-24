@@ -23,7 +23,7 @@ public class WebSecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable) // REST API 서버이므로 CSRF 비활성화
                 .authorizeHttpRequests((authz) -> authz
                         .requestMatchers("/api/**").permitAll() // /api/** 경로에 대한 모든 접근 허용
-//                        .anyRequest().authenticated() // 나머지 요청은 인증 필요
+                        .anyRequest().authenticated() // 나머지 요청은 인증 필요
                 )
                 .sessionManagement((sessionManagement) ->
                         sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS) // 명시적으로 세션 생성 정책 설정
