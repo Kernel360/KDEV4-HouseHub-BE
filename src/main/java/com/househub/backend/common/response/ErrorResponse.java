@@ -13,7 +13,6 @@ public class ErrorResponse {
     private final String message;
     private final String code;
     private final List<FieldError> errors;
-    private final Object data;
 
     @Getter
     @Builder
