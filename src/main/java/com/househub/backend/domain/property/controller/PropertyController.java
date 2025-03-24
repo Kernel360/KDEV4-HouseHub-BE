@@ -2,7 +2,6 @@ package com.househub.backend.domain.property.controller;
 
 import com.househub.backend.domain.property.dto.CreatePropertyReqDto;
 import com.househub.backend.domain.property.dto.CreatePropertyResDto;
-import com.househub.backend.domain.property.dto.FindPropertyResDto;
 import com.househub.backend.domain.property.service.PropertyService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
