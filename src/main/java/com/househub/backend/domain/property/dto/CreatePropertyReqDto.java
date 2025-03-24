@@ -9,8 +9,8 @@ import java.math.BigDecimal;
 
 @Getter
 public class CreatePropertyReqDto {
-    private String propertyType;
-    private String transactionType;
+    private PropertyType propertyType;
+    private TransactionType transactionType;
     private String memo;
     private String roadAddress; // 도로명 주소
     private String jibunAddress; // 지번 주소
@@ -26,8 +26,8 @@ public class CreatePropertyReqDto {
 
     public Property toEntity() {
         Property property = Property.builder()
-                .propertyType(PropertyType.valueOf(this.propertyType))
-                .transactionType(TransactionType.valueOf(this.transactionType))
+                .propertyType(this.propertyType)
+                .transactionType(this.transactionType)
                 .memo(this.memo)
                 .roadAddress(this.roadAddress)
                 .detailAddress(this.detailAddress)
