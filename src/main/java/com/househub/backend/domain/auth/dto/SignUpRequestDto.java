@@ -1,5 +1,7 @@
 package com.househub.backend.domain.auth.dto;
 
+import com.househub.backend.domain.agent.entity.Agent;
+import com.househub.backend.domain.agent.entity.RealEstate;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -14,19 +16,19 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class SignUpRequest {
+public class SignUpRequestDto {
 
     @Valid
-    private AgentDTO agent;
+    private AgentDto agent;
 
     @Valid
-    private RealEstateDTO realEstate;
+    private RealEstateDto realEstate;
 
     @Getter
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
-    public static class AgentDTO {
+    public static class AgentDto {
         @NotBlank(message = "이름을 입력하세요.")
         private String name;
 
@@ -47,6 +49,17 @@ public class SignUpRequest {
         @Pattern(regexp = "\\d{3}-\\d{4}-\\d{4}", message = "잘못된 연락처 형식입니다. (예: 010-1234-5678)")
         private String contact;
 
+        public Agent toAgentEntity(RealEstate realEstate) {
+            return Agent.builder()
+                    .name(name)
+                    .licenseNumber(licenseNumber)
+                    .email(email)
+                    .password(password)
+                    .contact(contact)
+                    .realEstate(realEstate)
+                    .build();
+        }
+
         @Override
         public String toString() {
             return "AgentDTO{" +
@@ -63,7 +76,7 @@ public class SignUpRequest {
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
-    public static class RealEstateDTO {
+    public static class RealEstateDto {
         @NotBlank(message = "부동산 이름을 입력해주세요.")
         private String name;
 
@@ -92,6 +105,15 @@ public class SignUpRequest {
                     '}';
         }
 
+        public RealEstate toRealEstateEntity() {
+            return RealEstate.builder()
+                    .name(name)
+                    .businessRegistrationNumber(businessRegistrationNumber)
+                    .address(address)
+                    .roadAddress(roadAddress)
+                    .contact(contact)
+                    .build();
+        }
     }
 
     @Override

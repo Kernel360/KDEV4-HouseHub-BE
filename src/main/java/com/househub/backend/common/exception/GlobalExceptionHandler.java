@@ -25,9 +25,20 @@ public class GlobalExceptionHandler {
                 .message("입력값을 확인해주세요.")
                 .code("VALIDATION_ERROR")
                 .errors(fieldErrors)
-                .data(null)
                 .build();
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    @ExceptionHandler(AlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> handleAlreadyExistsException(AlreadyExistsException ex) {
+        ErrorResponse response = ErrorResponse.builder()
+                .success(false)
+                .message(ex.getMessage())
+                .code(ex.getCode())
+                .errors(null)
+                .build();
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
     }
 }
