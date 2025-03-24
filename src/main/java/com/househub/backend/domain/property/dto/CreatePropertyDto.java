@@ -6,7 +6,7 @@ import lombok.Getter;
 import java.math.BigDecimal;
 
 @Getter
-public class PostPropertyDto {
+public class CreatePropertyDto {
     private String propertyType;
     private String transactionType;
     private String memo;
