@@ -32,8 +32,8 @@ public class Property {
     private String detailAddress; // 상세 주소
     private String roadAddress; // 전체 도로명 주소
 
-    private Integer salePrice; // 매매가
-    private Integer jeonsePrice; // 전세 금액
+    private Long salePrice; // 매매가
+    private Long jeonsePrice; // 전세 금액
     private Integer monthlyRentDeposit; // 월세 보증금
     private Integer monthlyRentFee; // 월세 금액
 
@@ -55,8 +55,19 @@ public class Property {
     @Column(precision = 10, scale = 7)
     private BigDecimal longitude; // 경도
 
+    // 지번주소 -> 도, 시, 동 으로 파싱
+    public void parseJibunAddress(String jibun) {
+        String[] parts = jibun.split(" ");
+        this.province = parts[0];
+        this.city = parts[1];
+        this.dong = parts[2];
+    }
+
     @PrePersist
     protected void onCreate() {
+        if(this.status == null) {
+            this.status = PropertyStatus.ON_SALE;
+        }
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
     }
