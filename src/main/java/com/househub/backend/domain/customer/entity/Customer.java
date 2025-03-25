@@ -9,7 +9,7 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"email"})}, name = "customers")
+@Table(name = "customers")
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -20,7 +20,7 @@ public class Customer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 50)
     private String name;
 
     @Column(nullable = false)
@@ -32,16 +32,19 @@ public class Customer {
     @Column(nullable = false, unique = true)
     private String email;
 
+    @Column(columnDefinition = "TEXT")
     private String memo;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Gender gender; // M(MALE),F(FEMALE)
+    private Gender gender;
 
+    @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
-    private LocalDateTime deletedAt;
 
+    private LocalDateTime updatedAt;
+
+    private LocalDateTime deletedAt;
 
     @PrePersist
     protected void onCreate() {
@@ -53,17 +56,16 @@ public class Customer {
         updatedAt = LocalDateTime.now();
     }
 
-    public void update(CreateCustomerReqDto reqDto){
+    public void update(CreateCustomerReqDto reqDto) {
         this.name = reqDto.getName();
         this.email = reqDto.getEmail();
         this.ageGroup = reqDto.getAgeGroup();
         this.memo = reqDto.getMemo();
         this.contact = reqDto.getContact();
         this.gender = reqDto.getGender();
-        this.updatedAt = LocalDateTime.now();
     }
 
-    public void delete(){
+    public void delete() {
         this.deletedAt = LocalDateTime.now();
     }
 
