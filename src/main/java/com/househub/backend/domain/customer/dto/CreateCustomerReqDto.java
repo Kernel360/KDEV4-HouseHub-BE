@@ -26,8 +26,9 @@ public class CreateCustomerReqDto{
     private Integer ageGroup;
 
     @NotBlank(message = "연락처는 필수입니다.")
-    @Pattern(regexp = "^\\\\d{2,3}-\\\\d{3,4}-\\\\d{4}$", message = "올바른 전화번호 형식이 아닙니다.")
+    @Pattern(regexp = "^\\d{2,3}-\\d{3,4}-\\d{4}$", message = "올바른 전화번호 형식이 아닙니다.")
     private String contact;
+
 
     @NotBlank(message = "이메일은 필수 입니다.")
     @Email(message = "올바른 이메일 형식이 아닙니다.")
