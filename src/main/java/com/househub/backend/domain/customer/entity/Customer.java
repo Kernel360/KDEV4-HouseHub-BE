@@ -1,5 +1,8 @@
 package com.househub.backend.domain.customer.entity;
 
+import com.househub.backend.common.enums.Gender;
+import com.househub.backend.domain.customer.dto.CreateCustomerReqDto;
+import com.househub.backend.domain.customer.dto.CreateCustomerResDto;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -17,18 +20,23 @@ public class Customer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private String name;
 
-    private String ageGroup;
+    @Column(nullable = false)
+    private Integer ageGroup;
 
+    @Column(nullable = false)
     private String contact;
 
-    @Column(unique = true)
+    @Column(nullable = false, unique = true)
     private String email;
 
     private String memo;
 
-    private String gender;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Gender gender; // M(MALE),F(FEMALE)
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -43,5 +51,37 @@ public class Customer {
     @PreUpdate
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
+    }
+
+    public void update(CreateCustomerReqDto reqDto){
+        this.name = reqDto.getName();
+        this.email = reqDto.getEmail();
+        this.ageGroup = reqDto.getAgeGroup();
+        this.memo = reqDto.getMemo();
+        this.contact = reqDto.getContact();
+        this.gender = reqDto.getGender();
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public void delete(){
+        this.deletedAt = LocalDateTime.now();
+    }
+
+    public void restore() {
+        this.deletedAt = null;
+    }
+
+    public CreateCustomerResDto toDto() {
+        return CreateCustomerResDto.builder()
+                .name(this.getName())
+                .ageGroup(this.getAgeGroup())
+                .contact(this.getContact())
+                .email(this.getEmail())
+                .memo(this.getMemo())
+                .gender(this.getGender())
+                .createdAt(this.getCreatedAt())
+                .updatedAt(this.getUpdatedAt())
+                .deletedAt(this.getDeletedAt())
+                .build();
     }
 }
