@@ -5,6 +5,7 @@ import com.househub.backend.domain.agent.entity.Agent;
 import com.househub.backend.domain.agent.entity.RealEstate;
 import com.househub.backend.domain.agent.repository.AgentRepository;
 import com.househub.backend.domain.auth.dto.SignUpRequestDto;
+import com.househub.backend.domain.auth.exception.EmailVerifiedException;
 import com.househub.backend.domain.auth.service.impl.AuthServiceImpl;
 import com.househub.backend.domain.realEstate.repository.RealEstateRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -44,6 +45,7 @@ public class AuthServiceImplTest {
                 .email("gongil@example.com")
                 .password("password123!")
                 .contact("010-1234-5678")
+                .isEmailVerified(true) // 이메일 인증 여부 설정
                 .build();
 
         realEstateDto = SignUpRequestDto.RealEstateDto.builder()
@@ -61,9 +63,39 @@ public class AuthServiceImplTest {
     }
 
     @Test
+    void 이메일_미인증_예외() {
+        // 이메일 인증되지 않은 경우
+        agentDto.setEmailVerified(false);
+
+        // 이메일 인증되지 않았을 때 예외가 발생하는지 확인
+        assertThrows(EmailVerifiedException.class, () -> authService.signup(request));
+
+        // 아무것도 호출되지 않았는지 검증
+        verify(agentRepository, never()).findByEmail(any());
+        verify(realEstateRepository, never()).findByBusinessRegistrationNumber(any());
+        verify(realEstateRepository, never()).save(any());
+        verify(agentRepository, never()).save(any());
+    }
+
+    @Test
+    void 이메일_중복_예외() {
+        // 이메일 중복 검사를 위해 이미 존재하는 이메일 반환
+        when(agentRepository.findByEmail(any())).thenReturn(Optional.of(Agent.builder().email("gongil@example.com").build()));
+
+        // 이메일 중복 예외 발생 확인
+        assertThrows(AlreadyExistsException.class, () -> authService.signup(request));
+
+        // agentrepository.findByEmail 호출되었는지 검증
+        verify(agentRepository, times(1)).findByEmail(any());
+        verify(realEstateRepository, never()).findByBusinessRegistrationNumber(any());
+        verify(realEstateRepository, never()).save(any());
+        verify(agentRepository, never()).save(any());
+    }
+
+    @Test
     void 회원가입_성공() {
-        // 자격증 번호와 사업자 등록 번호가 중복되지 않는 경우
-        when(agentRepository.findByLicenseNumber(any())).thenReturn(Optional.empty());
+        // 정상적인 회원가입
+        when(agentRepository.findByEmail(any())).thenReturn(Optional.empty());
         when(realEstateRepository.findByBusinessRegistrationNumber(any())).thenReturn(Optional.empty());
         when(realEstateRepository.save(any())).thenReturn(RealEstate.builder().build());
         when(agentRepository.save(any())).thenReturn(Agent.builder().build());
@@ -71,16 +103,15 @@ public class AuthServiceImplTest {
         authService.signup(request);
 
         // 각 리포지토리 메서드가 예상되로 호출되었는지 검증
-        verify(agentRepository, times(1)).findByLicenseNumber(any());
-        verify(realEstateRepository, times(1)).findByBusinessRegistrationNumber(any());
+        verify(agentRepository, times(1)).findByEmail(any());
         verify(realEstateRepository, times(1)).save(any());
         verify(agentRepository, times(1)).save(any());
     }
 
     @Test
     void 회원가입_실패_자격증번호_중복() {
-        // 자격증 번호가 이미 존재하는 경우
-        when(agentRepository.findByLicenseNumber(any())).thenReturn(Optional.of(Agent.builder().build()));
+        // 자격증 번호를 선택적으로 입력했는데 이미 존재하는 경우
+        when(agentRepository.findByLicenseNumber(any())).thenReturn(Optional.of(Agent.builder().licenseNumber("서울-2023-12345").build()));
 
         // AlreadyExistException 예외 발생했는지 검증
         assertThrows(AlreadyExistsException.class, () -> authService.signup(request));
@@ -91,6 +122,4 @@ public class AuthServiceImplTest {
         verify(realEstateRepository, never()).save(any());
         verify(agentRepository, never()).save(any());
     }
-
-
 }
