@@ -25,10 +25,10 @@ public class CustomerController {
     // 고객 등록
     // 이메일이 중복되는 경우, 가입이 되지 않게 해야함
     @PostMapping("")
-    public ResponseEntity<?> createCustomer(@Valid @RequestBody CreateCustomerReqDto request) {
+    public ResponseEntity<SuccessResponse<CreateCustomerResDto>> createCustomer(@Valid @RequestBody CreateCustomerReqDto request) {
         Customer customer = customerService.createCustomer(request);
         CreateCustomerResDto response = customer.toDto();
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return ResponseEntity.ok(SuccessResponse.success("고객 등록이 완료되었습니다.","REGISTER_SUCCESS",response));
     }
 
     // 고객 목록 조회

@@ -1,5 +1,6 @@
 package com.househub.backend.domain.customer.service.impl;
 
+import com.househub.backend.common.exception.AlreadyExistsException;
 import com.househub.backend.common.exception.EmailAlreadyExistsException;
 import com.househub.backend.common.exception.ResourceNotFoundException;
 import com.househub.backend.domain.customer.dto.CreateCustomerReqDto;
@@ -20,10 +21,9 @@ public class CustomerServiceImpl implements CustomerService {
 
     public Customer createCustomer(CreateCustomerReqDto request) {
         // 이메일로 고객 조회
-        Optional<Customer> customerOpt = customerRepository.findByEmail(request.getEmail());
-
-        if (customerOpt.isPresent())
-            throw new EmailAlreadyExistsException("해당 이메일로 생성되었던 계정이 이미 존재합니다.");
+        customerRepository.findByEmail(request.getEmail()).ifPresent(customer -> {
+            throw new AlreadyExistsException("해당 이메일로 생성되었던 계정이 이미 존재합니다.","EMAIL_ALREADY_EXIST");
+        });
 
         // 새로운 고객 생성 및 저장
         return customerRepository.save(request.toEntity());
