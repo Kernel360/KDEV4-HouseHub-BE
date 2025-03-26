@@ -1,18 +1,15 @@
 package com.househub.backend.domain.property.dto;
 
-import com.househub.backend.domain.contract.dto.FindContractResDto;
 import com.househub.backend.domain.property.entity.Property;
 import com.househub.backend.domain.property.enums.PropertyType;
 import lombok.Builder;
 import lombok.Getter;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.List;
 
 @Builder
 @Getter
-public class FindPropertyDetailResDto {
+public class FindPropertyResDto {
 
     private Long propertyId; // 매물 고유 식별자
     private PropertyType propertyType; // 매물 유형
@@ -22,15 +19,12 @@ public class FindPropertyDetailResDto {
     private String dong; // 읍/면/동
     private String detailAddress; // 상세 주소
     private String roadAddress; // 전체 도로명 주소
-    private LocalDateTime createdAt; // 등록일시
-    private LocalDateTime updatedAt; // 수정일시
     private BigDecimal latitude; // 위도
     private BigDecimal longitude; // 경도
-    private List<FindContractResDto> contractList;
 
     // Entity -> DTO 변환
-    public static FindPropertyDetailResDto toDto(Property property) {
-        return FindPropertyDetailResDto.builder()
+    public static FindPropertyResDto toDto(Property property) {
+        return FindPropertyResDto.builder()
                 .propertyId(property.getPropertyId())
                 .propertyType(property.getPropertyType())
                 .memo(property.getMemo())
@@ -39,12 +33,8 @@ public class FindPropertyDetailResDto {
                 .dong(property.getDong())
                 .detailAddress(property.getDetailAddress())
                 .roadAddress(property.getRoadAddress())
-                .createdAt(property.getCreatedAt())
-                .updatedAt(property.getUpdatedAt())
                 .latitude(property.getLatitude())
                 .longitude(property.getLongitude())
-                .contractList(property.getContracts() != null ?
-                        property.getContracts().stream().map(FindContractResDto::toDto).toList() : null)
                 .build();
     }
 }
