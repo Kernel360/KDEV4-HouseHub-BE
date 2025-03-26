@@ -1,6 +1,7 @@
 package com.househub.backend.domain.property.entity;
 
 import com.househub.backend.domain.contract.entity.Contract;
+import com.househub.backend.domain.property.dto.UpdatePropertyReqDto;
 import com.househub.backend.domain.property.enums.PropertyType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -71,4 +72,19 @@ public class Property {
         updatedAt = LocalDateTime.now();
     }
 
+    // 수정 메서드 (setter 대신 사용)
+    public void updateProperty(UpdatePropertyReqDto updatDto) {
+        if (updatDto.getPropertyType() != null) this.propertyType = updatDto.getPropertyType();
+        if (updatDto.getMemo() != null) this.memo = updatDto.getMemo();
+        if (updatDto.getRoadAddress() != null) this.roadAddress = updatDto.getRoadAddress();
+        if (updatDto.getLatitude() != null) this.latitude = updatDto.getLatitude();
+        if (updatDto.getLongitude() != null) this.longitude = updatDto.getLongitude();
+        this.updatedAt = LocalDateTime.now();
+        parseJibunAddress(updatDto.getJibunAddress());
+    }
+
+    // 삭제 메서드
+    public void deleteProperty() {
+        this.deletedAt = LocalDateTime.now();
+    }
 }

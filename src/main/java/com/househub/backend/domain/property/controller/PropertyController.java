@@ -3,7 +3,9 @@ package com.househub.backend.domain.property.controller;
 import com.househub.backend.common.response.SuccessResponse;
 import com.househub.backend.domain.property.dto.CreatePropertyReqDto;
 import com.househub.backend.domain.property.dto.CreatePropertyResDto;
+import com.househub.backend.domain.property.dto.UpdatePropertyReqDto;
 import com.househub.backend.domain.property.service.PropertyService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -41,10 +43,12 @@ public class PropertyController {
 
 
     // 매물 정보 수정
-    @PutMapping()
-    public ResponseEntity updateProperty() {
-
-        return new ResponseEntity(HttpStatus.OK);
+    @PutMapping("/{propertyId}")
+    public ResponseEntity<SuccessResponse<Void>> updateProperty(
+            @PathVariable("propertyId") Long propertyId,
+            @RequestBody @Valid UpdatePropertyReqDto updatePropertyReqDto) {
+        propertyService.updateProperty(propertyId, updatePropertyReqDto);
+        return ResponseEntity.ok(SuccessResponse.success("매물이 성공적으로 수정되었습니다.", "UPDATE_PROPERTY_SUCCESS", null));
     }
 
 
