@@ -1,6 +1,7 @@
 package com.househub.backend.domain.customer.dto;
 
 import com.househub.backend.common.enums.Gender;
+import com.househub.backend.common.validation.ValidAgeGroup;
 import com.househub.backend.domain.customer.entity.Customer;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
@@ -21,8 +22,7 @@ public class CreateCustomerReqDto{
     private String name;
 
     @NotNull(message = "연령대는 필수입니다.")
-    @Min(value = 0, message = "연령대는 0 이상이어야 합니다.")
-    @Max(value = 100, message = "연령대는 100 이하여야 합니다.")
+    @ValidAgeGroup
     private Integer ageGroup;
 
     @NotBlank(message = "연락처는 필수입니다.")

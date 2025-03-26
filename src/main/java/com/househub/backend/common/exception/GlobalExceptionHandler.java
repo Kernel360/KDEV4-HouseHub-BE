@@ -12,24 +12,6 @@ import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-
-    // 유효성 검사 실패 예외 처리
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleValidationException(MethodArgumentNotValidException ex) {
-        List<ErrorResponse.FieldError> fieldErrors = ex.getFieldErrors().stream()
-                .map(fieldError -> ErrorResponse.FieldError.builder().field(fieldError.getField()).message(fieldError.getDefaultMessage()).build())
-                .collect(Collectors.toList());
-
-        ErrorResponse response = ErrorResponse.builder()
-                .success(false)
-                .message("입력값을 확인해주세요.")
-                .code("VALIDATION_ERROR")
-                .errors(fieldErrors)
-                .build();
-
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-    }
-
     @ExceptionHandler(AlreadyExistsException.class)
     public ResponseEntity<ErrorResponse> handleAlreadyExistsException(AlreadyExistsException ex) {
         ErrorResponse response = ErrorResponse.builder()
@@ -52,5 +34,16 @@ public class GlobalExceptionHandler {
                 .build();
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    @ExceptionHandler(ValidationFailedException.class)
+    public ResponseEntity<ErrorResponse> handleValidationFailedException(ValidationFailedException ex) {
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .success(false)
+                .message(ex.getMessage())
+                .code(ex.getCode())
+                .errors(ex.getFieldErrors())
+                .build();
+        return ResponseEntity.badRequest().body(errorResponse);
     }
 }
