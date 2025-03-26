@@ -3,6 +3,7 @@ package com.househub.backend.domain.property.service.impl;
 import com.househub.backend.common.exception.AlreadyExistsException;
 import com.househub.backend.domain.property.dto.CreatePropertyReqDto;
 import com.househub.backend.domain.property.dto.CreatePropertyResDto;
+import com.househub.backend.domain.property.dto.UpdatePropertyReqDto;
 import com.househub.backend.domain.property.entity.Property;
 import com.househub.backend.domain.property.repository.PropertyRepository;
 import com.househub.backend.domain.property.service.PropertyService;
@@ -38,6 +39,22 @@ public class PropertyServiceImpl implements PropertyService {
 
         // 응답 객체 리턴
         return new CreatePropertyResDto(property.getPropertyId());
+    }
+
+
+    /**
+     *
+     * @param propertyId 매물 id
+     * @param updateDto 수정된 매물 정보 DTO
+     */
+    @Transactional
+    @Override // 매물 정보 수정
+    public void updateProperty(Long propertyId, UpdatePropertyReqDto updateDto) {
+        // 매물 조회
+        Property property = propertyRepository.findById(propertyId)
+                .orElseThrow(() -> new RuntimeException("Property not found"));
+
+        property.updateProperty(updateDto);
     }
 
 //    @Override // 매물 상세 조회
