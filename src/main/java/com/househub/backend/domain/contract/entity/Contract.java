@@ -6,6 +6,8 @@ import com.househub.backend.domain.contract.enums.ContractType;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "contracts")
 @Getter
@@ -39,4 +41,28 @@ public class Contract {
     private ContractStatus status; // 상태 (판매 중, 판매 완료)
 
     private String memo; // 참고 설명 - 월세 계약 기간 등
+
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdAt; // 등록일시
+
+    @Column(nullable = false)
+    private LocalDateTime updatedAt; // 수정일시
+
+    private LocalDateTime deletedAt; // 삭제일시 (소프트 삭제)
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
+
+    // 삭제 메서드
+    public void deleteContract() {
+        this.deletedAt = LocalDateTime.now();
+    }
 }
