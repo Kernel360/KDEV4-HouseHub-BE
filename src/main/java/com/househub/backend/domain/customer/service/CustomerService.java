@@ -1,26 +1,20 @@
 package com.househub.backend.domain.customer.service;
 
-import com.househub.backend.domain.customer.dto.CustomerReqDto;
+import com.househub.backend.domain.customer.dto.CreateCustomerReqDto;
+import com.househub.backend.domain.customer.dto.CreateCustomerResDto;
 import com.househub.backend.domain.customer.entity.Customer;
-import com.househub.backend.domain.customer.repository.CustomerRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@Service
-@RequiredArgsConstructor
-public class CustomerService {
+public interface CustomerService {
 
-    private final CustomerRepository customerRepository;
+    CreateCustomerResDto createCustomer(CreateCustomerReqDto request);
 
-    public Long addCustomer(CustomerReqDto dto) {
-        Customer customer = dto.toEntity();
-        Customer savedCustomer = customerRepository.save(customer);
-        return savedCustomer.getId();
-    }
+    CreateCustomerResDto findByIdAndDeletedAtIsNull(Long id);
 
-    public List<Customer> getAllCustomer() {
-        return customerRepository.findAll();
-    }
-};
+    CreateCustomerResDto updateCustomer(Long id, CreateCustomerReqDto reqDto);
+
+    CreateCustomerResDto deleteCustomer(Long id);
+
+    List<CreateCustomerResDto> findAllByDeletedAtIsNull();
+}
