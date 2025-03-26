@@ -29,10 +29,7 @@ public class PropertyServiceImpl implements PropertyService {
         Property property = dto.toEntity();
 
         // 전체 주소(도로명 주소 + 상세 주소)로 해당 매물이 이미 존재하는지 확인
-        boolean isExist = propertyRepository.existsByRoadAddressAndDetailAddress(property.getRoadAddress(), property.getDetailAddress());
-        if(isExist) {
-            throw new AlreadyExistsException("이미 존재하는 매물 입니다.", "PROPERTY_ALREADY_EXISTS");
-        }
+        isExistsProperty(property);
 
         // db에 저장
         propertyRepository.save(property);
@@ -54,6 +51,7 @@ public class PropertyServiceImpl implements PropertyService {
         Property property = propertyRepository.findById(propertyId)
                 .orElseThrow(() -> new RuntimeException("Property not found"));
 
+        isExistsProperty(property);
         property.updateProperty(updateDto);
     }
 
@@ -83,5 +81,15 @@ public class PropertyServiceImpl implements PropertyService {
 
     }
 
-
+    /**
+     *
+     * @param property
+     */
+    public void isExistsProperty(Property property) {
+        // 전체 주소(도로명 주소 + 상세 주소)로 해당 매물이 이미 존재하는지 확인
+        boolean isExist = propertyRepository.existsByRoadAddressAndDetailAddress(property.getRoadAddress(), property.getDetailAddress());
+        if(isExist) {
+            throw new AlreadyExistsException("이미 존재하는 매물 입니다.", "PROPERTY_ALREADY_EXISTS");
+        }
+    }
 }
