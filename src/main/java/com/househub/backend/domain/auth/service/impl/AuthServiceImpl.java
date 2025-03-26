@@ -7,12 +7,16 @@ import com.househub.backend.domain.agent.entity.RealEstate;
 import com.househub.backend.domain.agent.entity.Role;
 import com.househub.backend.domain.agent.repository.AgentRepository;
 import com.househub.backend.domain.auth.dto.SignUpRequestDto;
+import com.househub.backend.domain.auth.exception.EmailVerifiedException;
 import com.househub.backend.domain.auth.service.AuthService;
 import com.househub.backend.domain.realEstate.repository.RealEstateRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -26,19 +30,55 @@ public class AuthServiceImpl implements AuthService {
      * 부동산 공인중개사 회원가입
      *
      * @param request 회원가입 요청 정보
+     * @throws EmailVerifiedException 이메일 인증이 완료되지 않은 경우 발생
      */
     @Transactional
     @Override
     public void signup(SignUpRequestDto request) {
-        // 중개사의 자격증 번호 이미 존재하는지 확인
-        validateLicenseNumber(request.getAgent().getLicenseNumber());
+        SignUpRequestDto.AgentDto agentDto = request.getAgent();
+        SignUpRequestDto.RealEstateDto realEstateDto = request.getRealEstate();
+
+        // 이메일 인증 여부에 따른 예외 처리
+        validateEmailVerification(agentDto);
+
+        // 이메일 중복 여부 검증
+        checkEmailDuplication(agentDto.getEmail());
+
+        // 자격증번호 값이 들어오면, 중개사의 자격증 번호 이미 존재하는지 확인
+        validateLicenseNumber(agentDto.getLicenseNumber());
 
         // 부동산 사업자 등록 번호 이미 존재하는지 확인
         // 존재하지 않으면 부동산 정보 새로 저장
-        RealEstate realEstate = getOrCreateRealEstate(request.getRealEstate());
+        RealEstate realEstate = getOrCreateRealEstate(realEstateDto);
 
         // 증개사 정보 저장
         saveAgent(request.getAgent(), realEstate);
+    }
+
+    /**
+     * 이메일 인증 여부를 확인하고, 인증되지 않은 경우 예외를 발생시킵니다.
+     *
+     * @param agentDto 회원가입 요청에 포함된 중개사 정보
+     * @throws EmailVerifiedException 이메일 인증이 완료되지 않은 경우 발생
+     */
+    private void validateEmailVerification(SignUpRequestDto.AgentDto agentDto) {
+        log.info("{}", agentDto.toString());
+        if (!agentDto.isEmailVerified()) {
+            throw new EmailVerifiedException("이메일 인증이 완료되지 않았습니다.", "EMAIL_NOT_VERIFIED");
+        }
+    }
+
+    /**
+     * 이메일 중복 여부를 확인하고, 이미 등록된 이메일이 있는 경우 예외를 발생시킵니다.
+     *
+     * @param email 중복을 확인할 이메일
+     * @throws AlreadyExistsException 이메일이 이미 등록되어 있을 경우 발생
+     */
+    private void checkEmailDuplication(String email) {
+        Optional<Agent> existingAgent = agentRepository.findByEmail(email);
+        if (existingAgent.isPresent()) {
+            throw new AlreadyExistsException("이미 등록된 이메일입니다.", "EMAIL_ALREADY_EXISTS");
+        }
     }
 
     /**
@@ -48,6 +88,9 @@ public class AuthServiceImpl implements AuthService {
      * @throws AlreadyExistsException 자격증 번호가 이미 존재하는 경우 발생
      */
     private void validateLicenseNumber(String licenseNumber) {
+        if (!StringUtils.hasText(licenseNumber)) {
+            return; // 자격증 번호가 없으면 검사할 필요 없음.
+        }
         agentRepository.findByLicenseNumber(licenseNumber)
                 .ifPresent(agent -> {
                     log.error("이미 존재하는 자격증 번호: {}", agent.getLicenseNumber());
@@ -108,7 +151,7 @@ public class AuthServiceImpl implements AuthService {
                 .contact(agentDTO.getContact())
                 .realEstate(realEstate)
                 .role(Role.AGENT)
-                .status(AgentStatus.PENDING)
+                .status(AgentStatus.APPROVED)
                 .build();
     }
 }

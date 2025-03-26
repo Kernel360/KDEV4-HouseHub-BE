@@ -28,7 +28,7 @@ public class AuthControllerTest {
     private ObjectMapper objectMapper;
 
     @Test
-    void 회원가입_실패_AgentDTO_유효성_검사() throws Exception {
+    void 회원가입_실패_AgentDto_유효성_검사() throws Exception {
         SignUpRequestDto request = SignUpRequestDto.builder()
                 .agent(SignUpRequestDto.AgentDto.builder()
                         .name("") // 이름 누락
@@ -37,13 +37,7 @@ public class AuthControllerTest {
                         .password("1234") // 짧은 비밀번호
                         .contact("잘못된 연락처")
                         .build())
-                .realEstate(SignUpRequestDto.RealEstateDto.builder()
-                        .name("테스트 부동산")
-                        .businessRegistrationNumber("123-45-67890")
-                        .address("테스트 주소")
-                        .roadAddress("테스트 도로명 주소")
-                        .contact("02-1234-5678")
-                        .build())
+                .realEstate(null) // 부동산 정보는 null 로 설정
                 .build();
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/signup")
@@ -52,9 +46,9 @@ public class AuthControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isBadRequest());
     }
 
+    // RealEstateDto 는 선택값인데 입력받는 경우,
     @Test
-    @WithMockUser
-    void 회원가입_실패_RealEstateDTO_유효성_검사() throws Exception {
+    void 회원가입_실패_RealEstateDto_유효성_검사() throws Exception {
         SignUpRequestDto request = SignUpRequestDto.builder()
                 .agent(SignUpRequestDto.AgentDto.builder()
                         .name("테스트 에이전트")
@@ -76,5 +70,49 @@ public class AuthControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest());
+    }
+
+    @Test
+    void 회원가입_성공_부동산_정보_누락() throws Exception {
+        SignUpRequestDto request = SignUpRequestDto.builder()
+                .agent(SignUpRequestDto.AgentDto.builder()
+                        .name("테스트 에이전트")
+                        .licenseNumber("서울-2023-12345")
+                        .email("test@example.com")
+                        .password("password123!")
+                        .contact("010-1234-5678")
+                        .build())
+                .realEstate(null) // 부동산 정보 누락
+                .build();
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/signup")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+    }
+
+    @Test
+    void 회원가입_성공_부동산_정보_포함() throws Exception {
+        SignUpRequestDto request = SignUpRequestDto.builder()
+                .agent(SignUpRequestDto.AgentDto.builder()
+                        .name("테스트 에이전트")
+                        .licenseNumber("서울-2023-12345")
+                        .email("test@example.com")
+                        .password("password123!")
+                        .contact("010-1234-5678")
+                        .build())
+                .realEstate(SignUpRequestDto.RealEstateDto.builder()
+                        .name("테스트 부동산")
+                        .businessRegistrationNumber("123-45-67890")
+                        .address("서울시 강남구")
+                        .roadAddress("서울시 강남구 도로명")
+                        .contact("02-1234-5678")
+                        .build())
+                .build();
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/signup")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(MockMvcResultMatchers.status().isOk());
     }
 }
