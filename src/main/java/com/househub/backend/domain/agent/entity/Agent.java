@@ -37,7 +37,7 @@ public class Agent implements UserDetails {
     @Column(nullable = false, length = 50)
     private String contact;
 
-    @Column(nullable = false, unique = true, length = 20)
+    @Column(nullable = true, unique = true, length = 20)
     private String licenseNumber;
 
     @Column(nullable = false)

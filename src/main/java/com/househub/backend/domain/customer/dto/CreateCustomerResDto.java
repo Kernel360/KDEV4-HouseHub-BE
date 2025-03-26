@@ -1,5 +1,6 @@
 package com.househub.backend.domain.customer.dto;
 
+import com.househub.backend.common.enums.Gender;
 import com.househub.backend.domain.customer.entity.Customer;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,34 +13,20 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class CustomerReqDto {
+public class CreateCustomerResDto{
 
     private String name;
-    private String ageGroup;
+    private Integer ageGroup;
     private String contact;
     private String email;
     private String memo;
-    private String gender;
+    private Gender gender;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime deletedAt;
 
-    public static CustomerReqDto toDto(Customer entity){
-        return CustomerReqDto.builder()
-                .name(entity.getName())
-                .ageGroup(entity.getAgeGroup())
-                .contact(entity.getContact())
-                .email(entity.getEmail())
-                .memo(entity.getMemo())
-                .gender(entity.getGender())
-                .createdAt(entity.getCreatedAt())
-                .updatedAt(entity.getUpdatedAt())
-                .deletedAt(entity.getDeletedAt())
-                .build();
-    }
-
-    public Customer toEntity(){
+    public Customer toEntity() {
         return Customer.builder()
                 .name(this.name)
                 .ageGroup(this.ageGroup)
@@ -52,4 +39,5 @@ public class CustomerReqDto {
                 .deletedAt(this.deletedAt)
                 .build();
     }
+
 }

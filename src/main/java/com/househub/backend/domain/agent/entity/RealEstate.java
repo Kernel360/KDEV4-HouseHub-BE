@@ -19,7 +19,7 @@ public class RealEstate {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true, length = 20)
+    @Column(nullable = true, unique = true, length = 20)
     private String businessRegistrationNumber;
 
     @Column(nullable = false, length = 50)
@@ -31,7 +31,7 @@ public class RealEstate {
     @Column(nullable = false, length = 50)
     private String contact;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String roadAddress;
 
     @Column(nullable = false, updatable = false)
@@ -53,5 +53,4 @@ public class RealEstate {
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }
-
 }
