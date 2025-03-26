@@ -2,13 +2,10 @@ package com.househub.backend.domain.property.service;
 
 import com.househub.backend.domain.property.dto.CreatePropertyReqDto;
 import com.househub.backend.domain.property.dto.CreatePropertyResDto;
-import com.househub.backend.domain.property.dto.UpdatePropertyReqDto;
-
-import java.util.List;
 
 public interface PropertyService {
     // 매물 등록
-    public CreatePropertyResDto createProperty(CreatePropertyReqDto postPropertyDto);
+    public CreatePropertyResDto createProperty(CreatePropertyReqDto createPropertyDto);
 
 //    // 매물 상세 조회
 //    public FindPropertyResDto findProperty(Long id);
