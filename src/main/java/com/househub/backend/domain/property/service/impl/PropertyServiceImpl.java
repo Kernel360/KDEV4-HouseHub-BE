@@ -3,6 +3,8 @@ package com.househub.backend.domain.property.service.impl;
 import com.househub.backend.common.exception.AlreadyExistsException;
 import com.househub.backend.common.exception.ResourceNotFoundException;
 import com.househub.backend.domain.contract.entity.Contract;
+import com.househub.backend.domain.customer.entity.Customer;
+import com.househub.backend.domain.customer.repository.CustomerRepository;
 import com.househub.backend.domain.property.dto.*;
 import com.househub.backend.domain.property.entity.Property;
 import com.househub.backend.domain.property.repository.PropertyRepository;
@@ -21,6 +23,7 @@ import java.util.List;
 public class PropertyServiceImpl implements PropertyService {
 
     private final PropertyRepository propertyRepository;
+    private final CustomerRepository customerRepository;
 
     /**
      *
@@ -32,8 +35,10 @@ public class PropertyServiceImpl implements PropertyService {
     public CreatePropertyResDto createProperty(PropertyReqDto dto) {
         // 동일한 주소를 가진 매물 있는지 확인
         existsByAddress(dto.getRoadAddress(), dto.getDetailAddress());
+        // 의뢰인(임대인 또는 매도인) 존재 여부 확인
+        Customer customer = findCustomerById(dto.getCustomerId());
         // dto -> entity
-        Property property = dto.toEntity();
+        Property property = dto.toEntity(customer);
         // db에 저장
         propertyRepository.save(property);
         // 응답 객체 리턴
@@ -88,6 +93,8 @@ public class PropertyServiceImpl implements PropertyService {
     public void updateProperty(Long propertyId, PropertyReqDto updateDto) {
         // 주소가 동일한 매물이 있는지 확인
         existsByAddress(updateDto.getRoadAddress(), updateDto.getDetailAddress());
+        // 의뢰인(임대인 또는 매도인) 존재 여부 확인
+        Customer customer = findCustomerById(updateDto.getCustomerId());
         // 매물 조회
         Property property = findPropertyById(propertyId);
         // id로 조회한 매물 정보 수정 및 저장
@@ -134,5 +141,20 @@ public class PropertyServiceImpl implements PropertyService {
         Property property = propertyRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("존재하지 않는 매물입니다.", "PROPERTY_NOT_FOUND"));
         return property;
+    }
+
+    // 해당 고객 id 존재 여부 확인
+
+    /**
+     *
+     * @param id 고객 ID
+     * @return 고객 ID로 매물을 찾았을 경우, Customer 리턴
+     *         고객을 찾지 못했을 경우, exception 처리
+     */
+    public Customer findCustomerById(Long id) {
+        // 의뢰인(임대인 또는 매도인) 존재 여부 확인
+        Customer customer = customerRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("존재하지 않는 고객입니다.", "CUSTOMER_NOT_FOUND"));
+        return customer;
     }
 }

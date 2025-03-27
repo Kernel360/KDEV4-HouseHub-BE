@@ -1,5 +1,6 @@
 package com.househub.backend.domain.contract.entity;
 
+import com.househub.backend.domain.agent.entity.Agent;
 import com.househub.backend.domain.contract.dto.ContractReqDto;
 import com.househub.backend.domain.customer.entity.Customer;
 import com.househub.backend.domain.property.entity.Property;
@@ -25,8 +26,12 @@ public class Contract {
     private Long contractId;
 
     @ManyToOne
+    @JoinColumn(name = "agentId", nullable = false)
+    private Agent agent; // 담당 공인중개사
+
+    @ManyToOne
     @JoinColumn(name = "customerId", nullable = false)
-    private Customer customer;
+    private Customer customer; // 임차인 또는 매수인
 
     @ManyToOne
     @JoinColumn(name = "propertyId", nullable = false)
@@ -46,9 +51,9 @@ public class Contract {
     @Column(nullable = false)
     private ContractStatus status; // 상태 (판매 중, 판매 완료)
 
-    private String memo; // 참고 설명 - 월세 계약 기간 등
+    private String memo; // 참고 설명
 
-//    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    private LocalDate startedAt; // 계약 시작일
     private LocalDate expiredAt; // 계약 만료일
 
     @Column(nullable = false, updatable = false)

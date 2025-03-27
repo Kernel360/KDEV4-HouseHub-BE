@@ -26,6 +26,7 @@ public class FindContractResDto {
     private String memo; // 계약 관련 메모
     private LocalDateTime createdAt; // 등록일시
     private LocalDateTime updatedAt; // 수정일시
+    private LocalDate startedAt; // 계약 시작 일시
     private LocalDate expiredAt; // 계약 만료 일시
 
     // Contract 엔티티를 DTO로 변환
@@ -43,6 +44,7 @@ public class FindContractResDto {
                 .memo(contract.getMemo())
                 .createdAt(contract.getCreatedAt())
                 .updatedAt(contract.getUpdatedAt())
+                .startedAt(contract.getStartedAt())
                 .expiredAt(contract.getExpiredAt())
                 .build();
     }

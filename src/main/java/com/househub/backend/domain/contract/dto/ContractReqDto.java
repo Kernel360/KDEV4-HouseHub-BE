@@ -28,7 +28,8 @@ public class ContractReqDto {
     private Integer monthlyRentDeposit; // 월세 보증금 (월세 계약일 경우 필요)
 
     private String memo; // 참고 설명 (예: 계약 기간 등)
-    private LocalDate expiredAt; // 계약 만료일 (매매일 경우 불필요)
+    private LocalDate startedAt; // 계약 시작일 (매매일 경우 만료일과 동일)
+    private LocalDate expiredAt; // 계약 만료일 (매매일 경우 시작일과 동일)
 
     // 자동 실행
     @AssertTrue(message = "거래 유형에 따라 적절한 가격 정보가 필요합니다.")
@@ -43,12 +44,6 @@ public class ContractReqDto {
         return false;
     }
 
-    // 매매 계약(SALE)일 경우 계약 만료일 불필요
-    @AssertTrue(message = "매매 계약에서는 계약 만료일(expiredAt)을 입력할 필요가 없습니다.")
-    public boolean isValidExpiredAt() {
-        return !(contractType == ContractType.SALE && expiredAt != null);
-    }
-
     public Contract toEntity(Property property, Customer customer) {
         return Contract.builder()
                 .property(property)
@@ -60,6 +55,8 @@ public class ContractReqDto {
                 .monthlyRentDeposit(this.monthlyRentDeposit)
                 .status(this.contractStatus)
                 .memo(this.memo)
+                .startedAt(this.startedAt)
+                .expiredAt(this.expiredAt)
                 .build();
     }
 }

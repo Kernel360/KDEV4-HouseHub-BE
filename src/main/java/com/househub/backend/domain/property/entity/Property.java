@@ -1,6 +1,8 @@
 package com.househub.backend.domain.property.entity;
 
+import com.househub.backend.domain.agent.entity.Agent;
 import com.househub.backend.domain.contract.entity.Contract;
+import com.househub.backend.domain.customer.entity.Customer;
 import com.househub.backend.domain.property.dto.PropertyReqDto;
 import com.househub.backend.domain.property.enums.PropertyType;
 import jakarta.persistence.*;
@@ -28,6 +30,14 @@ public class Property {
 
     @OneToMany(mappedBy = "property", cascade = CascadeType.ALL)
     private List<Contract> contracts;
+
+    @ManyToOne
+    @JoinColumn(name = "customerId", nullable = false)
+    private Customer customer; // 의뢰인 (임대인 또는 매도인)
+
+    @ManyToOne
+    @JoinColumn(name = "agentId", nullable = false)
+    private Agent agent; // 의뢰인 (임대인 또는 매도인)
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

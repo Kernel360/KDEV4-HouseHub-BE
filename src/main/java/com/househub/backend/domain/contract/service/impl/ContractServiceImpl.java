@@ -39,7 +39,8 @@ public class ContractServiceImpl implements ContractService {
         Property property = findPropertyById(dto.getPropertyId());
         // 계약할 고객 조회
         Customer customer = findCustomerById(dto.getCustomerId());
-        // 고객, 매물, 계약 상태가 동일한 계약이면 예외 처리 ( 기존에 존재하는 contract 인지 확인 )
+        // 같은 고객과 매물에 대한 완료되지 않은 계약이 있는지 확인
+        // 완료되지 않은 계약이 있으면 예외
         existsByContractAndProperty(customer, property);
         // dto → entity 변환 후 저장
         Contract contract = dto.toEntity(property, customer);
@@ -61,9 +62,10 @@ public class ContractServiceImpl implements ContractService {
         Customer customer = findCustomerById(dto.getCustomerId());
         // 매물 조회
         Property property = findPropertyById(dto.getPropertyId());
-        // 판매 중으로 변경하는 경우
-        if (dto.getContractStatus() != ContractStatus.SOLD_OUT) {
-            // 고객, 매물이 동일한 계약이면 예외 처리 ( 기존에 존재하는 contract 인지 확인 )
+        // 거래 완료 상태 이외의 상태로 변경하는 경우
+        if (dto.getContractStatus() != ContractStatus.COMPLETED) {
+            // 같은 고객과 매물에 대한 완료되지 않은 계약이 있는지 확인
+            // 완료되지 않은 계약이 있으면 예외
             existsByContractAndProperty(customer, property);
         }
         // 계약 정보 수정
@@ -141,17 +143,19 @@ public class ContractServiceImpl implements ContractService {
         return property;
     }
 
-    // 고객과 매물이 동일한 계약이 이미 존재하는지 확인
-    // 계약 리스트 중 판매중인 계약이 있으면 예외 처리 되도록 구현
+    // 해당 고객이 동일한 매물 계약하지 못하도록 예외 처리
+    // (고객이 동일한 매물을 계약하는 경우 예외)
+    // 동일 매물을 계약할 경우, 해당 매물의 계약 리스트의 모든 계약 상태가 '완료' 상태여야 하도록 처리
+    // (해당 매물의 계약 리스트 중 판매중인 계약이 있으면 예외 처리 되도록 구현)
     /**
      *
      * @param customer 계약을 하는 고객
      * @param property 계약하는 매물
      */
     public void existsByContractAndProperty(Customer customer, Property property) {
-        boolean isExist = contractRepository.existsByCustomerAndPropertyAndStatusNot(customer, property, ContractStatus.SOLD_OUT);
+        boolean isExist = contractRepository.existsByCustomerAndPropertyAndStatusNot(customer, property, ContractStatus.COMPLETED);
         if(isExist) {
-            throw new AlreadyExistsException("해당 고객은 현재 이 매물에 대한 계약을 진행 중이거나 취소, 완료되지 않은 계약이 있습니다.",
+            throw new AlreadyExistsException("해당 고객은 본 매물에 대해 완료되지 않은 계약이 존재합니다.",
                     "CONTRACT_ALREADY_EXISTS");
         }
     }
