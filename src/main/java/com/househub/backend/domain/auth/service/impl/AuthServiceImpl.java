@@ -42,7 +42,10 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public void signup(SignUpReqDto request) {
         SignUpReqDto.AgentDto agentDto = request.getAgent();
-        SignUpReqDto.RealEstateDto realEstateDto = request.getRealEstate();
+        Optional<SignUpReqDto.RealEstateDto> realEstateDtoOptional = Optional.ofNullable(request.getRealEstate());
+
+        // realEstateDto가 null인 경우 기본값 설정 또는 예외 처리
+        SignUpReqDto.RealEstateDto realEstateDto = realEstateDtoOptional.orElse(null); // null 허용 또는 기본값 설정
 
         // 이메일 인증 여부에 따른 예외 처리
         validateEmailVerification(agentDto);
