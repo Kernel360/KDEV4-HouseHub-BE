@@ -34,7 +34,7 @@ public class PropertyServiceImpl implements PropertyService {
         Property property = dto.toEntity();
 
         // 동일한 주소를 가진 매물 있는지 확인
-        existsByAddress(property);
+        existsByAddress(property.getRoadAddress(), property.getDetailAddress());
 
         // db에 저장
         propertyRepository.save(property);
@@ -92,7 +92,8 @@ public class PropertyServiceImpl implements PropertyService {
         // 매물 조회
         Property property = findPropertyById(propertyId);
         // 주소가 동일한 매물이 있는지 확인
-        existsByAddress(property);
+        existsByAddress(updateDto.getRoadAddress(), updateDto.getDetailAddress());
+        // id로 조회한 매물 정보 수정 및 저장
         property.updateProperty(updateDto);
     }
 
@@ -115,10 +116,11 @@ public class PropertyServiceImpl implements PropertyService {
     // 전체 주소(도로명 주소 + 상세 주소)로 해당 매물이 이미 존재하는지 확인
     /**
      *
-     * @param property
+     * @param roadAddress 도로명 주소
+     * @param detailAddress 상세 주소
      */
-    public void existsByAddress(Property property) {
-        boolean isExist = propertyRepository.existsByRoadAddressAndDetailAddress(property.getRoadAddress(), property.getDetailAddress());
+    public void existsByAddress(String roadAddress, String detailAddress) {
+        boolean isExist = propertyRepository.existsByRoadAddressAndDetailAddress(roadAddress, detailAddress);
         if(isExist) {
             throw new AlreadyExistsException("이미 존재하는 매물 입니다.", "PROPERTY_ALREADY_EXISTS");
         }

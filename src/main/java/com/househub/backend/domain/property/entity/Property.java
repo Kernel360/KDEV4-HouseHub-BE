@@ -73,14 +73,15 @@ public class Property {
     }
 
     // 수정 메서드 (setter 대신 사용)
-    public void updateProperty(PropertyReqDto updatDto) {
-        if (updatDto.getPropertyType() != null) this.propertyType = updatDto.getPropertyType();
-        if (updatDto.getMemo() != null) this.memo = updatDto.getMemo();
-        if (updatDto.getRoadAddress() != null) this.roadAddress = updatDto.getRoadAddress();
-        if (updatDto.getLatitude() != null) this.latitude = updatDto.getLatitude();
-        if (updatDto.getLongitude() != null) this.longitude = updatDto.getLongitude();
+    public void updateProperty(PropertyReqDto updateDto) {
+        if (updateDto.getPropertyType() != null) this.propertyType = updateDto.getPropertyType();
+        if (updateDto.getMemo() != null) this.memo = updateDto.getMemo();
+        if (updateDto.getRoadAddress() != null) this.roadAddress = updateDto.getRoadAddress();
+        if (updateDto.getDetailAddress() != null) this.detailAddress = updateDto.getDetailAddress();
+        if (updateDto.getLatitude() != null) this.latitude = updateDto.getLatitude();
+        if (updateDto.getLongitude() != null) this.longitude = updateDto.getLongitude();
         this.updatedAt = LocalDateTime.now();
-        parseJibunAddress(updatDto.getJibunAddress());
+        parseJibunAddress(updateDto.getJibunAddress());
     }
 
     // 삭제 메서드
