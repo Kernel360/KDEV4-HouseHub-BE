@@ -1,6 +1,7 @@
 package com.househub.backend.domain.contract.entity;
 
 import com.househub.backend.domain.contract.dto.ContractReqDto;
+import com.househub.backend.domain.customer.entity.Customer;
 import com.househub.backend.domain.property.entity.Property;
 import com.househub.backend.domain.contract.enums.ContractStatus;
 import com.househub.backend.domain.contract.enums.ContractType;
@@ -8,6 +9,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Where;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -22,8 +24,9 @@ public class Contract {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long contractId;
 
-//    @Column(name = "customer_id", nullable = false)
-//    private Long customerId;
+    @ManyToOne
+    @JoinColumn(name = "customerId", nullable = false)
+    private Customer customer;
 
     @ManyToOne
     @JoinColumn(name = "propertyId", nullable = false)
@@ -44,6 +47,9 @@ public class Contract {
     private ContractStatus status; // 상태 (판매 중, 판매 완료)
 
     private String memo; // 참고 설명 - 월세 계약 기간 등
+
+//    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    private LocalDate expiredAt; // 계약 만료일
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt; // 등록일시
