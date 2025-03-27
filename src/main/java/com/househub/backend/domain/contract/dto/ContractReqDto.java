@@ -9,7 +9,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 
 @Getter
-public class CreateContractReqDto {
+public class ContractReqDto {
     @NotNull
     private Long propertyId; // 매물 ID
     @NotNull

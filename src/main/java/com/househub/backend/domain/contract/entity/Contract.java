@@ -1,5 +1,6 @@
 package com.househub.backend.domain.contract.entity;
 
+import com.househub.backend.domain.contract.dto.ContractReqDto;
 import com.househub.backend.domain.property.entity.Property;
 import com.househub.backend.domain.contract.enums.ContractStatus;
 import com.househub.backend.domain.contract.enums.ContractType;
@@ -59,6 +60,17 @@ public class Contract {
     @PreUpdate
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
+    }
+
+    // 수정 메서드 (setter 대신 사용)
+    public void updateProperty(ContractReqDto updatDto) {
+        if (updatDto.getContractType() != null) this.contractType = updatDto.getContractType();
+        if (updatDto.getMemo() != null) this.memo = updatDto.getMemo();
+        if (updatDto.getSalePrice() != null) this.salePrice = updatDto.getSalePrice();
+        if (updatDto.getJeonsePrice() != null) this.jeonsePrice = updatDto.getJeonsePrice();
+        if (updatDto.getMonthlyRentDeposit() != null) this.monthlyRentDeposit = updatDto.getMonthlyRentDeposit();
+        if (updatDto.getMonthlyRentFee() != null) this.monthlyRentFee = updatDto.getMonthlyRentFee();
+        this.updatedAt = LocalDateTime.now();
     }
 
     // 삭제 메서드

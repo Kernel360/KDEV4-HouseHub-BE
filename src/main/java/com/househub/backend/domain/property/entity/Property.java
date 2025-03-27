@@ -1,7 +1,7 @@
 package com.househub.backend.domain.property.entity;
 
 import com.househub.backend.domain.contract.entity.Contract;
-import com.househub.backend.domain.property.dto.UpdatePropertyReqDto;
+import com.househub.backend.domain.property.dto.PropertyReqDto;
 import com.househub.backend.domain.property.enums.PropertyType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -73,7 +73,7 @@ public class Property {
     }
 
     // 수정 메서드 (setter 대신 사용)
-    public void updateProperty(UpdatePropertyReqDto updatDto) {
+    public void updateProperty(PropertyReqDto updatDto) {
         if (updatDto.getPropertyType() != null) this.propertyType = updatDto.getPropertyType();
         if (updatDto.getMemo() != null) this.memo = updatDto.getMemo();
         if (updatDto.getRoadAddress() != null) this.roadAddress = updatDto.getRoadAddress();

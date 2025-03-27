@@ -1,7 +1,7 @@
 package com.househub.backend.domain.contract.service.impl;
 
-import com.househub.backend.domain.contract.dto.CreateContractReqDto;
-import com.househub.backend.domain.contract.dto.CreateContractResDto;
+import com.househub.backend.common.exception.ResourceNotFoundException;
+import com.househub.backend.domain.contract.dto.*;
 import com.househub.backend.domain.contract.entity.Contract;
 import com.househub.backend.domain.contract.repository.ContractRepository;
 import com.househub.backend.domain.contract.service.ContractService;
@@ -11,6 +11,8 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -25,10 +27,10 @@ public class ContractServiceImpl implements ContractService {
      */
     @Override
     @Transactional
-    public CreateContractResDto createContract(CreateContractReqDto dto) {
-        // 1. 매물 조회
+    public CreateContractResDto createContract(ContractReqDto dto) {
+        // 1. 계약할 매물 조회
         Property property = propertyRepository.findById(dto.getPropertyId())
-                .orElseThrow(() -> new EntityNotFoundException("해당 매물을 찾을 수 없습니다. ID: " + dto.getPropertyId()));
+                .orElseThrow(() -> new ResourceNotFoundException("존재하지 않는 매물입니다.", "PROPERTY_NOT_FOUND"));
 
         // 2. dto → entity 변환 후 저장
         Contract contract = dto.toEntity(property);
@@ -36,5 +38,25 @@ public class ContractServiceImpl implements ContractService {
 
         // 응답 객체 리턴
         return new CreateContractResDto(contract.getContractId());
+    }
+
+    @Override
+    public void updateContract(Long contractId, ContractReqDto dto) {
+
+    }
+
+    @Override
+    public List<FindContractResDto> findContracts(int page, int size) {
+        return List.of();
+    }
+
+    @Override
+    public FindContractResDto findContract(Long id) {
+        return null;
+    }
+
+    @Override
+    public void deleteContract(Long id) {
+
     }
 }
