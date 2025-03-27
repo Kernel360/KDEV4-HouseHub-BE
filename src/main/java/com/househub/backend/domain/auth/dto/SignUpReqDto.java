@@ -7,24 +7,22 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class SignUpRequestDto {
+public class SignUpReqDto {
 
     @Valid
-    private AgentDto agent;
+    private AgentDto agent; // 공인중개사 정보
 
     @Valid
-    private RealEstateDto realEstate;
+    private RealEstateDto realEstate; // 부동산 정보 (선택값)
 
     @Getter
+    @Setter
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
@@ -32,9 +30,8 @@ public class SignUpRequestDto {
         @NotBlank(message = "이름을 입력하세요.")
         private String name;
 
-        @NotBlank(message = "자격증 번호를 입력해주세요.")
         @Pattern(regexp = "^(서울|부산|대구|인천|광주|대전|울산|세종|경기|강원|충북|충남|전북|전남|경북|경남|제주)-(\\d{4})-(\\d{5})$", message = "잘못된 자격증 번호 형식입니다. (예: 123-45-67890)")
-        private String licenseNumber;
+        private String licenseNumber; // 선택값
 
         @NotBlank(message = "이메일을 입력해주세요.")
         @Email(message = "잘못된 이메일 형식입니다.")
@@ -48,6 +45,8 @@ public class SignUpRequestDto {
         @NotBlank(message = "연락처를 입력해주세요.")
         @Pattern(regexp = "\\d{3}-\\d{4}-\\d{4}", message = "잘못된 연락처 형식입니다. (예: 010-1234-5678)")
         private String contact;
+
+        private boolean isEmailVerified;
 
         public Agent toAgentEntity(RealEstate realEstate) {
             return Agent.builder()
@@ -77,20 +76,15 @@ public class SignUpRequestDto {
     @AllArgsConstructor
     @Builder
     public static class RealEstateDto {
-        @NotBlank(message = "부동산 이름을 입력해주세요.")
-        private String name;
+        private String name; // 선택값
 
-        @NotBlank(message = "사업자등록번호를 입력해주세요.")
-        @Pattern(regexp = "^\\d{3}-\\d{2}-\\d{5}$", message = "잘못된 자격증 번호 형식입니다. (예: 123-45-67890)")
-        private String businessRegistrationNumber;
+        @Pattern(regexp = "^\\d{3}-\\d{2}-\\d{5}$", message = "잘못된 사업자 등록번호 형식입니다. (예: 123-45-67890)")
+        private String businessRegistrationNumber; // 선택값
 
-        @NotBlank(message = "지번 주소를 입력해주세요.")
-        private String address;
+        private String address; // 선택값
 
-        @NotBlank(message = "도로명 주소를 입력해주세요.")
-        private String roadAddress;
+        private String roadAddress; // 선택값
 
-        @NotBlank(message = "연락처를 입력해주세요.")
         @Pattern(regexp = "\\d{2,3}-\\d{3,4}-\\d{4}", message = "잘못된 연락처 형식입니다. (예: 02-1234-5678)")
         private String contact;
 
