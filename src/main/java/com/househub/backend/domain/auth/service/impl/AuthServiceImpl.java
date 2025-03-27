@@ -1,6 +1,7 @@
 package com.househub.backend.domain.auth.service.impl;
 
 import com.househub.backend.common.exception.AlreadyExistsException;
+import com.househub.backend.common.exception.ResourceNotFoundException;
 import com.househub.backend.domain.agent.entity.Agent;
 import com.househub.backend.domain.agent.entity.AgentStatus;
 import com.househub.backend.domain.agent.entity.RealEstate;
@@ -9,7 +10,6 @@ import com.househub.backend.domain.agent.repository.AgentRepository;
 import com.househub.backend.domain.auth.dto.SignInReqDto;
 import com.househub.backend.domain.auth.dto.SignInResDto;
 import com.househub.backend.domain.auth.dto.SignUpReqDto;
-import com.househub.backend.domain.auth.exception.AgentNotFoundException;
 import com.househub.backend.domain.auth.exception.EmailVerifiedException;
 import com.househub.backend.domain.auth.exception.InvalidPasswordException;
 import com.househub.backend.domain.auth.service.AuthService;
@@ -69,13 +69,13 @@ public class AuthServiceImpl implements AuthService {
      *
      * @param request 로그인 요청 정보 (이메일, 비밀번호)
      * @return 로그인 성공 시 에이전트 정보 (ID, 이메일)
-     * @throws AgentNotFoundException     해당 이메일의 사용자를 찾을 수 없는 경우
+     * @throws ResourceNotFoundException     해당 이메일의 사용자를 찾을 수 없는 경우
      * @throws InvalidPasswordException 비밀번호가 일치하지 않는 경우
      */
     @Transactional
     @Override
     public SignInResDto signin(SignInReqDto request) {
-        Agent existingAgent = agentRepository.findByEmail(request.getEmail()).orElseThrow(() -> new AgentNotFoundException("해당 이메일의 사용자를 찾을 수 없습니다.", "AGENT_NOT_FOUND"));
+        Agent existingAgent = agentRepository.findByEmail(request.getEmail()).orElseThrow(() -> new ResourceNotFoundException("해당 이메일의 사용자를 찾을 수 없습니다.", "AGENT_NOT_FOUND"));
 
         if (!passwordEncoder.matches(request.getPassword(), existingAgent.getPassword())) {
             throw new InvalidPasswordException("비밀번호가 일치하지 않습니다.", "INVALID_PASSWORD");

@@ -1,10 +1,10 @@
 package com.househub.backend.domain.auth.service;
 
+import com.househub.backend.common.exception.ResourceNotFoundException;
 import com.househub.backend.domain.agent.entity.Agent;
 import com.househub.backend.domain.agent.repository.AgentRepository;
 import com.househub.backend.domain.auth.dto.SignInReqDto;
 import com.househub.backend.domain.auth.dto.SignInResDto;
-import com.househub.backend.domain.auth.exception.AgentNotFoundException;
 import com.househub.backend.domain.auth.exception.InvalidPasswordException;
 import com.househub.backend.domain.auth.service.impl.AuthServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -67,7 +67,7 @@ public class SignInServiceTest {
     void signin_fail_agentNotFound() {
         when(agentRepository.findByEmail(signInReqDto.getEmail())).thenReturn(Optional.empty());
 
-        assertThrows(AgentNotFoundException.class, () -> authService.signin(signInReqDto));
+        assertThrows(ResourceNotFoundException.class, () -> authService.signin(signInReqDto));
     }
 
     @Test

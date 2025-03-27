@@ -1,11 +1,11 @@
 package com.househub.backend.domain.auth.controller;
 
+import com.househub.backend.common.exception.ResourceNotFoundException;
 import com.househub.backend.common.response.ErrorResponse;
 import com.househub.backend.common.response.SuccessResponse;
 import com.househub.backend.domain.auth.dto.SignInReqDto;
 import com.househub.backend.domain.auth.dto.SignInResDto;
 import com.househub.backend.domain.auth.dto.SignUpReqDto;
-import com.househub.backend.domain.auth.exception.AgentNotFoundException;
 import com.househub.backend.domain.auth.exception.EmailVerifiedException;
 import com.househub.backend.domain.auth.exception.InvalidPasswordException;
 import com.househub.backend.domain.auth.service.AuthService;
@@ -53,8 +53,8 @@ public class AuthController {
     }
 
     @ExceptionHandler({
+            ResourceNotFoundException.class,
             EmailVerifiedException.class,
-            AgentNotFoundException.class,
             InvalidPasswordException.class
     })
     public ResponseEntity<ErrorResponse> handleLoginExceptions(RuntimeException ex) {
@@ -67,17 +67,8 @@ public class AuthController {
                         .code(((EmailVerifiedException) ex).getCode())
                         .build());
         }
-        if (ex instanceof AgentNotFoundException) {
-            return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body(
-                    ErrorResponse.builder()
-                        .message(ex.getMessage())
-                        .code(((AgentNotFoundException) ex).getCode())
-                        .build());
-        }
 
-        if (ex instanceof InvalidPasswordException) {
+        else if (ex instanceof InvalidPasswordException) {
             return ResponseEntity
                     .status(HttpStatus.UNAUTHORIZED)
                     .body(
@@ -87,9 +78,15 @@ public class AuthController {
                             .build());
         }
 
-        // 기타 예상치 못한 예외 처리
-        return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ErrorResponse.builder().message("로그인 중 알 수 없는 오류가 발생했습니다.").code("LOGIN_ERROR").build());
+        else if (ex instanceof ResourceNotFoundException) {
+            throw ex;
+        }
+
+        else {
+            // 기타 예상치 못한 예외 처리
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ErrorResponse.builder().message("로그인 중 알 수 없는 오류가 발생했습니다.").code("LOGIN_ERROR").build());
+        }
     }
 }
