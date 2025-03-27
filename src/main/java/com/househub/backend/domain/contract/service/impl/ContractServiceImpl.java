@@ -7,12 +7,12 @@ import com.househub.backend.domain.contract.repository.ContractRepository;
 import com.househub.backend.domain.contract.service.ContractService;
 import com.househub.backend.domain.property.entity.Property;
 import com.househub.backend.domain.property.repository.PropertyRepository;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -28,7 +28,7 @@ public class ContractServiceImpl implements ContractService {
      * @return 등록한 계약 id 를 반환하는 DTO
      */
     @Override
-    @Transactional
+    @Transactional // 계약 등록
     public CreateContractResDto createContract(ContractReqDto dto) {
         // 1. 계약할 매물 조회
         Property property = propertyRepository.findById(dto.getPropertyId())
@@ -47,9 +47,13 @@ public class ContractServiceImpl implements ContractService {
      * @param contractId 계약 id
      * @param dto 계약 수정 요청 dto
      */
-    @Override
+    @Transactional
+    @Override // 계약 수정
     public void updateContract(Long contractId, ContractReqDto dto) {
-
+        Contract contract = findContractById(contractId);
+        // 기존에 존재하는 contract 인지 확인
+        // 고객과 매물이 동일한 계약이면 예외 처리 -> 추후 매핑 작업 이후 진행
+        contract.updateContract(dto);
     }
 
     /**
@@ -59,6 +63,7 @@ public class ContractServiceImpl implements ContractService {
      * @return 계약 정보 응답 DTO LIST
      */
     @Override
+    @Transactional(readOnly = true) // 전체 계약 조회
     public List<FindContractResDto> findContracts(int page, int size) {
         // Pageable 객체 생성 (페이지 번호, 페이지 크기)
         Pageable pageable = PageRequest.of(page, size);

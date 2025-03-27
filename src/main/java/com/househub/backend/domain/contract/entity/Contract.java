@@ -65,13 +65,13 @@ public class Contract {
     }
 
     // 수정 메서드 (setter 대신 사용)
-    public void updateProperty(ContractReqDto updatDto) {
-        if (updatDto.getContractType() != null) this.contractType = updatDto.getContractType();
-        if (updatDto.getMemo() != null) this.memo = updatDto.getMemo();
-        if (updatDto.getSalePrice() != null) this.salePrice = updatDto.getSalePrice();
-        if (updatDto.getJeonsePrice() != null) this.jeonsePrice = updatDto.getJeonsePrice();
-        if (updatDto.getMonthlyRentDeposit() != null) this.monthlyRentDeposit = updatDto.getMonthlyRentDeposit();
-        if (updatDto.getMonthlyRentFee() != null) this.monthlyRentFee = updatDto.getMonthlyRentFee();
+    public void updateContract(ContractReqDto updateDto) {
+        if (updateDto.getContractType() != null) this.contractType = updateDto.getContractType();
+        if (updateDto.getMemo() != null) this.memo = updateDto.getMemo();
+        if (updateDto.getSalePrice() != null) this.salePrice = updateDto.getSalePrice();
+        if (updateDto.getJeonsePrice() != null) this.jeonsePrice = updateDto.getJeonsePrice();
+        if (updateDto.getMonthlyRentDeposit() != null) this.monthlyRentDeposit = updateDto.getMonthlyRentDeposit();
+        if (updateDto.getMonthlyRentFee() != null) this.monthlyRentFee = updateDto.getMonthlyRentFee();
         this.updatedAt = LocalDateTime.now();
     }
 
