@@ -1,7 +1,10 @@
 package com.househub.backend.domain.auth.service;
 
-import com.househub.backend.domain.auth.dto.SignUpRequestDto;
+import com.househub.backend.domain.auth.dto.SignInReqDto;
+import com.househub.backend.domain.auth.dto.SignInResDto;
+import com.househub.backend.domain.auth.dto.SignUpReqDto;
 
 public interface AuthService {
-    public void signup(SignUpRequestDto request);
+    void signup(SignUpReqDto request);
+    SignInResDto signin(SignInReqDto request);
 }

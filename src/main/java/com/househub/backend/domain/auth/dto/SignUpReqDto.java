@@ -13,7 +13,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class SignUpRequestDto {
+public class SignUpReqDto {
 
     @Valid
     private AgentDto agent; // 공인중개사 정보

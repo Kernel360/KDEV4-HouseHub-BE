@@ -1,17 +1,22 @@
 package com.househub.backend.domain.auth.service.impl;
 
 import com.househub.backend.common.exception.AlreadyExistsException;
+import com.househub.backend.common.exception.ResourceNotFoundException;
 import com.househub.backend.domain.agent.entity.Agent;
 import com.househub.backend.domain.agent.entity.AgentStatus;
 import com.househub.backend.domain.agent.entity.RealEstate;
 import com.househub.backend.domain.agent.entity.Role;
 import com.househub.backend.domain.agent.repository.AgentRepository;
-import com.househub.backend.domain.auth.dto.SignUpRequestDto;
+import com.househub.backend.domain.auth.dto.SignInReqDto;
+import com.househub.backend.domain.auth.dto.SignInResDto;
+import com.househub.backend.domain.auth.dto.SignUpReqDto;
 import com.househub.backend.domain.auth.exception.EmailVerifiedException;
+import com.househub.backend.domain.auth.exception.InvalidPasswordException;
 import com.househub.backend.domain.auth.service.AuthService;
 import com.househub.backend.domain.realEstate.repository.RealEstateRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -24,6 +29,7 @@ import java.util.Optional;
 public class AuthServiceImpl implements AuthService {
     private final AgentRepository agentRepository;
     private final RealEstateRepository realEstateRepository;
+    private final PasswordEncoder passwordEncoder;
 
 
     /**
@@ -34,9 +40,12 @@ public class AuthServiceImpl implements AuthService {
      */
     @Transactional
     @Override
-    public void signup(SignUpRequestDto request) {
-        SignUpRequestDto.AgentDto agentDto = request.getAgent();
-        SignUpRequestDto.RealEstateDto realEstateDto = request.getRealEstate();
+    public void signup(SignUpReqDto request) {
+        SignUpReqDto.AgentDto agentDto = request.getAgent();
+        Optional<SignUpReqDto.RealEstateDto> realEstateDtoOptional = Optional.ofNullable(request.getRealEstate());
+
+        // realEstateDto가 null인 경우 기본값 설정 또는 예외 처리
+        SignUpReqDto.RealEstateDto realEstateDto = realEstateDtoOptional.orElse(null); // null 허용 또는 기본값 설정
 
         // 이메일 인증 여부에 따른 예외 처리
         validateEmailVerification(agentDto);
@@ -56,12 +65,35 @@ public class AuthServiceImpl implements AuthService {
     }
 
     /**
+     * 에이전트 로그인 처리.
+     *
+     * @param request 로그인 요청 정보 (이메일, 비밀번호)
+     * @return 로그인 성공 시 에이전트 정보 (ID, 이메일)
+     * @throws ResourceNotFoundException     해당 이메일의 사용자를 찾을 수 없는 경우
+     * @throws InvalidPasswordException 비밀번호가 일치하지 않는 경우
+     */
+    @Transactional
+    @Override
+    public SignInResDto signin(SignInReqDto request) {
+        Agent existingAgent = agentRepository.findByEmail(request.getEmail()).orElseThrow(() -> new ResourceNotFoundException("해당 이메일의 사용자를 찾을 수 없습니다.", "AGENT_NOT_FOUND"));
+
+        if (!passwordEncoder.matches(request.getPassword(), existingAgent.getPassword())) {
+            throw new InvalidPasswordException("비밀번호가 일치하지 않습니다.", "INVALID_PASSWORD");
+        }
+
+        return SignInResDto.builder()
+            .id(existingAgent.getId())
+            .email(existingAgent.getEmail())
+            .build();
+    }
+
+    /**
      * 이메일 인증 여부를 확인하고, 인증되지 않은 경우 예외를 발생시킵니다.
      *
      * @param agentDto 회원가입 요청에 포함된 중개사 정보
      * @throws EmailVerifiedException 이메일 인증이 완료되지 않은 경우 발생
      */
-    private void validateEmailVerification(SignUpRequestDto.AgentDto agentDto) {
+    private void validateEmailVerification(SignUpReqDto.AgentDto agentDto) {
         log.info("{}", agentDto.toString());
         if (!agentDto.isEmailVerified()) {
             throw new EmailVerifiedException("이메일 인증이 완료되지 않았습니다.", "EMAIL_NOT_VERIFIED");
@@ -104,7 +136,7 @@ public class AuthServiceImpl implements AuthService {
      * @param realEstateDto 부동산 정보 DTO
      * @return 저장된 또는 존재하는 부동산 엔티티
      */
-    private RealEstate getOrCreateRealEstate(SignUpRequestDto.RealEstateDto realEstateDto) {
+    private RealEstate getOrCreateRealEstate(SignUpReqDto.RealEstateDto realEstateDto) {
         return realEstateRepository.findByBusinessRegistrationNumber(realEstateDto.getBusinessRegistrationNumber())
                 .orElseGet(() -> realEstateRepository.save(toRealEstateEntity(realEstateDto)));
     }
@@ -115,7 +147,7 @@ public class AuthServiceImpl implements AuthService {
      * @param agentDto 공인중개사 정보 DTO
      * @param realEstate 부동산 엔티티
      */
-    private void saveAgent(SignUpRequestDto.AgentDto agentDto, RealEstate realEstate) {
+    private void saveAgent(SignUpReqDto.AgentDto agentDto, RealEstate realEstate) {
         agentRepository.save(toAgentEntity(agentDto, realEstate));
     }
 
@@ -125,7 +157,7 @@ public class AuthServiceImpl implements AuthService {
      * @param realEstateDTO 부동산 정보 DTO
      * @return RealEstate 엔티티
      */
-    private RealEstate toRealEstateEntity(SignUpRequestDto.RealEstateDto realEstateDTO) {
+    private RealEstate toRealEstateEntity(SignUpReqDto.RealEstateDto realEstateDTO) {
         return RealEstate.builder()
                 .name(realEstateDTO.getName())
                 .businessRegistrationNumber(realEstateDTO.getBusinessRegistrationNumber())
@@ -142,12 +174,12 @@ public class AuthServiceImpl implements AuthService {
      * @param realEstate 부동산 엔티티
      * @return Agent 엔티티
      */
-    private Agent toAgentEntity(SignUpRequestDto.AgentDto agentDTO, RealEstate realEstate) {
+    private Agent toAgentEntity(SignUpReqDto.AgentDto agentDTO, RealEstate realEstate) {
         return Agent.builder()
                 .name(agentDTO.getName())
                 .licenseNumber(agentDTO.getLicenseNumber())
                 .email(agentDTO.getEmail())
-                .password(agentDTO.getPassword())
+                .password(passwordEncoder.encode(agentDTO.getPassword()))
                 .contact(agentDTO.getContact())
                 .realEstate(realEstate)
                 .role(Role.AGENT)
