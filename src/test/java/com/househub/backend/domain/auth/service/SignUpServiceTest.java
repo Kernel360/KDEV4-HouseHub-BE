@@ -4,16 +4,18 @@ import com.househub.backend.common.exception.AlreadyExistsException;
 import com.househub.backend.domain.agent.entity.Agent;
 import com.househub.backend.domain.agent.entity.RealEstate;
 import com.househub.backend.domain.agent.repository.AgentRepository;
-import com.househub.backend.domain.auth.dto.SignUpRequestDto;
+import com.househub.backend.domain.auth.dto.SignUpReqDto;
 import com.househub.backend.domain.auth.exception.EmailVerifiedException;
 import com.househub.backend.domain.auth.service.impl.AuthServiceImpl;
 import com.househub.backend.domain.realEstate.repository.RealEstateRepository;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
 
@@ -22,24 +24,26 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class AuthServiceImplTest {
+public class SignUpServiceTest {
     @Mock
     private AgentRepository agentRepository;
 
     @Mock
     private RealEstateRepository realEstateRepository;
 
+    @Mock
+    private PasswordEncoder passwordEncoder;
+
     @InjectMocks
     private AuthServiceImpl authService;
 
-    private SignUpRequestDto request;
-    private SignUpRequestDto.AgentDto agentDto;
-    private SignUpRequestDto.RealEstateDto realEstateDto;
+    private SignUpReqDto request;
+    private SignUpReqDto.AgentDto agentDto;
 
     // 테스트에 필요한 데이터 초기화
     @BeforeEach
     void setup() {
-        agentDto = SignUpRequestDto.AgentDto.builder()
+        agentDto = SignUpReqDto.AgentDto.builder()
                 .name("박공일")
                 .licenseNumber("서울-2023-12345")
                 .email("gongil@example.com")
@@ -48,7 +52,7 @@ public class AuthServiceImplTest {
                 .isEmailVerified(true) // 이메일 인증 여부 설정
                 .build();
 
-        realEstateDto = SignUpRequestDto.RealEstateDto.builder()
+        SignUpReqDto.RealEstateDto realEstateDto = SignUpReqDto.RealEstateDto.builder()
                 .name("테스트 부동산")
                 .businessRegistrationNumber("123-45-67890")
                 .address("테스트 주소")
@@ -56,14 +60,15 @@ public class AuthServiceImplTest {
                 .contact("02-1234-5678")
                 .build();
 
-        request = SignUpRequestDto.builder()
+        request = SignUpReqDto.builder()
                 .agent(agentDto)
                 .realEstate(realEstateDto)
                 .build();
     }
 
     @Test
-    void 이메일_미인증_예외() {
+    @DisplayName("회원가입 실패 - 이메일 미인증")
+    void signup_fail_email_not_verified() {
         // 이메일 인증되지 않은 경우
         agentDto.setEmailVerified(false);
 
@@ -78,7 +83,8 @@ public class AuthServiceImplTest {
     }
 
     @Test
-    void 이메일_중복_예외() {
+    @DisplayName("회원가입 실패 - 이메일 중복")
+    void signup_fail_email_duplicate() {
         // 이메일 중복 검사를 위해 이미 존재하는 이메일 반환
         when(agentRepository.findByEmail(any())).thenReturn(Optional.of(Agent.builder().email("gongil@example.com").build()));
 
@@ -93,7 +99,8 @@ public class AuthServiceImplTest {
     }
 
     @Test
-    void 회원가입_성공() {
+    @DisplayName("회원가입 성공")
+    void signup_success() {
         // 정상적인 회원가입
         when(agentRepository.findByEmail(any())).thenReturn(Optional.empty());
         when(realEstateRepository.findByBusinessRegistrationNumber(any())).thenReturn(Optional.empty());
@@ -109,7 +116,8 @@ public class AuthServiceImplTest {
     }
 
     @Test
-    void 회원가입_실패_자격증번호_중복() {
+    @DisplayName("회원가입 실패 - 자격증번호 중복")
+    void signup_fail_licensenumber_duplicate() {
         // 자격증 번호를 선택적으로 입력했는데 이미 존재하는 경우
         when(agentRepository.findByLicenseNumber(any())).thenReturn(Optional.of(Agent.builder().licenseNumber("서울-2023-12345").build()));
 

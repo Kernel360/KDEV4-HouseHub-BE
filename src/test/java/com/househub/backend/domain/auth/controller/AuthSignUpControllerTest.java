@@ -2,8 +2,9 @@ package com.househub.backend.domain.auth.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.househub.backend.common.config.WebSecurityConfig;
-import com.househub.backend.domain.auth.dto.SignUpRequestDto;
+import com.househub.backend.domain.auth.dto.SignUpReqDto;
 import com.househub.backend.domain.auth.service.AuthService;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -13,11 +14,10 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.security.test.context.support.WithMockUser;
 
 @WebMvcTest(controllers = AuthController.class)
 @Import(WebSecurityConfig.class)
-public class AuthControllerTest {
+public class AuthSignUpControllerTest {
 
     @MockitoBean
     private AuthService authService;
@@ -28,9 +28,10 @@ public class AuthControllerTest {
     private ObjectMapper objectMapper;
 
     @Test
-    void 회원가입_실패_AgentDto_유효성_검사() throws Exception {
-        SignUpRequestDto request = SignUpRequestDto.builder()
-                .agent(SignUpRequestDto.AgentDto.builder()
+    @DisplayName("회원가입 실패 - AgentDto 유효성 검사")
+    void signup_fail_agent_dto_validation() throws Exception {
+        SignUpReqDto request = SignUpReqDto.builder()
+                .agent(SignUpReqDto.AgentDto.builder()
                         .name("") // 이름 누락
                         .licenseNumber("잘못된 자격증 번호")
                         .email("잘못된 이메일 번호")
@@ -48,16 +49,17 @@ public class AuthControllerTest {
 
     // RealEstateDto 는 선택값인데 입력받는 경우,
     @Test
-    void 회원가입_실패_RealEstateDto_유효성_검사() throws Exception {
-        SignUpRequestDto request = SignUpRequestDto.builder()
-                .agent(SignUpRequestDto.AgentDto.builder()
+    @DisplayName("회원가입 실패 - RealEstateDto 유효성 검사")
+    void signup_fail_realestate_dto_validation() throws Exception {
+        SignUpReqDto request = SignUpReqDto.builder()
+                .agent(SignUpReqDto.AgentDto.builder()
                         .name("테스트 에이전트")
                         .licenseNumber("서울-2023-12345")
                         .email("test@example.com")
                         .password("password123!")
                         .contact("010-1234-5678")
                         .build())
-                .realEstate(SignUpRequestDto.RealEstateDto.builder()
+                .realEstate(SignUpReqDto.RealEstateDto.builder()
                         .name("") // 부동산 이름 누락
                         .businessRegistrationNumber("잘못된 사업자등록번호")
                         .address("") // 지번 주소 누락
@@ -73,9 +75,10 @@ public class AuthControllerTest {
     }
 
     @Test
-    void 회원가입_성공_부동산_정보_누락() throws Exception {
-        SignUpRequestDto request = SignUpRequestDto.builder()
-                .agent(SignUpRequestDto.AgentDto.builder()
+    @DisplayName("회원가입 성공 - 부동산 정보 입력 안 한 경우")
+    void signup_success_without_realestate() throws Exception {
+        SignUpReqDto request = SignUpReqDto.builder()
+                .agent(SignUpReqDto.AgentDto.builder()
                         .name("테스트 에이전트")
                         .licenseNumber("서울-2023-12345")
                         .email("test@example.com")
@@ -92,16 +95,17 @@ public class AuthControllerTest {
     }
 
     @Test
-    void 회원가입_성공_부동산_정보_포함() throws Exception {
-        SignUpRequestDto request = SignUpRequestDto.builder()
-                .agent(SignUpRequestDto.AgentDto.builder()
+    @DisplayName("회원가입 성공 - 부동산 정보 입력한 경우")
+    void signup_success_include_realestate() throws Exception {
+        SignUpReqDto request = SignUpReqDto.builder()
+                .agent(SignUpReqDto.AgentDto.builder()
                         .name("테스트 에이전트")
                         .licenseNumber("서울-2023-12345")
                         .email("test@example.com")
                         .password("password123!")
                         .contact("010-1234-5678")
                         .build())
-                .realEstate(SignUpRequestDto.RealEstateDto.builder()
+                .realEstate(SignUpReqDto.RealEstateDto.builder()
                         .name("테스트 부동산")
                         .businessRegistrationNumber("123-45-67890")
                         .address("서울시 강남구")
