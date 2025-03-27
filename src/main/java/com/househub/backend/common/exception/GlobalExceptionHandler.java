@@ -36,14 +36,37 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
-    @ExceptionHandler(ValidationFailedException.class)
-    public ResponseEntity<ErrorResponse> handleValidationFailedException(ValidationFailedException ex) {
+    // 유효성 검사 실패 예외 처리
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponse> handleValidationException(MethodArgumentNotValidException ex) {
+        List<ErrorResponse.FieldError> fieldErrors = ex.getFieldErrors().stream()
+                .map(fieldError -> ErrorResponse.FieldError.builder().field(fieldError.getField()).message(fieldError.getDefaultMessage()).build())
+                .collect(Collectors.toList());
+
+        ErrorResponse response = ErrorResponse.builder()
+                .success(false)
+                .message("입력값을 확인해주세요.")
+                .code("VALIDATION_ERROR")
+                .errors(fieldErrors)
+                .build();
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    @ExceptionHandler(InvalidExcelValueException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidExcelValueException(InvalidExcelValueException ex) {
+        // 필드 오류를 가져옵니다.
+        List<ErrorResponse.FieldError> fieldErrors = ex.getFieldErrors();
+
+        // ErrorResponse 객체 생성
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .success(false)
                 .message(ex.getMessage())
                 .code(ex.getCode())
-                .errors(ex.getFieldErrors())
+                .errors(fieldErrors)
                 .build();
+
+        // HTTP 응답으로 반환
         return ResponseEntity.badRequest().body(errorResponse);
     }
 }

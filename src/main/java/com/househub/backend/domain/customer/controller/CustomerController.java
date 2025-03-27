@@ -1,21 +1,21 @@
 package com.househub.backend.domain.customer.controller;
 
-import com.househub.backend.common.exception.ValidationFailedException;
-import com.househub.backend.common.response.ErrorResponse;
 import com.househub.backend.common.response.SuccessResponse;
 import com.househub.backend.domain.customer.dto.CreateCustomerReqDto;
 import com.househub.backend.domain.customer.dto.CreateCustomerResDto;
 import com.househub.backend.domain.customer.service.CustomerService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @RestController
@@ -28,24 +28,7 @@ public class CustomerController {
     // 이메일이 중복되는 경우, 가입이 되지 않게 해야함
     @PostMapping("")
     public ResponseEntity<SuccessResponse<CreateCustomerResDto>> createCustomer(
-            @Valid @RequestBody CreateCustomerReqDto request,
-            BindingResult bindingResult) {
-
-        if (bindingResult.hasErrors()) {
-            List<ErrorResponse.FieldError> errors = bindingResult.getFieldErrors()
-                    .stream()
-                    .map(error -> ErrorResponse.FieldError.builder()
-                            .field(error.getField())
-                            .message(error.getDefaultMessage())
-                            .build())
-                    .collect(Collectors.toList());
-
-            throw new ValidationFailedException(
-                    "유효성 검사 실패",
-                    errors,
-                    "VALIDATION_FAILED"
-            );
-        }
+            @Valid @RequestBody CreateCustomerReqDto request) {
 
         CreateCustomerResDto response = customerService.createCustomer(request);
         return ResponseEntity.ok(SuccessResponse.success("고객 등록이 완료되었습니다.", "CUSTOMER_REGISTER_SUCCESS", response));
@@ -72,7 +55,7 @@ public class CustomerController {
     // 고객 수정
     // 이메일이 중복되는 경우, 에러처리 해야함
     @PutMapping("/{id}")
-    public ResponseEntity<SuccessResponse<CreateCustomerResDto>> updateCustomer(@PathVariable Long id, @RequestBody CreateCustomerReqDto request) {
+    public ResponseEntity<SuccessResponse<CreateCustomerResDto>> updateCustomer(@PathVariable Long id, @Valid @RequestBody CreateCustomerReqDto request) {
         CreateCustomerResDto response = customerService.updateCustomer(id, request);
 
         return ResponseEntity.ok(SuccessResponse.success("고객 정보 수정이 완료되었습니다.", "UPDATE_CUSTOMER_SUCCESS", response));
@@ -87,11 +70,31 @@ public class CustomerController {
         return ResponseEntity.ok(SuccessResponse.success("해당 고객의 삭제가 완료되었습니다.", "DELETE_CUSTOMER_SUCCESS", response));
     }
 
-
     // excel 업로드
-
+    @PostMapping("/upload")
+    public ResponseEntity<SuccessResponse<List<CreateCustomerResDto>>> createCustomersByExcel(@RequestParam("file") MultipartFile file) {
+        if (file.isEmpty()) {
+            throw new IllegalArgumentException("업로드할 파일이 없습니다.");
+        }
+        List<CreateCustomerResDto> response = customerService.createCustomersByExcel(file);
+        return ResponseEntity.ok(SuccessResponse.success("고객 정보 등록 완료", "CUSTOMER_REGISTER_SUCCESS", response));
+    }
 
     // excel 템플릿 다운로드
+    @GetMapping("/download")
+    public ResponseEntity<Resource> downloadExcelForm(){
+        // 템플릿 파일 로드
+        Resource resource = new ClassPathResource("templates/excel_template.xlsx");
 
+        // 파일 이름 설정
+        String filename = "excel_template.xlsx";
 
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename);
+        headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE);
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(resource);
+    }
 }
