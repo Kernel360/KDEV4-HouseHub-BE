@@ -1,7 +1,5 @@
 package com.househub.backend.common.validation;
 
-import com.househub.backend.common.enums.Gender;
-import com.househub.backend.common.exception.InvalidExcelValueException;
 import com.househub.backend.common.response.ErrorResponse.FieldError;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
@@ -29,7 +27,7 @@ public class ExcelValidator implements ConstraintValidator<ValidExcel, Row> {
 
     public List<FieldError> validateRow(Row row) {
         List<FieldError> errors = new ArrayList<>();
-        validateCell(row.getCell(0), this::validateName,errors);
+        validateCell(row.getCell(0), this::validateName, errors);
         validateCell(row.getCell(1), this::validateAgeGroup, errors);
         validateCell(row.getCell(2), this::validateContact, errors);
         validateCell(row.getCell(3), this::validateEmail, errors);

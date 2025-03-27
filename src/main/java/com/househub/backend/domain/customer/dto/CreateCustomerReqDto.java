@@ -8,18 +8,15 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.validation.annotation.Validated;
-
-import java.time.LocalDateTime;
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class CreateCustomerReqDto{
+public class CreateCustomerReqDto {
 
     @NotBlank(message = "이름은 필수입니다.")
-    @Size(min = 2, max = 50, message= "이름은 2자 이상 50자 이하 여야 합니다.")
+    @Size(min = 2, max = 50, message = "이름은 2자 이상 50자 이하 여야 합니다.")
     private String name;
 
     @NotNull(message = "연령대는 필수입니다.")

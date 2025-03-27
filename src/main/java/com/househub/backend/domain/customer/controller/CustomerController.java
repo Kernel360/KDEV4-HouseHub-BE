@@ -14,7 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -82,7 +81,7 @@ public class CustomerController {
 
     // excel 템플릿 다운로드
     @GetMapping("/download")
-    public ResponseEntity<Resource> downloadExcelForm(){
+    public ResponseEntity<Resource> downloadExcelForm() {
         // 템플릿 파일 로드
         Resource resource = new ClassPathResource("templates/excel_template.xlsx");
 

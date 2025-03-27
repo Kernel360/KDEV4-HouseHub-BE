@@ -22,12 +22,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Spliterator;
-import java.util.Spliterators;
-import java.util.stream.StreamSupport;
 
 @Service
 @RequiredArgsConstructor
@@ -70,7 +66,7 @@ public class CustomerServiceImpl implements CustomerService {
             });
 
             if (!allErrors.isEmpty()) {
-                throw new InvalidExcelValueException("입력값을 확인해주세요!",allErrors,"VALIDATION_ERROR");
+                throw new InvalidExcelValueException("입력값을 확인해주세요!", allErrors, "VALIDATION_ERROR");
             }
 
             // 유효한 데이터만 처리
