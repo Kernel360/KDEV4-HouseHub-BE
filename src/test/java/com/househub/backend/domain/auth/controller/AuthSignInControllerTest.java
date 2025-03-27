@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -38,37 +39,41 @@ public class AuthSignInControllerTest {
 
     private SignInResDto signInAgent;
     private SignInReqDto validSignInReqDto;
+    private MockHttpSession mockHttpSession; // MockHttpSession 추가
 
     @BeforeEach
     void setUp() {
         signInAgent = SignInResDto.builder()
-            .id(1L)
-            .email("test@example.com")
-            .build();
+                .id(1L)
+                .email("test@example.com")
+                .build();
 
         validSignInReqDto = SignInReqDto
-            .builder()
-            .email("test@example.com")
-            .password("password123!!!")
-            .build();
+                .builder()
+                .email("test@example.com")
+                .password("password123!!!")
+                .build();
 
         SignInReqDto invalidSignInReqDto = SignInReqDto
                 .builder()
                 .email("wrong@example.com")
                 .password("wrongpassword")
                 .build();
+
+        mockHttpSession = new MockHttpSession();
     }
 
     @Test
     @DisplayName("로그인 성공 - 세션 생성 및 응답")
     void login_success() throws Exception {
-        when(authService.signin(validSignInReqDto)).thenReturn(signInAgent);
+        when(authService.signin(validSignInReqDto, mockHttpSession)).thenReturn(signInAgent);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/signin")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(validSignInReqDto)).with(SecurityMockMvcRequestPostProcessors.csrf())) // CSRF 토큰 추가)
-            .andExpect(status().isOk()) // 응답 상태가 200 OK 인지 확인
-            .andExpect(jsonPath("$.success").value(true));
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(validSignInReqDto)).with(SecurityMockMvcRequestPostProcessors.csrf())
+                        .session(mockHttpSession)) // CSRF 토큰 추가)
+                .andExpect(status().isOk()) // 응답 상태가 200 OK 인지 확인
+                .andExpect(jsonPath("$.success").value(true));
     }
 
 }

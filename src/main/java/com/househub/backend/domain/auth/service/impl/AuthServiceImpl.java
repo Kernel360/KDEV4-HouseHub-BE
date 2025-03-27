@@ -18,6 +18,7 @@ import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -81,20 +82,27 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     @Override
     public SignInResDto signin(SignInReqDto request, HttpSession session) {
-        // 사용자 인증
-        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword());
-        Authentication authentication = authenticationManager.authenticate(token);
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+        try {
+            // 사용자 인증
+            UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword());
+            Authentication authentication = authenticationManager.authenticate(token);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        Agent existingAgent = agentRepository.findByEmail(request.getEmail()).orElseThrow(() -> new ResourceNotFoundException("해당 이메일의 사용자를 찾을 수 없습니다.", "AGENT_NOT_FOUND"));
+            Agent existingAgent = agentRepository.findByEmail(request.getEmail()).orElseThrow(() -> new ResourceNotFoundException("해당 이메일의 사용자를 찾을 수 없습니다.", "AGENT_NOT_FOUND"));
 
-        session.setAttribute("agentId", existingAgent.getId());
-        session.setAttribute("agentName", existingAgent.getName());
+            session.setAttribute("agentId", existingAgent.getId());
+            session.setAttribute("agentName", existingAgent.getName());
 
-        return SignInResDto.builder()
-            .id(existingAgent.getId())
-            .email(existingAgent.getEmail())
-            .build();
+            return SignInResDto.builder()
+                    .id(existingAgent.getId())
+                    .email(existingAgent.getEmail())
+                    .build();
+        } catch (Exception ex) {
+            if (ex instanceof BadCredentialsException) {
+                throw new InvalidPasswordException("", "");
+            }
+            throw ex;
+        }
     }
 
     /**
