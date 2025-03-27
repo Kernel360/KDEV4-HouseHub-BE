@@ -14,8 +14,13 @@ import com.househub.backend.domain.auth.exception.EmailVerifiedException;
 import com.househub.backend.domain.auth.exception.InvalidPasswordException;
 import com.househub.backend.domain.auth.service.AuthService;
 import com.househub.backend.domain.realEstate.repository.RealEstateRepository;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +35,7 @@ public class AuthServiceImpl implements AuthService {
     private final AgentRepository agentRepository;
     private final RealEstateRepository realEstateRepository;
     private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
 
 
     /**
@@ -74,12 +80,16 @@ public class AuthServiceImpl implements AuthService {
      */
     @Transactional
     @Override
-    public SignInResDto signin(SignInReqDto request) {
+    public SignInResDto signin(SignInReqDto request, HttpSession session) {
+        // 사용자 인증
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword());
+        Authentication authentication = authenticationManager.authenticate(token);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
         Agent existingAgent = agentRepository.findByEmail(request.getEmail()).orElseThrow(() -> new ResourceNotFoundException("해당 이메일의 사용자를 찾을 수 없습니다.", "AGENT_NOT_FOUND"));
 
-        if (!passwordEncoder.matches(request.getPassword(), existingAgent.getPassword())) {
-            throw new InvalidPasswordException("비밀번호가 일치하지 않습니다.", "INVALID_PASSWORD");
-        }
+        session.setAttribute("agentId", existingAgent.getId());
+        session.setAttribute("agentName", existingAgent.getName());
 
         return SignInResDto.builder()
             .id(existingAgent.getId())

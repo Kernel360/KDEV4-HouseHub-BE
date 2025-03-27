@@ -37,19 +37,16 @@ public class AuthController {
 
     // 로그인
     @PostMapping("/signin")
-    public ResponseEntity<SuccessResponse<Void>> sigin(
+    public ResponseEntity<SuccessResponse<SignInResDto>> sigin(
             @Valid @RequestBody SignInReqDto request,
             HttpSession session
     ) {
         log.info("{}: {}", request.getEmail(), request.getPassword());
 
-        SignInResDto signInAgentInfo = authService.signin(request);
+        SignInResDto signInAgentInfo = authService.signin(request, session);
 
-        // 세션에 로그인한 중개사 정보 저장
-        session.setAttribute("agent", signInAgentInfo);
-
-        // 응답 본문에는 에이전트 정보를제외하고 상태만 반환
-        return ResponseEntity.ok(SuccessResponse.success("로그인 성공.", "SIGNIN_SUCCESS", null));
+        // 응답 본문에는 에이전트 정보를 제외하고 상태만 반환
+        return ResponseEntity.ok(SuccessResponse.success("로그인 성공.", "SIGNIN_SUCCESS", signInAgentInfo));
     }
 
     @ExceptionHandler({

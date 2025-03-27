@@ -9,6 +9,7 @@ import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactor
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
 
 
 /**
@@ -17,12 +18,13 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
  */
 @Configuration
 @EnableRedisRepositories
+@EnableRedisHttpSession // Redis를 세션저장소로 사용
 @RequiredArgsConstructor
 public class RedisConfig {
-    @Value("${spring.data.redis.host")
+    @Value("${spring.data.redis.host:localhost}")
     private String host;
 
-    @Value("${spring.data.redis.port}")
+    @Value("${spring.data.redis.port:6379}")
     private int port;
 
     /**

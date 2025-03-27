@@ -2,6 +2,8 @@ package com.househub.backend.common.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -20,11 +22,16 @@ import java.util.Arrays;
 public class WebSecurityConfig {
 
     @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
+    }
+
+    @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable) // REST API 서버이므로 CSRF 비활성화
                 .authorizeHttpRequests((authz) -> authz
-                        .requestMatchers("/api/**").permitAll() // /api/** 경로에 대한 모든 접근 허용
+                        .requestMatchers("**").permitAll() // /api/** 경로에 대한 모든 접근 허용
                         .anyRequest().authenticated() // 나머지 요청은 인증 필요
                 )
                 .formLogin(form -> form.disable())
