@@ -30,15 +30,12 @@ public class PropertyServiceImpl implements PropertyService {
     @Transactional
     @Override // 매물 등록
     public CreatePropertyResDto createProperty(PropertyReqDto dto) {
+        // 동일한 주소를 가진 매물 있는지 확인
+        existsByAddress(dto.getRoadAddress(), dto.getDetailAddress());
         // dto -> entity
         Property property = dto.toEntity();
-
-        // 동일한 주소를 가진 매물 있는지 확인
-        existsByAddress(property.getRoadAddress(), property.getDetailAddress());
-
         // db에 저장
         propertyRepository.save(property);
-
         // 응답 객체 리턴
         return new CreatePropertyResDto(property.getPropertyId());
     }
@@ -89,10 +86,10 @@ public class PropertyServiceImpl implements PropertyService {
     @Transactional
     @Override // 매물 정보 수정
     public void updateProperty(Long propertyId, PropertyReqDto updateDto) {
-        // 매물 조회
-        Property property = findPropertyById(propertyId);
         // 주소가 동일한 매물이 있는지 확인
         existsByAddress(updateDto.getRoadAddress(), updateDto.getDetailAddress());
+        // 매물 조회
+        Property property = findPropertyById(propertyId);
         // id로 조회한 매물 정보 수정 및 저장
         property.updateProperty(updateDto);
     }
