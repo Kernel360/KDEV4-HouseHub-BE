@@ -7,9 +7,11 @@ import com.househub.backend.domain.contract.repository.ContractRepository;
 import com.househub.backend.domain.contract.service.ContractService;
 import com.househub.backend.domain.property.entity.Property;
 import com.househub.backend.domain.property.repository.PropertyRepository;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -40,23 +42,57 @@ public class ContractServiceImpl implements ContractService {
         return new CreateContractResDto(contract.getContractId());
     }
 
+    /**
+     *
+     * @param contractId 계약 id
+     * @param dto 계약 수정 요청 dto
+     */
     @Override
     public void updateContract(Long contractId, ContractReqDto dto) {
 
     }
 
+    /**
+     *
+     * @param page 페이지 번호
+     * @param size 페이지 크기
+     * @return 계약 정보 응답 DTO LIST
+     */
     @Override
     public List<FindContractResDto> findContracts(int page, int size) {
-        return List.of();
+        // Pageable 객체 생성 (페이지 번호, 페이지 크기)
+        Pageable pageable = PageRequest.of(page, size);
+
+        // 페이지네이션 적용하여 계약 조회
+        Page<Contract> propertyPage = contractRepository.findAll(pageable);
+
+        // 매물 엔티티를 dto 로 변환하여 리스트로 반환
+        return propertyPage.stream()
+                .map(FindContractResDto::toDto)
+                .toList();
     }
 
-    @Override
-    public FindContractResDto findContract(Long id) {
-        return null;
-    }
-
-    @Override
+    /**
+     *
+     * @param id 삭제할 계약 id
+     */
+    @Transactional
+    @Override // 계약 삭제
     public void deleteContract(Long id) {
+        Contract contract = findContractById(id);
+        contract.deleteContract();
+    }
 
+    // 해당 계약 id 존재 여부 확인
+    /**
+     *
+     * @param id 계약 ID
+     * @return 계약 ID로 계약을 찾았을 경우, Contract 리턴
+     *         계약을 찾지 못했을 경우, exception 처리
+     */
+    public Contract findContractById(Long id) {
+        Contract contract = contractRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("존재하지 않는 계약입니다.", "CONTRACT_NOT_FOUND"));
+        return contract;
     }
 }
