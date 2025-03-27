@@ -6,6 +6,7 @@ import com.househub.backend.domain.contract.enums.ContractStatus;
 import com.househub.backend.domain.contract.enums.ContractType;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Where;
 
 import java.time.LocalDateTime;
 
@@ -15,6 +16,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Where(clause = "deleted_at IS NULL") // 조회 시 자동으로 deletedAt == null 조건
 public class Contract {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -14,6 +14,8 @@ public class ContractReqDto {
     private Long propertyId; // 매물 ID
     @NotNull
     private ContractType contractType; // 거래 유형 (매매, 전세, 월세)
+    @NotNull
+    private ContractStatus contractStatus; // 거래 상태 ( 판매중, 판매 완료 )
 
     private Long salePrice; // 매매가 (매매 계약일 경우 필요)
     private Long jeonsePrice; // 전세가 (전세 계약일 경우 필요)
@@ -37,15 +39,14 @@ public class ContractReqDto {
 
     public Contract toEntity(Property property) {
         return Contract.builder()
-                // 해당 매물 등록
                 .property(property)
-                .contractType(contractType)
-                .salePrice(salePrice)
-                .jeonsePrice(jeonsePrice)
-                .monthlyRentFee(monthlyRentFee)
-                .monthlyRentDeposit(monthlyRentDeposit)
-                .status(ContractStatus.ON_SALE) // 기본값 설정
-                .memo(memo)
+                .contractType(this.contractType)
+                .salePrice(this.salePrice)
+                .jeonsePrice(this.jeonsePrice)
+                .monthlyRentFee(this.monthlyRentFee)
+                .monthlyRentDeposit(this.monthlyRentDeposit)
+                .status(this.contractStatus)
+                .memo(this.memo)
                 .build();
     }
 }
