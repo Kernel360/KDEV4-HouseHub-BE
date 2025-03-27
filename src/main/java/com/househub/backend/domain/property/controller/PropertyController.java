@@ -19,7 +19,7 @@ public class PropertyController {
 
     // 매물 등록
     @PostMapping
-    public ResponseEntity<SuccessResponse<CreatePropertyResDto>> createProperty(@RequestBody PropertyReqDto createPropertyDto) {
+    public ResponseEntity<SuccessResponse<CreatePropertyResDto>> createProperty(@RequestBody @Valid PropertyReqDto createPropertyDto) {
         CreatePropertyResDto response = propertyService.createProperty(createPropertyDto);
         return ResponseEntity.ok(SuccessResponse.success("매물이 성공적으로 등록되었습니다.", "CREATE_PROPERTY_SUCCESS", response));
     }

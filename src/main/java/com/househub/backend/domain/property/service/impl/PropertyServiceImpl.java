@@ -63,7 +63,7 @@ public class PropertyServiceImpl implements PropertyService {
      *
      * @param page 페이지 번호
      * @param size 페이지 크기
-     * @return
+     * @return 매물 기본 정보 응답 DTO LIST
      */
     @Transactional(readOnly = true)
     @Override // 매물 리스트 조회
