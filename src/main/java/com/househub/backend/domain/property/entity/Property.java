@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Where;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -19,6 +20,7 @@ import java.util.List;
 @Getter
 @Entity
 @Table(name = "properties")
+@Where(clause = "deleted_at IS NULL") // 조회 시 자동으로 deletedAt != null 조건
 public class Property {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
