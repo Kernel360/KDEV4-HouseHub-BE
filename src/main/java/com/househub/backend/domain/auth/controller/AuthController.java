@@ -38,15 +38,13 @@ public class AuthController {
 
     // 로그인
     @PostMapping("/signin")
-    public ResponseEntity<SuccessResponse<SignInResDto>> sigin(
-            @Valid @RequestBody SignInReqDto request,
-            HttpServletRequest httpServletRequest
+    public ResponseEntity<SuccessResponse<SignInResDto>> signin(
+            @Valid @RequestBody SignInReqDto request
     ) {
         log.info("{}: {}", request.getEmail(), request.getPassword());
-        HttpSession session = httpServletRequest.getSession(true);
 
         log.info("로그인 비즈니스 로직 시작");
-        SignInResDto signInAgentInfo = authService.signin(request, session);
+        SignInResDto signInAgentInfo = authService.signin(request);
         log.info("로그인 비즈니스 로직 종료");
 
         // 응답 본문에는 에이전트 정보를 제외하고 상태만 반환

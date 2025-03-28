@@ -3,6 +3,7 @@ package com.househub.backend.domain.auth.service.impl;
 import com.househub.backend.common.exception.AlreadyExistsException;
 import com.househub.backend.common.exception.ResourceNotFoundException;
 import com.househub.backend.common.exception.UnauthorizedException;
+import com.househub.backend.common.util.SessionManager;
 import com.househub.backend.domain.agent.entity.Agent;
 import com.househub.backend.domain.agent.entity.AgentStatus;
 import com.househub.backend.domain.agent.entity.RealEstate;
@@ -42,6 +43,7 @@ public class AuthServiceImpl implements AuthService {
     private final RealEstateRepository realEstateRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
+    private final SessionManager sessionManager;
 
 
     /**
@@ -86,21 +88,17 @@ public class AuthServiceImpl implements AuthService {
      */
     @Transactional
     @Override
-    public SignInResDto signin(SignInReqDto request, HttpSession session) {
+    public SignInResDto signin(SignInReqDto request) {
         try {
             log.info("사용자 인증 시도");
             // 사용자 인증
-            UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword());
-            Authentication authentication = authenticationManager.authenticate(token);
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+            Authentication authentication = authenticateUser(request);
 
-            Agent existingAgent = agentRepository.findByEmail(request.getEmail())
-                    .orElseThrow(() -> new ResourceNotFoundException("해당 이메일의 사용자를 찾을 수 없습니다.", "AGENT_NOT_FOUND"));
+            // 사용자 정보 조회
+            Agent existingAgent = findAgentByEmail(request.getEmail());
 
             // 세션 관리
-            SecurityContext securityContext = SecurityContextHolder.getContext();
-            session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, securityContext);
-            session.setMaxInactiveInterval(3600);
+            sessionManager.manageAgentSession(authentication);
 
             return SignInResDto.builder()
                 .id(existingAgent.getId())
@@ -116,6 +114,20 @@ public class AuthServiceImpl implements AuthService {
             log.error("로그인 중 예외 발생: {}", ex.getMessage(), ex);
             throw ex;
         }
+    }
+
+    private Authentication authenticateUser(SignInReqDto request) {
+        UsernamePasswordAuthenticationToken token =
+                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword());
+        return authenticationManager.authenticate(token);
+    }
+
+    private Agent findAgentByEmail(String email) {
+        return agentRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "해당 이메일의 사용자를 찾을 수 없습니다.",
+                        "AGENT_NOT_FOUND"
+                ));
     }
 
     /**
