@@ -9,6 +9,7 @@ import com.househub.backend.domain.auth.dto.SignUpReqDto;
 import com.househub.backend.domain.auth.exception.EmailVerifiedException;
 import com.househub.backend.domain.auth.exception.InvalidPasswordException;
 import com.househub.backend.domain.auth.service.AuthService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -39,11 +40,14 @@ public class AuthController {
     @PostMapping("/signin")
     public ResponseEntity<SuccessResponse<SignInResDto>> sigin(
             @Valid @RequestBody SignInReqDto request,
-            HttpSession session
+            HttpServletRequest httpServletRequest
     ) {
         log.info("{}: {}", request.getEmail(), request.getPassword());
+        HttpSession session = httpServletRequest.getSession(true);
 
+        log.info("로그인 비즈니스 로직 시작");
         SignInResDto signInAgentInfo = authService.signin(request, session);
+        log.info("로그인 비즈니스 로직 종료");
 
         // 응답 본문에는 에이전트 정보를 제외하고 상태만 반환
         return ResponseEntity.ok(SuccessResponse.success("로그인 성공.", "SIGNIN_SUCCESS", signInAgentInfo));

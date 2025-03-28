@@ -3,16 +3,19 @@ package com.househub.backend.domain.auth.service;
 import com.househub.backend.common.exception.ResourceNotFoundException;
 import com.househub.backend.domain.agent.entity.Agent;
 import com.househub.backend.domain.agent.repository.AgentRepository;
+import com.househub.backend.domain.auth.dto.CustomAgentDetails;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
-public class SessionBasedUserDetailsService implements UserDetailsService {
+public class CustomAgentDetailsService implements UserDetailsService {
     private final AgentRepository agentRepository;
 
     /**
@@ -24,17 +27,9 @@ public class SessionBasedUserDetailsService implements UserDetailsService {
      */
     @Override
     public UserDetails loadUserByUsername(String email) throws ResourceNotFoundException {
-        Optional<Agent> existingAgent = agentRepository.findByEmail(email);
-
-        if (existingAgent.isEmpty()) {
-            throw new ResourceNotFoundException("해당 이메일의 사용자를 찾을 수 없습니다.", "AGENT_NOT_FOUND");
-        }
-
-        Agent signInAgent = existingAgent.get();
-        return org.springframework.security.core.userdetails.User
-                .withUsername(signInAgent.getEmail())
-                .password(signInAgent.getPassword())
-                .roles(String.valueOf(signInAgent.getRole()))
-                .build();
+        log.info("loadUserByUsername 호출 시작: {}", email);
+        return agentRepository.findByEmail(email)
+                .map(CustomAgentDetails::new)
+                .orElseThrow(() -> new ResourceNotFoundException("해당 이메일의 사용자를 찾을 수 없습니다.", "AGENT_NOT_FOUND"));
     }
 }
