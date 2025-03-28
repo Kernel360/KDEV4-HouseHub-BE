@@ -162,18 +162,6 @@ public class ContractServiceTest {
                 assertNotNull(dto, "각 DTO는 null이 아니어야 함");
             }
         }
-
-
-//        // 서비스 메서드 호출
-//        // 여기서 마지막 toDto가 연관관계로 실행안돼서 에러남
-//        List<FindContractResDto> result = contractService.findContracts(page, size);
-//
-//        // 결과 검증
-//        assertNotNull(result);  // 결과가 null이 아닌지 확인
-//        assertEquals(3, result.size());  // 반환된 결과 개수 확인
-//
-//        // 리포지토리 메서드 호출 여부 검증
-//        verify(contractRepository).findAll(pageable);
     }
 
     @Test// completed
