@@ -37,7 +37,7 @@ public class Property {
 
     @ManyToOne
     @JoinColumn(name = "agentId", nullable = false)
-    private Agent agent; // 의뢰인 (임대인 또는 매도인)
+    private Agent agent; // 매물을 등록한 공인중개사
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

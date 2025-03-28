@@ -1,5 +1,6 @@
 package com.househub.backend.domain.contract.dto;
 
+import com.househub.backend.domain.agent.entity.Agent;
 import com.househub.backend.domain.contract.entity.Contract;
 import com.househub.backend.domain.contract.enums.ContractStatus;
 import com.househub.backend.domain.contract.enums.ContractType;
@@ -7,11 +8,14 @@ import com.househub.backend.domain.customer.entity.Customer;
 import com.househub.backend.domain.property.entity.Property;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotNull;
-import lombok.Getter;
+import lombok.*;
 
 import java.time.LocalDate;
 
 @Getter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ContractReqDto {
     @NotNull
     private Long propertyId; // 매물 ID
@@ -33,7 +37,7 @@ public class ContractReqDto {
 
     // 자동 실행
     @AssertTrue(message = "거래 유형에 따라 적절한 가격 정보가 필요합니다.")
-    public boolean isValidTransaction() {
+    public boolean isValidContractType() {
         if (contractType == ContractType.SALE) { // 매매
             return salePrice != null && jeonsePrice == null && monthlyRentDeposit == null && monthlyRentFee == null;
         } else if (contractType == ContractType.JEONSE) { // 전세
@@ -44,10 +48,20 @@ public class ContractReqDto {
         return false;
     }
 
-    public Contract toEntity(Property property, Customer customer) {
+    // 자동 실행
+    @AssertTrue(message = "거래 가능 상태일 경우, 거래 시작일과 만료일은 입력할 수 없습니다.")
+    public boolean isValidContractStatus() {
+        if (contractStatus == ContractStatus.AVAILABLE) { // 거래가능일 경우
+            return startedAt == null && expiredAt == null;
+        }
+        return false;
+    }
+
+    public Contract toEntity(Property property, Customer customer, Agent agent) {
         return Contract.builder()
                 .property(property)
                 .customer(customer)
+                .agent(agent)
                 .contractType(this.contractType)
                 .salePrice(this.salePrice)
                 .jeonsePrice(this.jeonsePrice)
