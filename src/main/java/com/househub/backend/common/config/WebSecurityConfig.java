@@ -46,6 +46,10 @@ public class WebSecurityConfig {
                         .requestMatchers("/api/**").authenticated() // 인증 필요한 경로
                         .anyRequest().authenticated() // 나머지 모든 API 는 인증 필요
                 )
+                .exceptionHandling(configurer -> configurer
+                        .authenticationEntryPoint(customAuthenticationHandler)
+                        .accessDeniedHandler(customAuthenticationHandler)
+                )
                 .formLogin(form -> form.disable())
                 .logout((logout) -> logout
                         .logoutRequestMatcher(new AntPathRequestMatcher("/api/auth/logout"))
