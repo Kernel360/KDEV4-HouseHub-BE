@@ -1,6 +1,7 @@
 package com.househub.backend.domain.customer.entity;
 
 import com.househub.backend.common.enums.Gender;
+import com.househub.backend.domain.agent.entity.Agent;
 import com.househub.backend.domain.customer.dto.CreateCustomerReqDto;
 import com.househub.backend.domain.customer.dto.CreateCustomerResDto;
 import jakarta.persistence.*;
@@ -45,6 +46,10 @@ public class Customer {
     private LocalDateTime updatedAt;
 
     private LocalDateTime deletedAt;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "agent_id", nullable = false)
+    private Agent agent;
 
     @PrePersist
     protected void onCreate() {

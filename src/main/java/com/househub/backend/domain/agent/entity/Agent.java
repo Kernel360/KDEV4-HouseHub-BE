@@ -1,5 +1,6 @@
 package com.househub.backend.domain.agent.entity;
 
+import com.househub.backend.domain.customer.entity.Customer;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,6 +11,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -60,6 +62,9 @@ public class Agent implements UserDetails {
     @ManyToOne
     @JoinColumn(name = "real_estate_id")
     private RealEstate realEstate;
+
+    @OneToMany(mappedBy = "agent", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Customer> customers = new ArrayList<>();
 
     @PrePersist
     protected void onCreate() {

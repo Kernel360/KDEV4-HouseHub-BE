@@ -38,6 +38,8 @@ dependencies {
 	testImplementation("org.springframework.security:spring-security-test")
 	testImplementation 'org.mockito:mockito-junit-jupiter'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	// SMS API
+	implementation 'net.nurigo:sdk:4.3.2'
 }
 
 tasks.named('test') {
