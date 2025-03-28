@@ -18,7 +18,6 @@ import org.springframework.session.data.redis.config.annotation.web.http.EnableR
  */
 @Configuration
 @EnableRedisRepositories
-@EnableRedisHttpSession // Redis를 세션저장소로 사용
 @RequiredArgsConstructor
 public class RedisConfig {
     @Value("${spring.data.redis.host:localhost}")
