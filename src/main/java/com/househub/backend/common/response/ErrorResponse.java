@@ -2,7 +2,6 @@ package com.househub.backend.common.response;
 
 import lombok.Builder;
 import lombok.Getter;
-import org.springframework.validation.FieldError;
 
 import java.util.List;
 
