@@ -1,11 +1,16 @@
 package com.househub.backend.domain.contract.entity;
 
+import com.househub.backend.domain.agent.entity.Agent;
+import com.househub.backend.domain.contract.dto.ContractReqDto;
+import com.househub.backend.domain.customer.entity.Customer;
 import com.househub.backend.domain.property.entity.Property;
 import com.househub.backend.domain.contract.enums.ContractStatus;
 import com.househub.backend.domain.contract.enums.ContractType;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Where;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -14,13 +19,19 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Where(clause = "deleted_at IS NULL") // 조회 시 자동으로 deletedAt == null 조건
 public class Contract {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long contractId;
 
-//    @Column(name = "customer_id", nullable = false)
-//    private Long customerId;
+    @ManyToOne
+    @JoinColumn(name = "agentId", nullable = false)
+    private Agent agent; // 담당 공인중개사
+
+    @ManyToOne
+    @JoinColumn(name = "customerId", nullable = false)
+    private Customer customer; // 임차인 또는 매수인
 
     @ManyToOne
     @JoinColumn(name = "propertyId", nullable = false)
@@ -40,7 +51,10 @@ public class Contract {
     @Column(nullable = false)
     private ContractStatus status; // 상태 (판매 중, 판매 완료)
 
-    private String memo; // 참고 설명 - 월세 계약 기간 등
+    private String memo; // 참고 설명
+
+    private LocalDate startedAt; // 계약 시작일
+    private LocalDate expiredAt; // 계약 만료일
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt; // 등록일시
@@ -59,6 +73,17 @@ public class Contract {
     @PreUpdate
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
+    }
+
+    // 수정 메서드 (setter 대신 사용)
+    public void updateContract(ContractReqDto updateDto) {
+        if (updateDto.getContractType() != null) this.contractType = updateDto.getContractType();
+        if (updateDto.getMemo() != null) this.memo = updateDto.getMemo();
+        if (updateDto.getSalePrice() != null) this.salePrice = updateDto.getSalePrice();
+        if (updateDto.getJeonsePrice() != null) this.jeonsePrice = updateDto.getJeonsePrice();
+        if (updateDto.getMonthlyRentDeposit() != null) this.monthlyRentDeposit = updateDto.getMonthlyRentDeposit();
+        if (updateDto.getMonthlyRentFee() != null) this.monthlyRentFee = updateDto.getMonthlyRentFee();
+        this.updatedAt = LocalDateTime.now();
     }
 
     // 삭제 메서드

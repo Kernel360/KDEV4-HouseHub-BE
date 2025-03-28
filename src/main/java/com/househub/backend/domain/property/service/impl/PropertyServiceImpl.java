@@ -1,7 +1,10 @@
 package com.househub.backend.domain.property.service.impl;
 
 import com.househub.backend.common.exception.AlreadyExistsException;
+import com.househub.backend.common.exception.ResourceNotFoundException;
 import com.househub.backend.domain.contract.entity.Contract;
+import com.househub.backend.domain.customer.entity.Customer;
+import com.househub.backend.domain.customer.repository.CustomerRepository;
 import com.househub.backend.domain.property.dto.*;
 import com.househub.backend.domain.property.entity.Property;
 import com.househub.backend.domain.property.repository.PropertyRepository;
@@ -20,6 +23,7 @@ import java.util.List;
 public class PropertyServiceImpl implements PropertyService {
 
     private final PropertyRepository propertyRepository;
+    private final CustomerRepository customerRepository;
 
     /**
      *
@@ -28,16 +32,15 @@ public class PropertyServiceImpl implements PropertyService {
      */
     @Transactional
     @Override // 매물 등록
-    public CreatePropertyResDto createProperty(CreatePropertyReqDto dto) {
-        // dto -> entity
-        Property property = dto.toEntity();
-
+    public CreatePropertyResDto createProperty(PropertyReqDto dto) {
         // 동일한 주소를 가진 매물 있는지 확인
-        existsByAddress(property);
-
+        existsByAddress(dto.getRoadAddress(), dto.getDetailAddress());
+        // 의뢰인(임대인 또는 매도인) 존재 여부 확인
+        Customer customer = findCustomerById(dto.getCustomerId());
+        // dto -> entity
+        Property property = dto.toEntity(customer);
         // db에 저장
         propertyRepository.save(property);
-
         // 응답 객체 리턴
         return new CreatePropertyResDto(property.getPropertyId());
     }
@@ -51,7 +54,7 @@ public class PropertyServiceImpl implements PropertyService {
     @Override // 매물 상세 조회
     public FindPropertyDetailResDto findProperty(Long id) {
         // 매물 조회
-        Property property = isExistsProperty(id);
+        Property property = findPropertyById(id);
         // entity -> dto
         // 해당 매물의 계약 리스트도 response 에 포함
         FindPropertyDetailResDto response = FindPropertyDetailResDto.toDto(property);
@@ -62,9 +65,9 @@ public class PropertyServiceImpl implements PropertyService {
      *
      * @param page 페이지 번호
      * @param size 페이지 크기
-     * @return
+     * @return 매물 기본 정보 응답 DTO LIST
      */
-    @Transactional
+    @Transactional(readOnly = true)
     @Override // 매물 리스트 조회
     public List<FindPropertyResDto> findProperties(int page, int size) {
         // Pageable 객체 생성 (페이지 번호, 페이지 크기)
@@ -87,11 +90,14 @@ public class PropertyServiceImpl implements PropertyService {
      */
     @Transactional
     @Override // 매물 정보 수정
-    public void updateProperty(Long propertyId, UpdatePropertyReqDto updateDto) {
-        // 매물 조회
-        Property property = isExistsProperty(propertyId);
+    public void updateProperty(Long propertyId, PropertyReqDto updateDto) {
         // 주소가 동일한 매물이 있는지 확인
-        existsByAddress(property);
+        existsByAddress(updateDto.getRoadAddress(), updateDto.getDetailAddress());
+        // 의뢰인(임대인 또는 매도인) 존재 여부 확인
+        Customer customer = findCustomerById(updateDto.getCustomerId());
+        // 매물 조회
+        Property property = findPropertyById(propertyId);
+        // id로 조회한 매물 정보 수정 및 저장
         property.updateProperty(updateDto);
     }
 
@@ -103,7 +109,7 @@ public class PropertyServiceImpl implements PropertyService {
     @Override // 매물 삭제
     public void deleteProperty(Long id) {
         // 매물 조회
-        Property property = isExistsProperty(id);
+        Property property = findPropertyById(id);
         // 매물 소프트 삭제
         property.deleteProperty();
         // 매물 삭제 시, 해당 계약도 모두 소프트 딜리트 해야함
@@ -114,10 +120,11 @@ public class PropertyServiceImpl implements PropertyService {
     // 전체 주소(도로명 주소 + 상세 주소)로 해당 매물이 이미 존재하는지 확인
     /**
      *
-     * @param property
+     * @param roadAddress 도로명 주소
+     * @param detailAddress 상세 주소
      */
-    public void existsByAddress(Property property) {
-        boolean isExist = propertyRepository.existsByRoadAddressAndDetailAddress(property.getRoadAddress(), property.getDetailAddress());
+    public void existsByAddress(String roadAddress, String detailAddress) {
+        boolean isExist = propertyRepository.existsByRoadAddressAndDetailAddress(roadAddress, detailAddress);
         if(isExist) {
             throw new AlreadyExistsException("이미 존재하는 매물 입니다.", "PROPERTY_ALREADY_EXISTS");
         }
@@ -130,9 +137,24 @@ public class PropertyServiceImpl implements PropertyService {
      * @return 매물 ID로 매물을 찾았을 경우, Property 리턴
      *         매물을 찾지 못했을 경우, exception 처리
      */
-    public Property isExistsProperty(Long id) {
+    public Property findPropertyById(Long id) {
         Property property = propertyRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Property not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("존재하지 않는 매물입니다.", "PROPERTY_NOT_FOUND"));
         return property;
+    }
+
+    // 해당 고객 id 존재 여부 확인
+
+    /**
+     *
+     * @param id 고객 ID
+     * @return 고객 ID로 매물을 찾았을 경우, Customer 리턴
+     *         고객을 찾지 못했을 경우, exception 처리
+     */
+    public Customer findCustomerById(Long id) {
+        // 의뢰인(임대인 또는 매도인) 존재 여부 확인
+        Customer customer = customerRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("존재하지 않는 고객입니다.", "CUSTOMER_NOT_FOUND"));
+        return customer;
     }
 }
