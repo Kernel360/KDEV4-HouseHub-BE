@@ -1,6 +1,7 @@
 package com.househub.backend.domain.inquiryForm.controller;
 
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.househub.backend.common.response.SuccessResponse;
+import com.househub.backend.common.util.SecurityUtil;
 import com.househub.backend.domain.inquiryForm.dto.CreateInquiryTemplateReqDto;
 import com.househub.backend.domain.inquiryForm.dto.InquiryTemplateListResDto;
 import com.househub.backend.domain.inquiryForm.dto.InquiryTemplatePreviewResDto;
@@ -44,16 +46,22 @@ public class InquiryTemplateController {
 	 */
 	@Operation(summary = "문의 템플릿 생성", description = "새로운 문의 템플릿을 생성합니다.")
 	@ApiResponses(value = {
-		@ApiResponse(responseCode = "200", description = "문의 템플릿 생성 성공"),
+		@ApiResponse(responseCode = "201", description = "문의 템플릿 생성 성공"),
+		@ApiResponse(responseCode = "409", description = "이미 존재하는 문의 템플릿 이름", content = @Content),
 		@ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
 		@ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
 	})
 	@PostMapping("")
 	public ResponseEntity<SuccessResponse<Void>> createNewInquiryTemplate(
 		@Valid @RequestBody CreateInquiryTemplateReqDto reqDto) {
-		inquiryTemplateService.createNewInquiryTemplate(reqDto);
-		return ResponseEntity.ok(
-			SuccessResponse.success("새로운 문의 템플릿 등록 성공", "CREATE_NEW_INQUIRY_TEMPLATE_SUCCESS", null));
+		inquiryTemplateService.createNewInquiryTemplate(reqDto, getSignInAgentId());
+		return ResponseEntity.status(HttpStatus.CREATED).body(
+			SuccessResponse.success(
+				"새로운 문의 템플릿 등록 성공",
+				"CREATE_NEW_INQUIRY_TEMPLATE_SUCCESS",
+				null
+			)
+		);
 	}
 
 	/**
@@ -75,7 +83,8 @@ public class InquiryTemplateController {
 		Boolean isActive,
 		Pageable pageable
 	) {
-		InquiryTemplateListResDto response = inquiryTemplateService.getInquiryTemplates(isActive, pageable);
+		InquiryTemplateListResDto response = inquiryTemplateService.getInquiryTemplates(isActive, pageable,
+			getSignInAgentId());
 		return ResponseEntity.ok(SuccessResponse.success("문의 템플릿 목록 조회 성공", "GET_INQUIRY_TEMPLATES_SUCCESS", response));
 	}
 
@@ -98,7 +107,8 @@ public class InquiryTemplateController {
 		String keyword,
 		Pageable pageable
 	) {
-		InquiryTemplateListResDto response = inquiryTemplateService.searchInquiryTemplates(keyword, pageable);
+		InquiryTemplateListResDto response = inquiryTemplateService.searchInquiryTemplates(keyword, pageable,
+			getSignInAgentId());
 		return ResponseEntity.ok(SuccessResponse.success("문의 템플릿 검색 성공", "SEARCH_INQUIRY_TEMPLATES_SUCCESS", response));
 	}
 
@@ -121,7 +131,8 @@ public class InquiryTemplateController {
 		@Min(value = 1, message = "템플릿 ID는 1 이상이어야 합니다.")
 		Long templateId
 	) {
-		InquiryTemplatePreviewResDto response = inquiryTemplateService.previewInquiryTemplate(templateId);
+		InquiryTemplatePreviewResDto response = inquiryTemplateService.previewInquiryTemplate(templateId,
+			getSignInAgentId());
 		return ResponseEntity.ok(
 			SuccessResponse.success("문의 템플릿 미리보기 성공", "PREVIEW_INQUIRY_TEMPLATE_SUCCESS", response));
 	}
@@ -150,7 +161,7 @@ public class InquiryTemplateController {
 		@RequestBody
 		UpdateInquiryTemplateReqDto reqDto
 	) {
-		inquiryTemplateService.updateInquiryTemplate(templateId, reqDto);
+		inquiryTemplateService.updateInquiryTemplate(templateId, reqDto, getSignInAgentId());
 		return ResponseEntity.ok(
 			SuccessResponse.success("문의 템플릿 수정 성공", "UPDATE_INQUIRY_TEMPLATE_SUCCESS", null));
 	}
@@ -173,8 +184,17 @@ public class InquiryTemplateController {
 		@Min(value = 1, message = "템플릿 ID는 1 이상이어야 합니다.")
 		Long templateId
 	) {
-		inquiryTemplateService.deleteInquiryTemplate(templateId);
+		inquiryTemplateService.deleteInquiryTemplate(templateId, getSignInAgentId());
 		return ResponseEntity.ok(
 			SuccessResponse.success("문의 템플릿 삭제 성공", "DELETE_INQUIRY_TEMPLATE_SUCCESS", null));
+	}
+
+	/**
+	 * 현재 로그인한 에이전트의 ID를 반환합니다.
+	 *
+	 * @return 현재 로그인한 에이전트의 ID
+	 */
+	private Long getSignInAgentId() {
+		return SecurityUtil.getAuthenticatedAgent().getId();
 	}
 }

@@ -4,15 +4,19 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.househub.backend.domain.agent.entity.Agent;
 import com.househub.backend.domain.inquiryForm.dto.CreateInquiryTemplateReqDto;
 import com.househub.backend.domain.inquiryForm.dto.UpdateInquiryTemplateReqDto;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
@@ -33,7 +37,11 @@ public class InquiryTemplate {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@Column(nullable = false)
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "agent_id", nullable = false)
+	private Agent agent;
+
+	@Column(nullable = false, unique = true)
 	private String name;
 
 	private String description;
@@ -72,8 +80,9 @@ public class InquiryTemplate {
 		this.isActive = active;
 	}
 
-	public static InquiryTemplate fromDto(CreateInquiryTemplateReqDto reqDto) {
+	public static InquiryTemplate fromDto(CreateInquiryTemplateReqDto reqDto, Agent agent) {
 		return InquiryTemplate.builder()
+			.agent(agent)
 			.name(reqDto.getName())
 			.description(reqDto.getDescription())
 			.isActive(reqDto.isActive())
