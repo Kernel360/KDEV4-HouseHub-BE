@@ -6,5 +6,8 @@ import org.springframework.data.domain.Pageable;
 
 public interface InquiryTemplateService {
     void createNewInquiryTemplate(CreateInquiryTemplateReqDto reqDto);
+
     InquiryTemplateListResDto getInquiryTemplates(Boolean isActive, Pageable pageable);
+
+    InquiryTemplateListResDto searchInquiryTemplates(String keyword, Pageable pageable);
 }
