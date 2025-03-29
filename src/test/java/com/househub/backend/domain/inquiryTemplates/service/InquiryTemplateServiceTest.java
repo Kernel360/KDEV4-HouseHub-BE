@@ -22,8 +22,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import com.househub.backend.common.exception.ResourceNotFoundException;
 import com.househub.backend.domain.inquiryForm.dto.CreateInquiryTemplateReqDto;
 import com.househub.backend.domain.inquiryForm.dto.InquiryTemplateListResDto;
+import com.househub.backend.domain.inquiryForm.dto.InquiryTemplatePreviewResDto;
 import com.househub.backend.domain.inquiryForm.entity.InquiryTemplate;
 import com.househub.backend.domain.inquiryForm.entity.Question;
 import com.househub.backend.domain.inquiryForm.entity.QuestionType;
@@ -46,34 +48,49 @@ public class InquiryTemplateServiceTest {
 	private InquiryTemplateServiceImpl inquiryTemplateService;
 
 	private CreateInquiryTemplateReqDto reqDto;
-	private CreateInquiryTemplateReqDto.QuestionDto questionDto;
+	private InquiryTemplate inquiryTemplate;
+	private List<Question> questions;
 
 	// 테스트에 필요한 데이터 초기화
 	@BeforeEach
 	void setup() {
 		// 테스트 데이터 생성
 		CreateInquiryTemplateReqDto.QuestionDto questionDto1 = CreateInquiryTemplateReqDto.QuestionDto.builder()
-				.label("이름")
-				.type(QuestionType.TEXT)
-				.required(true)
-				.questionOrder(1)
-				.build();
+			.label("이름")
+			.type(QuestionType.TEXT)
+			.required(true)
+			.questionOrder(1)
+			.build();
 
 		CreateInquiryTemplateReqDto.QuestionDto questionDto2 = CreateInquiryTemplateReqDto.QuestionDto.builder()
-				.label("이메일")
-				.type(QuestionType.TEXT)
-				.required(true)
-				.questionOrder(2)
-				.build();
+			.label("이메일")
+			.type(QuestionType.TEXT)
+			.required(true)
+			.questionOrder(2)
+			.build();
 
 		List<CreateInquiryTemplateReqDto.QuestionDto> questionDtos = Arrays.asList(questionDto1, questionDto2);
 
 		reqDto = CreateInquiryTemplateReqDto.builder()
-				.name("고객 문의 템플릿")
-				.description("고객 문의 시 사용하는 템플릿입니다.")
-				.questions(questionDtos)
-				.isActive(true)
-				.build();
+			.name("고객 문의 템플릿")
+			.description("고객 문의 시 사용하는 템플릿입니다.")
+			.questions(questionDtos)
+			.isActive(true)
+			.build();
+
+		inquiryTemplate = InquiryTemplate.builder()
+			.name(reqDto.getName())
+			.description(reqDto.getDescription())
+			.isActive(reqDto.isActive())
+			.build();
+
+		questions = reqDto.getQuestions().stream()
+			.map(questionDto -> Question.fromDto(questionDto, inquiryTemplate))
+			.collect(Collectors.toList());
+
+		// Mock 객체의 행위 정의
+		when(inquiryTemplateRepository.findById(anyLong())).thenReturn(java.util.Optional.of(inquiryTemplate));
+		when(questionRepository.findAllByInquiryTemplate(any(InquiryTemplate.class))).thenReturn(questions);
 	}
 
 	@Test
@@ -83,8 +100,8 @@ public class InquiryTemplateServiceTest {
 		// DTO를 엔티티로 변환하는 로직 모방
 		InquiryTemplate inquiryTemplate = InquiryTemplate.fromDto(reqDto);
 		List<Question> questions = reqDto.getQuestions().stream()
-				.map(questionDto -> Question.fromDto(questionDto, inquiryTemplate))
-				.collect(Collectors.toList());
+			.map(questionDto -> Question.fromDto(questionDto, inquiryTemplate))
+			.collect(Collectors.toList());
 
 		// Mock 객체의 행위 정의
 		when(inquiryTemplateRepository.save(any(InquiryTemplate.class))).thenReturn(inquiryTemplate);
@@ -103,16 +120,16 @@ public class InquiryTemplateServiceTest {
 	void getInquiryTemplates_success() {
 		// given: 테스트 데이터 준비
 		InquiryTemplate template1 = InquiryTemplate.builder()
-				.name("고객 문의 템플릿 1")
-				.description("첫 번째 템플릿")
-				.isActive(true)
-				.build();
+			.name("고객 문의 템플릿 1")
+			.description("첫 번째 템플릿")
+			.isActive(true)
+			.build();
 
 		InquiryTemplate template2 = InquiryTemplate.builder()
-				.name("고객 문의 템플릿 2")
-				.description("두 번째 템플릿")
-				.isActive(true)
-				.build();
+			.name("고객 문의 템플릿 2")
+			.description("두 번째 템플릿")
+			.isActive(true)
+			.build();
 
 		List<InquiryTemplate> templates = Arrays.asList(template1, template2);
 		Page<InquiryTemplate> page = new PageImpl<>(templates);
@@ -167,16 +184,16 @@ public class InquiryTemplateServiceTest {
 	void searchInquiryTemplates_success() {
 		// given: 테스트 데이터 준비
 		InquiryTemplate template1 = InquiryTemplate.builder()
-				.name("고객 문의 템플릿 1")
-				.description("첫 번째 템플릿")
-				.isActive(true)
-				.build();
+			.name("고객 문의 템플릿 1")
+			.description("첫 번째 템플릿")
+			.isActive(true)
+			.build();
 
 		InquiryTemplate template2 = InquiryTemplate.builder()
-				.name("고객 문의 템플릿 2")
-				.description("두 번째 템플릿")
-				.isActive(true)
-				.build();
+			.name("고객 문의 템플릿 2")
+			.description("두 번째 템플릿")
+			.isActive(true)
+			.build();
 
 		List<InquiryTemplate> templates = Arrays.asList(template1, template2);
 		Page<InquiryTemplate> page = new PageImpl<>(templates);
@@ -224,5 +241,41 @@ public class InquiryTemplateServiceTest {
 
 		// repository가 호출된 횟수 검증
 		verify(inquiryTemplateRepository, times(1)).findAllByKeyword(anyString(), any(Pageable.class));
+	}
+
+	@Test
+	@DisplayName("문의 템플릿 미리보기 성공")
+	void previewInquiryTemplate_success() {
+		// when: 서비스 메서드 호출
+		InquiryTemplatePreviewResDto result = inquiryTemplateService.previewInquiryTemplate(1L);
+
+		// then: 결과 검증
+		assertNotNull(result);
+		assertEquals(reqDto.getName(), result.getName());
+		assertEquals(reqDto.getDescription(), result.getDescription());
+		assertEquals(reqDto.isActive(), result.isActive());
+		assertEquals(reqDto.getQuestions().size(), result.getQuestions().size());
+
+		// repository가 호출된 횟수 검증
+		verify(inquiryTemplateRepository, times(1)).findById(anyLong());
+		verify(questionRepository, times(1)).findAllByInquiryTemplate(any(InquiryTemplate.class));
+	}
+
+	@Test
+	@DisplayName("문의 템플릿 미리보기 실패 - 템플릿 없음")
+	void previewInquiryTemplate_notFound() {
+		// given: 템플릿이 존재하지 않는 경우 설정
+		when(inquiryTemplateRepository.findById(anyLong())).thenReturn(java.util.Optional.empty());
+
+		// when & then: 예외 발생 검증
+		ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> {
+			inquiryTemplateService.previewInquiryTemplate(1L);
+		});
+
+		assertEquals("해당 문의 템플릿을 찾을 수 없습니다.", exception.getMessage());
+
+		// repository가 호출된 횟수 검증
+		verify(inquiryTemplateRepository, times(1)).findById(anyLong());
+		verify(questionRepository, times(0)).findAllByInquiryTemplate(any(InquiryTemplate.class));
 	}
 }

@@ -8,8 +8,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.househub.backend.common.exception.ResourceNotFoundException;
 import com.househub.backend.domain.inquiryForm.dto.CreateInquiryTemplateReqDto;
 import com.househub.backend.domain.inquiryForm.dto.InquiryTemplateListResDto;
+import com.househub.backend.domain.inquiryForm.dto.InquiryTemplatePreviewResDto;
 import com.househub.backend.domain.inquiryForm.dto.InquiryTemplateResDto;
 import com.househub.backend.domain.inquiryForm.entity.InquiryTemplate;
 import com.househub.backend.domain.inquiryForm.entity.Question;
@@ -69,5 +71,20 @@ public class InquiryTemplateServiceImpl implements InquiryTemplateService {
 			.map(InquiryTemplateResDto::fromEntity);
 
 		return InquiryTemplateListResDto.fromPage(page);
+	}
+
+	/**
+	 *
+	 * @param templateId 문의 템플릿 ID
+	 * @return 문의 템플릿 미리보기 응답
+	 */
+	@Override
+	public InquiryTemplatePreviewResDto previewInquiryTemplate(Long templateId) {
+		InquiryTemplate inquiryTemplate = inquiryTemplateRepository.findById(templateId)
+			.orElseThrow(() -> new ResourceNotFoundException("해당 문의 템플릿을 찾을 수 없습니다.", "INQUIRY_TEMPLATE_NOT_FOUND"));
+
+		List<Question> questions = questionRepository.findAllByInquiryTemplate(inquiryTemplate);
+
+		return InquiryTemplatePreviewResDto.fromEntity(inquiryTemplate, questions);
 	}
 }
