@@ -17,4 +17,6 @@ public interface InquiryTemplateService {
 	InquiryTemplatePreviewResDto previewInquiryTemplate(Long templateId);
 
 	void updateInquiryTemplate(Long templateId, UpdateInquiryTemplateReqDto reqDto);
+
+	void deleteInquiryTemplate(Long templateId);
 }

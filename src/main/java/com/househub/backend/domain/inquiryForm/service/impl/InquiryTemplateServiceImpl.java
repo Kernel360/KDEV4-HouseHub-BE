@@ -116,10 +116,20 @@ public class InquiryTemplateServiceImpl implements InquiryTemplateService {
 	/**
 	 *
 	 * @param templateId 문의 템플릿 ID
+	 */
+	@Override
+	public void deleteInquiryTemplate(Long templateId) {
+		InquiryTemplate inquiryTemplate = findInquiryTemplateById(templateId);
+		inquiryTemplateRepository.delete(inquiryTemplate);
+	}
+
+	/**
+	 *
+	 * @param templateId 문의 템플릿 ID
 	 * @return 문의 템플릿 엔티티
 	 * @throws ResourceNotFoundException 해당 문의 템플릿을 찾을 수 없는 경우
 	 */
-	private InquiryTemplate findInquiryTemplateById(Long templateId) {
+	public InquiryTemplate findInquiryTemplateById(Long templateId) {
 		return inquiryTemplateRepository.findById(templateId)
 			.orElseThrow(() -> new ResourceNotFoundException("해당 문의 템플릿을 찾을 수 없습니다.", "INQUIRY_TEMPLATE_NOT_FOUND"));
 	}

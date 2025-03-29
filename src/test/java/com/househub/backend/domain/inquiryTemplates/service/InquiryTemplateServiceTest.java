@@ -314,6 +314,33 @@ public class InquiryTemplateServiceTest {
 		assertEquals(reqDto.getName(), savedInquiryTemplate.getName());
 		assertEquals(reqDto.getDescription(), savedInquiryTemplate.getDescription());
 		assertEquals(reqDto.getIsActive(), savedInquiryTemplate.getIsActive());
+	}
 
+	@Test
+	@DisplayName("문의 템플릿 삭제 성공")
+	void deleteInquiryTemplate_success() {
+		// given: 템플릿이 존재하는 경우 설정
+		when(inquiryTemplateRepository.findById(anyLong())).thenReturn(java.util.Optional.of(inquiryTemplate));
+
+		// when: 서비스 메서드 호출
+		inquiryTemplateService.deleteInquiryTemplate(1L);
+
+		// then: repository 메서드 호출 검증
+		verify(inquiryTemplateRepository, times(1)).findById(anyLong());
+		verify(inquiryTemplateRepository, times(1)).delete(any(InquiryTemplate.class));
+
+		// then: 삭제 후 템플릿 조회 검증
+		when(inquiryTemplateRepository.findById(anyLong())).thenReturn(java.util.Optional.empty());
+		assertThrows(ResourceNotFoundException.class, () -> inquiryTemplateService.findInquiryTemplateById(1L));
+	}
+
+	@Test
+	@DisplayName("문의 템플릿 삭제 실패 - 템플릿 없음")
+	void deleteInquiryTemplate_fail_templateNotFound() {
+		// given: 템플릿이 존재하지 않는 경우 설정
+		when(inquiryTemplateRepository.findById(anyLong())).thenReturn(java.util.Optional.empty());
+
+		// when, then: 예외 발생 검증
+		assertThrows(ResourceNotFoundException.class, () -> inquiryTemplateService.deleteInquiryTemplate(1L));
 	}
 }
