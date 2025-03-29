@@ -40,12 +40,17 @@ public class WebSecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(AbstractHttpConfigurer::disable) // REST API 서버이므로 CSRF 비활성화
                 .authorizeHttpRequests((authz) -> authz
-                        .requestMatchers("/api/auth/signup", "/api/auth/signin").permitAll() // 공개 API
+                        .requestMatchers(
+                                "/api/auth/signup",
+                                "/api/auth/signin",
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html"
+                        ).permitAll() // 공개 API
                         .requestMatchers("/api/**").authenticated() // 인증 필요한 경로
-                        .anyRequest().authenticated() // 나머지 모든 API 는 인증 필요
                 )
+                .csrf(AbstractHttpConfigurer::disable) // REST API 서버이므로 CSRF 비활성화
                 .exceptionHandling(configurer -> configurer
                         .authenticationEntryPoint(customAuthenticationHandler)
                         .accessDeniedHandler(customAuthenticationHandler)
@@ -86,7 +91,7 @@ public class WebSecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost")); // 허용할 Origin
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "http://localhost:8080")); // 허용할 Origin
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS")); // 허용할 HTTP 메서드
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Requested-With")); // 허용할 Header
         configuration.setAllowCredentials(true); // 쿠키 허용

@@ -1,11 +1,18 @@
 package com.househub.backend.domain.agent.repository;
 
-import com.househub.backend.domain.agent.entity.Agent;
-import org.springframework.data.jpa.repository.JpaRepository;
-
 import java.util.Optional;
 
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.househub.backend.domain.agent.entity.Agent;
+import com.househub.backend.domain.agent.entity.AgentStatus;
+
 public interface AgentRepository extends JpaRepository<Agent, Long> {
-    Optional<Agent> findByLicenseNumber(String licenseNumber);
-    Optional<Agent> findByEmail(String email);
+	Optional<Agent> findByLicenseNumber(String licenseNumber);
+
+	Optional<Agent> findByEmail(String email);
+
+	Optional<Agent> findByIdAndStatus(Long agentId, AgentStatus status);
+
+	boolean existsByIdAndStatus(Long agentId, AgentStatus status);
 }
