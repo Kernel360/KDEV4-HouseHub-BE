@@ -13,6 +13,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -20,12 +21,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.househub.backend.common.exception.ResourceNotFoundException;
 import com.househub.backend.domain.inquiryForm.dto.CreateInquiryTemplateReqDto;
 import com.househub.backend.domain.inquiryForm.dto.InquiryTemplateListResDto;
 import com.househub.backend.domain.inquiryForm.dto.InquiryTemplatePreviewResDto;
+import com.househub.backend.domain.inquiryForm.dto.UpdateInquiryTemplateReqDto;
 import com.househub.backend.domain.inquiryForm.entity.InquiryTemplate;
 import com.househub.backend.domain.inquiryForm.entity.Question;
 import com.househub.backend.domain.inquiryForm.entity.QuestionType;
@@ -40,9 +41,6 @@ public class InquiryTemplateServiceTest {
 
 	@Mock
 	private QuestionRepository questionRepository;
-
-	@Mock
-	private PasswordEncoder passwordEncoder;
 
 	@InjectMocks
 	private InquiryTemplateServiceImpl inquiryTemplateService;
@@ -78,19 +76,16 @@ public class InquiryTemplateServiceTest {
 			.isActive(true)
 			.build();
 
-		inquiryTemplate = InquiryTemplate.builder()
-			.name(reqDto.getName())
-			.description(reqDto.getDescription())
-			.isActive(reqDto.isActive())
-			.build();
-
 		questions = reqDto.getQuestions().stream()
 			.map(questionDto -> Question.fromDto(questionDto, inquiryTemplate))
 			.collect(Collectors.toList());
 
-		// Mock 객체의 행위 정의
-		when(inquiryTemplateRepository.findById(anyLong())).thenReturn(java.util.Optional.of(inquiryTemplate));
-		when(questionRepository.findAllByInquiryTemplate(any(InquiryTemplate.class))).thenReturn(questions);
+		inquiryTemplate = InquiryTemplate.builder()
+			.name(reqDto.getName())
+			.description(reqDto.getDescription())
+			.isActive(reqDto.isActive())
+			.questions(questions)
+			.build();
 	}
 
 	@Test
@@ -246,6 +241,10 @@ public class InquiryTemplateServiceTest {
 	@Test
 	@DisplayName("문의 템플릿 미리보기 성공")
 	void previewInquiryTemplate_success() {
+		// given
+		when(inquiryTemplateRepository.findById(anyLong())).thenReturn(java.util.Optional.of(inquiryTemplate));
+		when(questionRepository.findAllByInquiryTemplate(any(InquiryTemplate.class))).thenReturn(questions);
+
 		// when: 서비스 메서드 호출
 		InquiryTemplatePreviewResDto result = inquiryTemplateService.previewInquiryTemplate(1L);
 
@@ -277,5 +276,44 @@ public class InquiryTemplateServiceTest {
 		// repository가 호출된 횟수 검증
 		verify(inquiryTemplateRepository, times(1)).findById(anyLong());
 		verify(questionRepository, times(0)).findAllByInquiryTemplate(any(InquiryTemplate.class));
+	}
+
+	@Test
+	@DisplayName("문의 템플릿 수정 성공")
+	public void updateInquiryTemplate_success() {
+		// given: 테스트 데이터 준비
+		UpdateInquiryTemplateReqDto reqDto = UpdateInquiryTemplateReqDto.builder()
+			.name("수정된 문의 템플릿")
+			.description("수정된 템플릿입니다.")
+			.isActive(false)
+			.build();
+
+		InquiryTemplate inquiryTemplate = InquiryTemplate.builder()
+			.id(1L)
+			.name(reqDto.getName())
+			.description(reqDto.getDescription())
+			.isActive(reqDto.getIsActive())
+			.build();
+
+		// Mock 객체의 행위 정의
+		when(inquiryTemplateRepository.findById(anyLong())).thenReturn(java.util.Optional.of(inquiryTemplate));
+
+		// when: 서비스 메서드 호출
+		inquiryTemplateService.updateInquiryTemplate(1L, reqDto);
+
+		// then: repository 메서드 호출 검증
+		verify(inquiryTemplateRepository, times(1)).findById(anyLong());
+		verify(inquiryTemplateRepository, times(1)).save(any(InquiryTemplate.class));
+
+		ArgumentCaptor<InquiryTemplate> argumentCaptor = ArgumentCaptor.forClass(InquiryTemplate.class);
+		// ArgumentCaptor를 사용하여 inquiryTemplateRepository.save() 메서드에 전달된 InquiryTemplate 객체 캡처
+		verify(inquiryTemplateRepository, times(1)).save(argumentCaptor.capture());
+		InquiryTemplate savedInquiryTemplate = argumentCaptor.getValue();
+
+		// then: 응답 데이터 일치 여부 검증
+		assertEquals(reqDto.getName(), savedInquiryTemplate.getName());
+		assertEquals(reqDto.getDescription(), savedInquiryTemplate.getDescription());
+		assertEquals(reqDto.getIsActive(), savedInquiryTemplate.getIsActive());
+
 	}
 }

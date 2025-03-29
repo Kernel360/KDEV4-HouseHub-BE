@@ -13,6 +13,7 @@ import com.househub.backend.domain.inquiryForm.dto.CreateInquiryTemplateReqDto;
 import com.househub.backend.domain.inquiryForm.dto.InquiryTemplateListResDto;
 import com.househub.backend.domain.inquiryForm.dto.InquiryTemplatePreviewResDto;
 import com.househub.backend.domain.inquiryForm.dto.InquiryTemplateResDto;
+import com.househub.backend.domain.inquiryForm.dto.UpdateInquiryTemplateReqDto;
 import com.househub.backend.domain.inquiryForm.entity.InquiryTemplate;
 import com.househub.backend.domain.inquiryForm.entity.Question;
 import com.househub.backend.domain.inquiryForm.repository.InquiryTemplateRepository;
@@ -80,11 +81,46 @@ public class InquiryTemplateServiceImpl implements InquiryTemplateService {
 	 */
 	@Override
 	public InquiryTemplatePreviewResDto previewInquiryTemplate(Long templateId) {
-		InquiryTemplate inquiryTemplate = inquiryTemplateRepository.findById(templateId)
-			.orElseThrow(() -> new ResourceNotFoundException("해당 문의 템플릿을 찾을 수 없습니다.", "INQUIRY_TEMPLATE_NOT_FOUND"));
+		InquiryTemplate inquiryTemplate = findInquiryTemplateById(templateId);
 
 		List<Question> questions = questionRepository.findAllByInquiryTemplate(inquiryTemplate);
 
 		return InquiryTemplatePreviewResDto.fromEntity(inquiryTemplate, questions);
+	}
+
+	/**
+	 *
+	 * @param templateId 문의 템플릿 ID
+	 * @param reqDto 수정할 문의 템플릿의 정보를 담고 있는 요청 DTO
+	 */
+	@Transactional
+	@Override
+	public void updateInquiryTemplate(Long templateId, UpdateInquiryTemplateReqDto reqDto) {
+		InquiryTemplate inquiryTemplate = findInquiryTemplateById(templateId);
+
+		if (reqDto.getQuestions() != null) {
+			reqDto.getQuestions().forEach(questionDto -> {
+				Question question = inquiryTemplate.getQuestions().stream()
+					.filter(q -> q.getQuestionOrder() == questionDto.getQuestionOrder())
+					.findFirst()
+					.orElseThrow(() -> new ResourceNotFoundException("해당 질문을 찾을 수 없습니다.", "QUESTION_NOT_FOUND"));
+
+				question.update(questionDto);
+			});
+		}
+
+		inquiryTemplate.update(reqDto);
+		inquiryTemplateRepository.save(inquiryTemplate);
+	}
+
+	/**
+	 *
+	 * @param templateId 문의 템플릿 ID
+	 * @return 문의 템플릿 엔티티
+	 * @throws ResourceNotFoundException 해당 문의 템플릿을 찾을 수 없는 경우
+	 */
+	private InquiryTemplate findInquiryTemplateById(Long templateId) {
+		return inquiryTemplateRepository.findById(templateId)
+			.orElseThrow(() -> new ResourceNotFoundException("해당 문의 템플릿을 찾을 수 없습니다.", "INQUIRY_TEMPLATE_NOT_FOUND"));
 	}
 }

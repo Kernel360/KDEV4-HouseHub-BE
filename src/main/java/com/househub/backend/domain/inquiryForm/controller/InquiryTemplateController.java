@@ -3,6 +3,7 @@ package com.househub.backend.domain.inquiryForm.controller;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -14,6 +15,7 @@ import com.househub.backend.common.response.SuccessResponse;
 import com.househub.backend.domain.inquiryForm.dto.CreateInquiryTemplateReqDto;
 import com.househub.backend.domain.inquiryForm.dto.InquiryTemplateListResDto;
 import com.househub.backend.domain.inquiryForm.dto.InquiryTemplatePreviewResDto;
+import com.househub.backend.domain.inquiryForm.dto.UpdateInquiryTemplateReqDto;
 import com.househub.backend.domain.inquiryForm.service.InquiryTemplateService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -113,5 +115,30 @@ public class InquiryTemplateController {
 		InquiryTemplatePreviewResDto response = inquiryTemplateService.previewInquiryTemplate(templateId);
 		return ResponseEntity.ok(
 			SuccessResponse.success("문의 템플릿 미리보기 성공", "PREVIEW_INQUIRY_TEMPLATE_SUCCESS", response));
+	}
+
+	// PATCH /api/inquiry-templates/{templateId}
+
+	/**
+	 * 문의 템플릿을 수정합니다.
+	 * @param templateId 수정할 문의 템플릿의 ID
+	 * @param reqDto 수정할 문의 템플릿의 정보를 담고 있는 요청 DTO
+	 *               (수정할 필드만 포함하고 있어야 함)
+	 *               (수정할 필드가 없는 경우, 빈 객체로 요청)
+	 * @returns 수정 성공 메시지를 포함한 응답
+	 */
+	@Operation(summary = "문의 템플릿 수정", description = "문의 템플릿을 수정합니다.")
+	@ApiResponses(value = {
+		@ApiResponse(responseCode = "200", description = "문의 템플릿 수정 성공"),
+		@ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
+		@ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
+	})
+	@PatchMapping("/{templateId}")
+	public ResponseEntity<SuccessResponse<Void>> updateInquiryTemplate(
+		@PathVariable Long templateId,
+		@Valid @RequestBody UpdateInquiryTemplateReqDto reqDto) {
+		inquiryTemplateService.updateInquiryTemplate(templateId, reqDto);
+		return ResponseEntity.ok(
+			SuccessResponse.success("문의 템플릿 수정 성공", "UPDATE_INQUIRY_TEMPLATE_SUCCESS", null));
 	}
 }

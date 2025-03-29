@@ -29,7 +29,7 @@ public class InquiryTemplatePreviewResDto {
 			.id(inquiryTemplate.getId())
 			.name(inquiryTemplate.getName())
 			.description(inquiryTemplate.getDescription())
-			.isActive(inquiryTemplate.isActive())
+			.isActive(inquiryTemplate.getIsActive())
 			.questions(QuestionDto.fromEntities(questions))
 			.build();
 	}
