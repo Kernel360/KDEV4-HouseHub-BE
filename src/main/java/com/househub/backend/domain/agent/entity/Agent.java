@@ -10,6 +10,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,7 +23,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Agent implements UserDetails {
+public class Agent {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -59,7 +60,7 @@ public class Agent implements UserDetails {
     @Column
     private LocalDateTime deletedAt;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "real_estate_id")
     private RealEstate realEstate;
 
@@ -70,22 +71,11 @@ public class Agent implements UserDetails {
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
-        this.status = AgentStatus.PENDING;
+        this.status = AgentStatus.ACTIVE;
     }
 
     @PreUpdate
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
-    }
-
-    // Agent 의 Role 을 기반으로 접근 제어 설정하기 위해 필요
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(role.getValue()));
-    }
-
-    @Override
-    public String getUsername() {
-        return email;
     }
 }

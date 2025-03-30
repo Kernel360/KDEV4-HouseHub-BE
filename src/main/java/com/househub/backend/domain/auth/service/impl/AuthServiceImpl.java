@@ -2,6 +2,8 @@ package com.househub.backend.domain.auth.service.impl;
 
 import com.househub.backend.common.exception.AlreadyExistsException;
 import com.househub.backend.common.exception.ResourceNotFoundException;
+import com.househub.backend.common.exception.UnauthorizedException;
+import com.househub.backend.common.util.SessionManager;
 import com.househub.backend.domain.agent.entity.Agent;
 import com.househub.backend.domain.agent.entity.AgentStatus;
 import com.househub.backend.domain.agent.entity.RealEstate;
@@ -14,9 +16,19 @@ import com.househub.backend.domain.auth.exception.EmailVerifiedException;
 import com.househub.backend.domain.auth.exception.InvalidPasswordException;
 import com.househub.backend.domain.auth.service.AuthService;
 import com.househub.backend.domain.realEstate.repository.RealEstateRepository;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -30,6 +42,8 @@ public class AuthServiceImpl implements AuthService {
     private final AgentRepository agentRepository;
     private final RealEstateRepository realEstateRepository;
     private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
+    private final SessionManager sessionManager;
 
 
     /**
@@ -75,16 +89,45 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     @Override
     public SignInResDto signin(SignInReqDto request) {
-        Agent existingAgent = agentRepository.findByEmail(request.getEmail()).orElseThrow(() -> new ResourceNotFoundException("해당 이메일의 사용자를 찾을 수 없습니다.", "AGENT_NOT_FOUND"));
+        try {
+            log.info("사용자 인증 시도");
+            // 사용자 인증
+            Authentication authentication = authenticateUser(request);
 
-        if (!passwordEncoder.matches(request.getPassword(), existingAgent.getPassword())) {
-            throw new InvalidPasswordException("비밀번호가 일치하지 않습니다.", "INVALID_PASSWORD");
+            // 사용자 정보 조회
+            Agent existingAgent = findAgentByEmail(request.getEmail());
+
+            // 세션 관리
+            sessionManager.manageAgentSession(authentication);
+
+            return SignInResDto.builder()
+                .id(existingAgent.getId())
+                .email(existingAgent.getEmail())
+                .build();
+        } catch (InternalAuthenticationServiceException ex) {
+            log.warn("로그인 실패 - 사용자를 찾을 수 없음: {}", request.getEmail());
+            throw new UsernameNotFoundException("해당 이메일과 일치하는 중개사가 존재하지 않습니다.");
+        } catch (BadCredentialsException ex) {
+            log.warn("로그인 실패 - 잘못된 자격 증명: {}", request.getEmail());
+            throw new BadCredentialsException("비밀번호가 일치하지 않습니다.");
+        }  catch (Exception ex) {
+            log.error("로그인 중 예외 발생: {}", ex.getMessage(), ex);
+            throw ex;
         }
+    }
 
-        return SignInResDto.builder()
-            .id(existingAgent.getId())
-            .email(existingAgent.getEmail())
-            .build();
+    private Authentication authenticateUser(SignInReqDto request) {
+        UsernamePasswordAuthenticationToken token =
+                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword());
+        return authenticationManager.authenticate(token);
+    }
+
+    private Agent findAgentByEmail(String email) {
+        return agentRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "해당 이메일의 사용자를 찾을 수 없습니다.",
+                        "AGENT_NOT_FOUND"
+                ));
     }
 
     /**
@@ -183,7 +226,6 @@ public class AuthServiceImpl implements AuthService {
                 .contact(agentDTO.getContact())
                 .realEstate(realEstate)
                 .role(Role.AGENT)
-                .status(AgentStatus.APPROVED)
                 .build();
     }
 }

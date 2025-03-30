@@ -1,7 +1,15 @@
 package com.househub.backend.common.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.househub.backend.common.exception.CustomAuthenticationHandler;
+import com.househub.backend.common.response.SuccessResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -9,6 +17,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -17,19 +26,54 @@ import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class WebSecurityConfig {
+    private final ObjectMapper objectMapper;
+    private final CustomAuthenticationHandler customAuthenticationHandler;
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
+    }
+
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable) // REST API 서버이므로 CSRF 비활성화
                 .authorizeHttpRequests((authz) -> authz
-                        .requestMatchers("/api/**").permitAll() // /api/** 경로에 대한 모든 접근 허용
-                        .anyRequest().authenticated() // 나머지 요청은 인증 필요
+                        .requestMatchers("/api/auth/signup", "/api/auth/signin").permitAll() // 공개 API
+                        .requestMatchers("/api/**").authenticated() // 인증 필요한 경로
+                        .anyRequest().authenticated() // 나머지 모든 API 는 인증 필요
+                )
+                .exceptionHandling(configurer -> configurer
+                        .authenticationEntryPoint(customAuthenticationHandler)
+                        .accessDeniedHandler(customAuthenticationHandler)
                 )
                 .formLogin(form -> form.disable())
+                .logout((logout) -> logout
+                        .logoutRequestMatcher(new AntPathRequestMatcher("/api/auth/logout"))
+                        .logoutSuccessHandler((request, response, authentication) -> {
+                            response.setStatus(HttpStatus.OK.value());
+                            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                            response.setCharacterEncoding("UTF-8");
+
+                            // SuccessResponse 객체 생성
+                            SuccessResponse successResponse = SuccessResponse.builder()
+                                    .success(true)
+                                    .message("로그아웃 성공")
+                                    .code("LOGOUT_SUCCESS")
+                                    .build();
+
+                            // SuccessResponse 객체를 JSON으로 변환하여 응답
+                            response.getWriter().write(objectMapper.writeValueAsString(successResponse));
+                        })
+                        .invalidateHttpSession(true)
+                        .deleteCookies("SESSION")
+                        .clearAuthentication(true)
+                )
                 .sessionManagement((sessionManagement) ->
-                        sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS) // 명시적으로 세션 생성 정책 설정
+                        sessionManagement.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED).maximumSessions(1) // 세션 기반 인증 사용
                 );
         return http.build();
     }
@@ -44,7 +88,7 @@ public class WebSecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Arrays.asList("http://localhost")); // 허용할 Origin
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS")); // 허용할 HTTP 메서드
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type")); // 허용할 Header
+        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Requested-With")); // 허용할 Header
         configuration.setAllowCredentials(true); // 쿠키 허용
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/api/**", configuration); // /api/** 경로에 CORS 설정 적용
