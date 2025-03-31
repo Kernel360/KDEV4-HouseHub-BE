@@ -1,12 +1,13 @@
 package com.househub.backend.domain.customer.service;
 
-import com.househub.backend.common.enums.Gender;
-import com.househub.backend.common.exception.*;
-import com.househub.backend.domain.customer.dto.CreateCustomerReqDto;
-import com.househub.backend.domain.customer.dto.CreateCustomerResDto;
-import com.househub.backend.domain.customer.entity.Customer;
-import com.househub.backend.domain.customer.repository.CustomerRepository;
-import com.househub.backend.domain.customer.service.impl.CustomerServiceImpl;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -15,13 +16,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import com.househub.backend.common.enums.Gender;
+import com.househub.backend.common.exception.AlreadyExistsException;
+import com.househub.backend.common.exception.ResourceNotFoundException;
+import com.househub.backend.domain.agent.entity.Agent;
+import com.househub.backend.domain.customer.dto.CreateCustomerReqDto;
+import com.househub.backend.domain.customer.dto.CreateCustomerResDto;
+import com.househub.backend.domain.customer.entity.Customer;
+import com.househub.backend.domain.customer.repository.CustomerRepository;
+import com.househub.backend.domain.customer.service.impl.CustomerServiceImpl;
 
 @ExtendWith(MockitoExtension.class)
 public class CustomerServiceImplTest {
@@ -35,6 +38,7 @@ public class CustomerServiceImplTest {
     private CreateCustomerReqDto createCustomerReqDto;
     private Customer customer;
     private CreateCustomerResDto expectedResponse;
+    private Agent agent;
 
 
     @BeforeEach
@@ -68,6 +72,12 @@ public class CustomerServiceImplTest {
                 .memo("메모")
                 .deletedAt(null)
                 .build();
+
+        agent = Agent.builder()
+            .id(1L)
+            .email("test@example.com")
+            .name("이순신")
+            .build();
     }
 
 
@@ -79,7 +89,7 @@ public class CustomerServiceImplTest {
         when(customerRepository.save(any(Customer.class))).thenReturn(customer);
 
         // when
-        CreateCustomerResDto result = customerService.createCustomer(createCustomerReqDto);
+        CreateCustomerResDto result = customerService.createCustomer(createCustomerReqDto, agent.getId());
 
         // then
         assertNotNull(result);
@@ -103,7 +113,7 @@ public class CustomerServiceImplTest {
 
         // when & then
         AlreadyExistsException exception = assertThrows(AlreadyExistsException.class,
-                () -> customerService.createCustomer(createCustomerReqDto));
+                () -> customerService.createCustomer(createCustomerReqDto,agent.getId()));
 
         assertEquals("해당 이메일(test@example.com)로 생성되었던 계정이 이미 존재합니다.", exception.getMessage());
         assertEquals("EMAIL_ALREADY_EXIST", exception.getCode());

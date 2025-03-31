@@ -1,5 +1,18 @@
 package com.househub.backend.domain.customer.service.impl;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
 import com.househub.backend.common.enums.Gender;
 import com.househub.backend.common.exception.AlreadyExistsException;
 import com.househub.backend.common.exception.InvalidExcelValueException;
@@ -11,19 +24,8 @@ import com.househub.backend.domain.customer.dto.CreateCustomerResDto;
 import com.househub.backend.domain.customer.entity.Customer;
 import com.househub.backend.domain.customer.repository.CustomerRepository;
 import com.househub.backend.domain.customer.service.CustomerService;
-import lombok.RequiredArgsConstructor;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -34,7 +36,7 @@ public class CustomerServiceImpl implements CustomerService {
     private org.springframework.validation.Validator validator; // Spring Validator 주입
 
     @Transactional
-    public CreateCustomerResDto createCustomer(CreateCustomerReqDto request) {
+    public CreateCustomerResDto createCustomer(CreateCustomerReqDto request, Long id) {
         // 이메일로 고객 조회
         customerRepository.findByEmail(request.getEmail()).ifPresent(customer -> {
             throw new AlreadyExistsException("해당 이메일(" + request.getEmail() + ")로 생성되었던 계정이 이미 존재합니다.", "EMAIL_ALREADY_EXIST");
@@ -45,7 +47,7 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Transactional
-    public List<CreateCustomerResDto> createCustomersByExcel(MultipartFile file) {
+    public List<CreateCustomerResDto> createCustomersByExcel(MultipartFile file, Long id) {
         List<FieldError> allErrors = new ArrayList<>();
         List<CreateCustomerReqDto> validDtos = new ArrayList<>();
 
@@ -71,7 +73,7 @@ public class CustomerServiceImpl implements CustomerService {
 
             // 유효한 데이터만 처리
             return validDtos.stream()
-                    .map(this::createCustomer)
+                    .map((CreateCustomerReqDto request) -> createCustomer(request,id))
                     .toList();
 
         } catch (IOException e) {

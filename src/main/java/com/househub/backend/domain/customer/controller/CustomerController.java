@@ -1,20 +1,32 @@
 package com.househub.backend.domain.customer.controller;
 
-import com.househub.backend.common.response.SuccessResponse;
-import com.househub.backend.domain.customer.dto.CreateCustomerReqDto;
-import com.househub.backend.domain.customer.dto.CreateCustomerResDto;
-import com.househub.backend.domain.customer.service.CustomerService;
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
+import java.util.List;
+
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
+import com.househub.backend.common.response.SuccessResponse;
+import com.househub.backend.common.util.SecurityUtil;
+import com.househub.backend.domain.agent.dto.AgentResDto;
+import com.househub.backend.domain.customer.dto.CreateCustomerReqDto;
+import com.househub.backend.domain.customer.dto.CreateCustomerResDto;
+import com.househub.backend.domain.customer.service.CustomerService;
+
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @RestController
@@ -28,8 +40,9 @@ public class CustomerController {
     @PostMapping("")
     public ResponseEntity<SuccessResponse<CreateCustomerResDto>> createCustomer(
             @Valid @RequestBody CreateCustomerReqDto request) {
+        AgentResDto signInAgentInfo = SecurityUtil.getAuthenticatedAgent();
 
-        CreateCustomerResDto response = customerService.createCustomer(request);
+        CreateCustomerResDto response = customerService.createCustomer(request, signInAgentInfo.getId());
         return ResponseEntity.ok(SuccessResponse.success("고객 등록이 완료되었습니다.", "CUSTOMER_REGISTER_SUCCESS", response));
     }
 
@@ -75,7 +88,8 @@ public class CustomerController {
         if (file.isEmpty()) {
             throw new IllegalArgumentException("업로드할 파일이 없습니다.");
         }
-        List<CreateCustomerResDto> response = customerService.createCustomersByExcel(file);
+        AgentResDto signInAgentInfo = SecurityUtil.getAuthenticatedAgent();
+        List<CreateCustomerResDto> response = customerService.createCustomersByExcel(file,signInAgentInfo.getId());
         return ResponseEntity.ok(SuccessResponse.success("고객 정보 등록 완료", "CUSTOMER_REGISTER_SUCCESS", response));
     }
 

@@ -1,14 +1,15 @@
 package com.househub.backend.domain.customer.service;
 
-import com.househub.backend.domain.customer.dto.CreateCustomerReqDto;
-import com.househub.backend.domain.customer.dto.CreateCustomerResDto;
+import java.util.List;
+
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
+import com.househub.backend.domain.customer.dto.CreateCustomerReqDto;
+import com.househub.backend.domain.customer.dto.CreateCustomerResDto;
 
 public interface CustomerService {
 
-    CreateCustomerResDto createCustomer(CreateCustomerReqDto request);
+    CreateCustomerResDto createCustomer(CreateCustomerReqDto request, Long id);
 
     CreateCustomerResDto findByIdAndDeletedAtIsNull(Long id);
 
@@ -18,5 +19,5 @@ public interface CustomerService {
 
     List<CreateCustomerResDto> findAllByDeletedAtIsNull();
 
-    List<CreateCustomerResDto> createCustomersByExcel(MultipartFile file);
+    List<CreateCustomerResDto> createCustomersByExcel(MultipartFile file, Long id);
 }
