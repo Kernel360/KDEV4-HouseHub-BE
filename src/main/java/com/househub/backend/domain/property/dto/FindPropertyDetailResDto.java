@@ -1,6 +1,7 @@
 package com.househub.backend.domain.property.dto;
 
 import com.househub.backend.domain.contract.dto.FindContractResDto;
+import com.househub.backend.domain.customer.dto.CreateCustomerResDto;
 import com.househub.backend.domain.property.entity.Property;
 import com.househub.backend.domain.property.enums.PropertyType;
 import lombok.Builder;
@@ -16,6 +17,7 @@ public class FindPropertyDetailResDto {
 
     private Long propertyId; // 매물 고유 식별자
     private PropertyType propertyType; // 매물 유형
+    private CreateCustomerResDto customer; // 의뢰인(임대인 또는 매도인)
     private String memo; // 참고 설명
     private String province; // 도, 특별시, 광역시
     private String city; // 시/군/구
@@ -33,6 +35,7 @@ public class FindPropertyDetailResDto {
         return FindPropertyDetailResDto.builder()
                 .propertyId(property.getPropertyId())
                 .propertyType(property.getPropertyType())
+                .customer(property.getCustomer().toDto())
                 .memo(property.getMemo())
                 .province(property.getProvince())
                 .city(property.getCity())
@@ -43,6 +46,7 @@ public class FindPropertyDetailResDto {
                 .updatedAt(property.getUpdatedAt())
                 .latitude(property.getLatitude())
                 .longitude(property.getLongitude())
+                // dto 로 변환 후 반환
                 .contractList(property.getContracts() != null ?
                         property.getContracts().stream().map(FindContractResDto::toDto).toList() : null)
                 .build();
