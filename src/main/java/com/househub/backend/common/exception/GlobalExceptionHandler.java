@@ -38,17 +38,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
-    @ExceptionHandler(ValidationFailedException.class)
-    public ResponseEntity<ErrorResponse> handleValidationFailedException(ValidationFailedException ex) {
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .success(false)
-                .message(ex.getMessage())
-                .code(ex.getCode())
-                .errors(ex.getFieldErrors())
-                .build();
-        return ResponseEntity.badRequest().body(errorResponse);
-    }
-
     // 유효성 검사 실패 예외 처리
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidationException(MethodArgumentNotValidException ex) {
@@ -76,5 +65,23 @@ public class GlobalExceptionHandler {
                 .build();
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+    }
+}
+
+    @ExceptionHandler(InvalidExcelValueException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidExcelValueException(InvalidExcelValueException ex) {
+        // 필드 오류를 가져옵니다.
+        List<ErrorResponse.FieldError> fieldErrors = ex.getFieldErrors();
+
+        // ErrorResponse 객체 생성
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .success(false)
+                .message(ex.getMessage())
+                .code(ex.getCode())
+                .errors(fieldErrors)
+                .build();
+
+        // HTTP 응답으로 반환
+        return ResponseEntity.badRequest().body(errorResponse);
     }
 }

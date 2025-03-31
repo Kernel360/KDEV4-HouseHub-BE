@@ -8,4 +8,8 @@ public class CreateContractResDto {
     public CreateContractResDto(Long contractId) {
         this.contractId = contractId;
     }
+
+    public static CreateContractResDto toDto(Long id) {
+        return new CreateContractResDto(id);
+    }
 }

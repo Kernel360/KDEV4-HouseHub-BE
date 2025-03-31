@@ -1,13 +1,16 @@
 package com.househub.backend.domain.property.entity;
 
+import com.househub.backend.domain.agent.entity.Agent;
 import com.househub.backend.domain.contract.entity.Contract;
-import com.househub.backend.domain.property.dto.UpdatePropertyReqDto;
+import com.househub.backend.domain.customer.entity.Customer;
+import com.househub.backend.domain.property.dto.PropertyReqDto;
 import com.househub.backend.domain.property.enums.PropertyType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Where;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -19,6 +22,7 @@ import java.util.List;
 @Getter
 @Entity
 @Table(name = "properties")
+@Where(clause = "deleted_at IS NULL") // 조회 시 자동으로 deletedAt == null 조건
 public class Property {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,6 +30,14 @@ public class Property {
 
     @OneToMany(mappedBy = "property", cascade = CascadeType.ALL)
     private List<Contract> contracts;
+
+    @ManyToOne
+    @JoinColumn(name = "customerId", nullable = false)
+    private Customer customer; // 의뢰인 (임대인 또는 매도인)
+
+    @ManyToOne
+    @JoinColumn(name = "agentId", nullable = false)
+    private Agent agent; // 매물을 등록한 공인중개사
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -73,14 +85,15 @@ public class Property {
     }
 
     // 수정 메서드 (setter 대신 사용)
-    public void updateProperty(UpdatePropertyReqDto updatDto) {
-        if (updatDto.getPropertyType() != null) this.propertyType = updatDto.getPropertyType();
-        if (updatDto.getMemo() != null) this.memo = updatDto.getMemo();
-        if (updatDto.getRoadAddress() != null) this.roadAddress = updatDto.getRoadAddress();
-        if (updatDto.getLatitude() != null) this.latitude = updatDto.getLatitude();
-        if (updatDto.getLongitude() != null) this.longitude = updatDto.getLongitude();
+    public void updateProperty(PropertyReqDto updateDto) {
+        if (updateDto.getPropertyType() != null) this.propertyType = updateDto.getPropertyType();
+        if (updateDto.getMemo() != null) this.memo = updateDto.getMemo();
+        if (updateDto.getRoadAddress() != null) this.roadAddress = updateDto.getRoadAddress();
+        if (updateDto.getDetailAddress() != null) this.detailAddress = updateDto.getDetailAddress();
+        if (updateDto.getLatitude() != null) this.latitude = updateDto.getLatitude();
+        if (updateDto.getLongitude() != null) this.longitude = updateDto.getLongitude();
         this.updatedAt = LocalDateTime.now();
-        parseJibunAddress(updatDto.getJibunAddress());
+        parseJibunAddress(updateDto.getJibunAddress());
     }
 
     // 삭제 메서드
