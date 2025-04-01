@@ -25,6 +25,7 @@ import com.househub.backend.domain.auth.dto.SignInResDto;
 import com.househub.backend.domain.auth.dto.SignUpReqDto;
 import com.househub.backend.domain.auth.exception.EmailVerifiedException;
 import com.househub.backend.domain.auth.exception.InvalidPasswordException;
+import com.househub.backend.domain.auth.service.AuthCode;
 import com.househub.backend.domain.auth.service.AuthService;
 import com.househub.backend.domain.realEstate.repository.RealEstateRepository;
 
@@ -40,6 +41,7 @@ public class AuthServiceImpl implements AuthService {
 	private final PasswordEncoder passwordEncoder;
 	private final AuthenticationManager authenticationManager;
 	private final SessionManager sessionManager;
+	private final AuthCode authCode;
 
 	/**
 	 * 부동산 공인중개사 회원가입
@@ -220,5 +222,57 @@ public class AuthServiceImpl implements AuthService {
 			.realEstate(realEstate)
 			.role(Role.AGENT)
 			.build();
+	}
+
+	/**
+	 * 인증 코드를 생성하고 Redis에 저장합니다.
+	 *
+	 * @param email 사용자 이메일
+	 * @return 생성된 인증 코드
+	 */
+	@Override
+	public String generateAndSaveAuthCode(String email) {
+		String code = authCode.generateAuthCode();
+		authCode.saveAuthCode(email, code);
+		return code;
+	}
+
+	/**
+	 * Redis에서 인증 코드를 조회합니다.
+	 *
+	 * @param email 사용자 이메일
+	 * @return 조회된 인증 코드 (null이면 인증 코드가 존재하지 않음)
+	 */
+	@Override
+	public String getAuthCode(String email) {
+		return authCode.getAuthCode(email);
+	}
+
+	/**
+	 * Redis에서 인증 코드를 삭제합니다.
+	 *
+	 * @param email 사용자 이메일
+	 */
+	@Override
+	public void deleteAuthCode(String email) {
+		authCode.deleteAuthCode(email);
+	}
+
+	@Transactional
+	@Override
+	public void verifyCode(String email, String code) {
+		// Redis 에서 인증번호 조회
+		String storedAuthCode = getAuthCode(email);
+		if (storedAuthCode == null) {
+			throw new RuntimeException("인증번호가 존재하지 않습니다.");
+		}
+
+		// 인증번호 비교
+		if (!storedAuthCode.equals(code)) {
+			throw new RuntimeException("인증번호가 일치하지 않습니다.");
+		}
+
+		// 인증번호 삭제
+		deleteAuthCode(email);
 	}
 }

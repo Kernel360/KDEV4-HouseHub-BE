@@ -16,9 +16,12 @@ import com.househub.backend.common.util.SecurityUtil;
 import com.househub.backend.common.util.SessionManager;
 import com.househub.backend.domain.agent.dto.AgentResDto;
 import com.househub.backend.domain.auth.dto.GetSessionResDto;
+import com.househub.backend.domain.auth.dto.SendEmailReqDto;
+import com.househub.backend.domain.auth.dto.SendEmailResDto;
 import com.househub.backend.domain.auth.dto.SignInReqDto;
 import com.househub.backend.domain.auth.dto.SignInResDto;
 import com.househub.backend.domain.auth.dto.SignUpReqDto;
+import com.househub.backend.domain.auth.dto.VerifyEmailReqDto;
 import com.househub.backend.domain.auth.exception.EmailVerifiedException;
 import com.househub.backend.domain.auth.exception.InvalidPasswordException;
 import com.househub.backend.domain.auth.service.AuthService;
@@ -53,19 +56,14 @@ public class AuthController {
 	public ResponseEntity<SuccessResponse<SignInResDto>> signin(
 		@Valid @RequestBody SignInReqDto request
 	) {
-		try {
-			log.info("{}: {}", request.getEmail(), request.getPassword());
+		log.info("{}: {}", request.getEmail(), request.getPassword());
 
-			log.info("로그인 비즈니스 로직 시작");
-			SignInResDto signInAgentInfo = authService.signin(request);
-			log.info("로그인 비즈니스 로직 종료");
+		log.info("로그인 비즈니스 로직 시작");
+		SignInResDto signInAgentInfo = authService.signin(request);
+		log.info("로그인 비즈니스 로직 종료");
 
-			// 응답 본문에는 에이전트 정보를 제외하고 상태만 반환
-			return ResponseEntity.ok(SuccessResponse.success("로그인 성공.", "SIGNIN_SUCCESS", signInAgentInfo));
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw e;
-		}
+		// 응답 본문에는 에이전트 정보를 제외하고 상태만 반환
+		return ResponseEntity.ok(SuccessResponse.success("로그인 성공.", "SIGNIN_SUCCESS", signInAgentInfo));
 	}
 
 	@Operation(summary = "세션 정보 조회", description = "현재 세션에 저장된 사용자 정보를 조회합니다.")
@@ -117,5 +115,18 @@ public class AuthController {
 				.status(HttpStatus.INTERNAL_SERVER_ERROR)
 				.body(ErrorResponse.builder().message("로그인 중 알 수 없는 오류가 발생했습니다.").code("LOGIN_ERROR").build());
 		}
+	}
+
+	@PostMapping("/email/send")
+	public ResponseEntity<SuccessResponse<SendEmailResDto>> sendEmail(@Valid @RequestBody SendEmailReqDto request) {
+		String authCode = authService.generateAndSaveAuthCode(request.getEmail());
+		return ResponseEntity.ok(SuccessResponse.success("이메일 발송 성공", "EMAIL_SEND_SUCCESS",
+			SendEmailResDto.builder().authCode(authCode).build()));
+	}
+
+	@PostMapping("/email/verify")
+	public ResponseEntity<SuccessResponse<Void>> verifyEmail(@Valid @RequestBody VerifyEmailReqDto request) {
+		authService.verifyCode(request.getEmail(), request.getCode());
+		return ResponseEntity.ok(SuccessResponse.success("이메일 인증 성공", "EMAIL_VERIFY_SUCCESS", null));
 	}
 }

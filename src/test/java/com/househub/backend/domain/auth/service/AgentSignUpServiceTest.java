@@ -67,6 +67,7 @@ public class AgentSignUpServiceTest {
     }
 
     @Test
+<<<<<<< HEAD:src/test/java/com/househub/backend/domain/auth/service/AgentSignUpServiceTest.java
     @DisplayName("회원가입 실패 - 이메일 미인증")
     void signup_fail_email_not_verified() {
         // 이메일 인증되지 않은 경우
@@ -103,6 +104,12 @@ public class AgentSignUpServiceTest {
     void signup_success() {
         // 정상적인 회원가입
         when(agentRepository.findByEmail(any())).thenReturn(Optional.empty());
+=======
+    void 회원가입_성공() {
+        // 자격증 번호와 사업자 등록 번호가 중복되지 않는 경우
+        // 모킹된 리포지토리의 동작을 미리 정의한 것.
+        when(agentRepository.findByLicenseNumber(any())).thenReturn(Optional.empty());
+>>>>>>> b8423d5 (byungchan, feat: 인증 메일 발송 및 인증번호 처리 API 구현 with Redis #23):src/test/java/com/househub/backend/domain/auth/service/AuthServiceImplTest.java
         when(realEstateRepository.findByBusinessRegistrationNumber(any())).thenReturn(Optional.empty());
         when(realEstateRepository.save(any())).thenReturn(RealEstate.builder().build());
         when(agentRepository.save(any())).thenReturn(Agent.builder().build());
