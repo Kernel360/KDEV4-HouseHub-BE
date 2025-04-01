@@ -1,9 +1,7 @@
 package com.househub.backend.common.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.househub.backend.common.exception.CustomAuthenticationHandler;
-import com.househub.backend.common.response.SuccessResponse;
-import lombok.RequiredArgsConstructor;
+import java.util.Arrays;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
@@ -22,7 +20,11 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.Arrays;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.househub.backend.common.exception.CustomAuthenticationHandler;
+import com.househub.backend.common.response.SuccessResponse;
+
+import lombok.RequiredArgsConstructor;
 
 @Configuration
 @EnableWebSecurity
@@ -46,9 +48,10 @@ public class WebSecurityConfig {
                                 "/api/auth/signin",
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
-                                "/swagger-ui.html"
+                                "/swagger-ui.html",
+                                "/api/**"
                         ).permitAll() // 공개 API
-                        .requestMatchers("/api/**").authenticated() // 인증 필요한 경로
+                        .anyRequest().authenticated() // 인증 필요한 경로
                 )
                 .csrf(AbstractHttpConfigurer::disable) // REST API 서버이므로 CSRF 비활성화
                 .exceptionHandling(configurer -> configurer
