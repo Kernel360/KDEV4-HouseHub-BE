@@ -9,12 +9,11 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Getter
 @Builder
 public class FindContractResDto {
-    private Long contractId; // 계약 ID
+    private Long id; // 계약 ID
     private FindPropertyResDto property; // 매물
     private CreateCustomerResDto customer; // 고객
     private ContractType contractType; // 거래 유형 (매매, 전세, 월세)
@@ -24,15 +23,13 @@ public class FindContractResDto {
     private Integer monthlyRentDeposit; // 월세 보증금
     private ContractStatus status; // 계약 상태 (ON_SALE, SOLD_OUT)
     private String memo; // 계약 관련 메모
-    private LocalDateTime createdAt; // 등록일시
-    private LocalDateTime updatedAt; // 수정일시
     private LocalDate startedAt; // 계약 시작 일시
     private LocalDate expiredAt; // 계약 만료 일시
 
     // Contract 엔티티를 DTO로 변환
     public static FindContractResDto toDto(Contract contract) {
         return FindContractResDto.builder()
-                .contractId(contract.getContractId())
+                .id(contract.getId())
                 .property(FindPropertyResDto.toDto(contract.getProperty()))
                 .customer(contract.getCustomer().toDto())
                 .contractType(contract.getContractType())
@@ -42,8 +39,6 @@ public class FindContractResDto {
                 .monthlyRentDeposit(contract.getMonthlyRentDeposit())
                 .status(contract.getStatus())
                 .memo(contract.getMemo())
-                .createdAt(contract.getCreatedAt())
-                .updatedAt(contract.getUpdatedAt())
                 .startedAt(contract.getStartedAt())
                 .expiredAt(contract.getExpiredAt())
                 .build();
