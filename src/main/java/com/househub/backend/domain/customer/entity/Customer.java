@@ -1,18 +1,26 @@
 package com.househub.backend.domain.customer.entity;
 
-<<<<<<< Updated upstream
-=======
 import java.time.LocalDateTime;
 import java.util.Optional;
 
->>>>>>> Stashed changes
 import com.househub.backend.common.enums.Gender;
 import com.househub.backend.domain.customer.dto.CreateCustomerReqDto;
 import com.househub.backend.domain.customer.dto.CreateCustomerResDto;
-import jakarta.persistence.*;
-import lombok.*;
 
-import java.time.LocalDateTime;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "customers")
@@ -63,24 +71,10 @@ public class Customer {
         updatedAt = LocalDateTime.now();
     }
 
-    public void update(CreateCustomerReqDto reqDto) {
-        this.name = reqDto.getName();
-        this.email = reqDto.getEmail();
-        this.ageGroup = reqDto.getAgeGroup();
-        this.memo = reqDto.getMemo();
-        this.contact = reqDto.getContact();
-        this.gender = reqDto.getGender();
-    }
-
-<<<<<<< Updated upstream
     public void delete() {
         this.deletedAt = LocalDateTime.now();
     }
 
-    public void restore() {
-        this.deletedAt = null;
-    }
-=======
 	public void update(CreateCustomerReqDto reqDto) {
 		Optional.ofNullable(reqDto.getName()).ifPresent(name -> this.name = name);
 		Optional.ofNullable(reqDto.getEmail()).ifPresent(email -> this.email = email);
@@ -89,12 +83,6 @@ public class Customer {
 		Optional.ofNullable(reqDto.getContact()).ifPresent(contact -> this.contact = contact);
 		Optional.ofNullable(reqDto.getGender()).ifPresent(gender -> this.gender = gender);
 	}
-
-
-	public void delete() {
-		this.deletedAt = LocalDateTime.now();
-	}
->>>>>>> Stashed changes
 
     public CreateCustomerResDto toDto() {
         return CreateCustomerResDto.builder()
