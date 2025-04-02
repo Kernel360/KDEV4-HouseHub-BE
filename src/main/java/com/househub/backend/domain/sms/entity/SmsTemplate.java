@@ -1,6 +1,7 @@
 package com.househub.backend.domain.sms.entity;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import com.househub.backend.domain.agent.entity.RealEstate;
 import com.househub.backend.domain.sms.dto.CreateUpdateTemplateReqDto;
@@ -61,8 +62,8 @@ public class SmsTemplate {
 	}
 
 	public void update(CreateUpdateTemplateReqDto dto){
-		this.content = dto.getContent();
-		this.title = dto.getTitle();
+		Optional.ofNullable(dto.getContent()).ifPresent(content -> this.content = content);
+		Optional.ofNullable(dto.getTitle()).ifPresent(title -> this.title = title);
 	}
 
 	public TemplateResDto toResDto() {

@@ -10,8 +10,6 @@ import com.househub.backend.domain.sms.entity.SmsTemplate;
 
 public interface TemplateRepository extends JpaRepository<SmsTemplate, Long> {
 
-	Optional<SmsTemplate> findByIdAndDeletedAtIsNull(Long id);
-
 	List<SmsTemplate> findAllByRealEstateAndDeletedAtIsNull(RealEstate realEstate);
 
 	Optional<SmsTemplate> findByIdAndRealEstateAndDeletedAtIsNull(Long id, RealEstate realEstate);
