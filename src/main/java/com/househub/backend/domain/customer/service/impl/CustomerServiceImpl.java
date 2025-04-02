@@ -31,27 +31,6 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class CustomerServiceImpl implements CustomerService {
-
-<<<<<<< Updated upstream
-	private final CustomerRepository customerRepository;
-
-	@Transactional
-	public CreateCustomerResDto createCustomer(CreateCustomerReqDto request, Long id) {
-		// 이메일로 고객 조회
-		customerRepository.findByEmail(request.getEmail()).ifPresent(customer -> {
-			throw new AlreadyExistsException("해당 이메일(" + request.getEmail() + ")로 생성되었던 계정이 이미 존재합니다.",
-				"EMAIL_ALREADY_EXIST");
-		});
-
-		// 새로운 고객 생성 및 저장
-		return customerRepository.save(request.toEntity()).toDto();
-	}
-
-	@Transactional
-	public List<CreateCustomerResDto> createCustomersByExcel(MultipartFile file, Long id) {
-		List<FieldError> allErrors = new ArrayList<>();
-		List<CreateCustomerReqDto> validDtos = new ArrayList<>();
-=======
     private final CustomerRepository customerRepository;
     private final AgentRepository agentRepository;
 
@@ -71,8 +50,6 @@ public class CustomerServiceImpl implements CustomerService {
     public List<CreateCustomerResDto> createCustomersByExcel(MultipartFile file, Long agentId) {
         List<FieldError> allErrors = new ArrayList<>();
         List<CreateCustomerReqDto> validDtos = new ArrayList<>();
->>>>>>> Stashed changes
-
 		try (Workbook workbook = new XSSFWorkbook(file.getInputStream())) {
 			Sheet sheet = workbook.getSheetAt(0);
 			ExcelValidator validator = new ExcelValidator();
@@ -94,17 +71,10 @@ public class CustomerServiceImpl implements CustomerService {
 				throw new InvalidExcelValueException("입력값을 확인해주세요!", allErrors, "VALIDATION_ERROR");
 			}
 
-<<<<<<< Updated upstream
-			// 유효한 데이터만 처리
-			return validDtos.stream()
-				.map((CreateCustomerReqDto request) -> createCustomer(request, id))
-				.toList();
-=======
             // 유효한 데이터만 처리
             return validDtos.stream()
                     .map(request -> createCustomer(request, agentId))
                     .toList();
->>>>>>> Stashed changes
 
 		} catch (IOException e) {
 			throw new RuntimeException("엑셀 처리 실패", e);
@@ -127,24 +97,6 @@ public class CustomerServiceImpl implements CustomerService {
 		return customerRepository.findAllByDeletedAtIsNull().stream().map(Customer::toDto).toList();
 	}
 
-<<<<<<< Updated upstream
-	public CreateCustomerResDto findByIdAndDeletedAtIsNull(Long id) {
-		Customer customer = customerRepository.findByIdAndDeletedAtIsNull(id)
-			.orElseThrow(() -> new ResourceNotFoundException("해당 아이디를 가진 고객이 존재하지 않습니다:" + id, "CUSTOMER_NOT_FOUND"));
-		return customer.toDto();
-	}
-
-	@Transactional
-	public CreateCustomerResDto updateCustomer(Long id, CreateCustomerReqDto request) {
-		customerRepository.findByEmail(request.getEmail()).ifPresent(customer -> {
-			throw new AlreadyExistsException("해당 이메일(" + request.getEmail() + ")로 생성되었던 계정이 이미 존재합니다.",
-				"EMAIL_ALREADY_EXIST");
-		});
-		Customer customer = customerRepository.findByIdAndDeletedAtIsNull(id)
-			.orElseThrow(() -> new ResourceNotFoundException("해당 고객이 존재하지 않습니다:", "CUSTOMER_NOT_FOUND"));
-
-		customer.update(request);
-=======
     public List<CreateCustomerResDto> findAllByDeletedAtIsNull(Long agentId) {
         Agent agent = validateAgent(agentId);
         return customerRepository.findAllByAgentAndDeletedAtIsNull(agent).stream().map(Customer::toDto).toList();
@@ -163,23 +115,9 @@ public class CustomerServiceImpl implements CustomerService {
             throw new AlreadyExistsException("해당 이메일(" + request.getEmail() + ")로 생성되었던 계정이 이미 존재합니다.", "EMAIL_ALREADY_EXIST");
         });
         Customer customer = customerRepository.findByIdAndAgentAndDeletedAtIsNull(id,agent).orElseThrow(() -> new ResourceNotFoundException("해당 고객이 존재하지 않습니다:", "CUSTOMER_NOT_FOUND"));
->>>>>>> Stashed changes
-
 		return customer.toDto();
 	}
 
-	@Transactional
-	public CreateCustomerResDto deleteCustomer(Long id) {
-		Customer customer = customerRepository.findByIdAndDeletedAtIsNull(id)
-			.orElseThrow(() -> new ResourceNotFoundException("해당 고객이 존재하지 않습니다:", "CUSTOMER_NOT_FOUND"));
-
-		// 소프트 딜리트
-		customer.delete();
-
-<<<<<<< Updated upstream
-		return customer.toDto();
-	}
-=======
     @Transactional
     public CreateCustomerResDto deleteCustomer(Long id, Long agentId) {
         Agent agent = validateAgent(agentId);
@@ -194,5 +132,4 @@ public class CustomerServiceImpl implements CustomerService {
         return agentRepository.findById(agentId)
             .orElseThrow(() -> new ResourceNotFoundException("공인중개사가 존재하지 않습니다.", "AGENT_NOT_FOUND"));
     }
->>>>>>> Stashed changes
 }
