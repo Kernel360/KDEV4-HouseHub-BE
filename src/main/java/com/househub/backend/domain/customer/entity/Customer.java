@@ -79,10 +79,6 @@ public class Customer {
 		updatedAt = LocalDateTime.now();
 	}
 
-	public void delete() {
-		this.deletedAt = LocalDateTime.now();
-	}
-
 	public void update(CreateCustomerReqDto reqDto) {
 		Optional.ofNullable(reqDto.getName()).ifPresent(name -> this.name = name);
 		Optional.ofNullable(reqDto.getEmail()).ifPresent(email -> this.email = email);
@@ -90,6 +86,10 @@ public class Customer {
 		Optional.ofNullable(reqDto.getMemo()).ifPresent(memo -> this.memo = memo);
 		Optional.ofNullable(reqDto.getContact()).ifPresent(contact -> this.contact = contact);
 		Optional.ofNullable(reqDto.getGender()).ifPresent(gender -> this.gender = gender);
+	}
+
+	public void delete() {
+		this.deletedAt = LocalDateTime.now();
 	}
 
 	public CreateCustomerResDto toDto() {
