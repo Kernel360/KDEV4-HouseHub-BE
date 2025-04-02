@@ -32,8 +32,6 @@ import lombok.RequiredArgsConstructor;
 public class CustomerServiceImpl implements CustomerService {
 
     private final CustomerRepository customerRepository;
-    @Autowired
-    private org.springframework.validation.Validator validator; // Spring Validator 주입
 
     @Transactional
     public CreateCustomerResDto createCustomer(CreateCustomerReqDto request, Long id) {
