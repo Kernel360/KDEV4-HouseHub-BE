@@ -1,5 +1,11 @@
 package com.househub.backend.domain.customer.entity;
 
+<<<<<<< Updated upstream
+=======
+import java.time.LocalDateTime;
+import java.util.Optional;
+
+>>>>>>> Stashed changes
 import com.househub.backend.common.enums.Gender;
 import com.househub.backend.domain.customer.dto.CreateCustomerReqDto;
 import com.househub.backend.domain.customer.dto.CreateCustomerResDto;
@@ -66,6 +72,7 @@ public class Customer {
         this.gender = reqDto.getGender();
     }
 
+<<<<<<< Updated upstream
     public void delete() {
         this.deletedAt = LocalDateTime.now();
     }
@@ -73,6 +80,21 @@ public class Customer {
     public void restore() {
         this.deletedAt = null;
     }
+=======
+	public void update(CreateCustomerReqDto reqDto) {
+		Optional.ofNullable(reqDto.getName()).ifPresent(name -> this.name = name);
+		Optional.ofNullable(reqDto.getEmail()).ifPresent(email -> this.email = email);
+		Optional.ofNullable(reqDto.getAgeGroup()).ifPresent(ageGroup -> this.ageGroup = ageGroup);
+		Optional.ofNullable(reqDto.getMemo()).ifPresent(memo -> this.memo = memo);
+		Optional.ofNullable(reqDto.getContact()).ifPresent(contact -> this.contact = contact);
+		Optional.ofNullable(reqDto.getGender()).ifPresent(gender -> this.gender = gender);
+	}
+
+
+	public void delete() {
+		this.deletedAt = LocalDateTime.now();
+	}
+>>>>>>> Stashed changes
 
     public CreateCustomerResDto toDto() {
         return CreateCustomerResDto.builder()
