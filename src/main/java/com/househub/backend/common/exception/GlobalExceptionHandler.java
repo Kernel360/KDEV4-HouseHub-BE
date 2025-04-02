@@ -1,15 +1,17 @@
 package com.househub.backend.common.exception;
 
-import com.househub.backend.common.response.ErrorResponse;
-import io.swagger.v3.oas.annotations.Hidden;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import com.househub.backend.common.response.ErrorResponse;
+
+import io.swagger.v3.oas.annotations.Hidden;
 
 @Hidden // Swagger 문서에서 이 클래스 제외
 @RestControllerAdvice
@@ -66,7 +68,6 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
-}
 
     @ExceptionHandler(InvalidExcelValueException.class)
     public ResponseEntity<ErrorResponse> handleInvalidExcelValueException(InvalidExcelValueException ex) {
