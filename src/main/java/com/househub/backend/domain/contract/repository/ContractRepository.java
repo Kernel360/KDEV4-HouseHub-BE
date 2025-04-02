@@ -21,12 +21,15 @@ public interface ContractRepository extends JpaRepository<Contract, Long> {
 
     // 최근 계약부터 정렬
     @Query("SELECT c FROM Contract c " +
-        "WHERE (:agentName IS NULL OR c.agent.name LIKE %:agentName%) " +
+        "JOIN c.agent a " +
+        "WHERE a.realEstate.id = :realEstateId " +
+        "AND (:agentName IS NULL OR a.name LIKE %:agentName%) " +
         "AND (:customerName IS NULL OR c.customer.name LIKE %:customerName%) " +
         "AND (:contractType IS NULL OR c.contractType = :contractType) " +
         "AND (:status IS NULL OR c.status = :status) " +
         "ORDER BY c.createdAt DESC")
-    Page<Contract> findContractsByFilters(
+    Page<Contract> findContractsByRealEstateAndFilters(
+        @Param("realEstateId") Long realEstateId,
         @Param("agentName") String agentName,
         @Param("customerName") String customerName,
         @Param("contractType") ContractType contractType,

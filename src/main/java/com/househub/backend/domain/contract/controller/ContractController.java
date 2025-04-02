@@ -48,7 +48,7 @@ public class ContractController {
 		@ModelAttribute ContractSearchDto searchDto,
 		Pageable pageable
 	) {
-		List<FindContractResDto> response = contractService.findContracts(searchDto, pageable);
+		List<FindContractResDto> response = contractService.findContracts(searchDto, pageable, getSignInAgentId());
 		return ResponseEntity.ok(SuccessResponse.success("계약 조회 성공", "FIND_CONTRACTS_SUCCESS", response));
 	}
 

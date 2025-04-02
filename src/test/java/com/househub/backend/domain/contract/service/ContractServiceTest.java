@@ -4,6 +4,7 @@ import com.househub.backend.common.exception.AlreadyExistsException;
 import com.househub.backend.common.exception.ResourceNotFoundException;
 import com.househub.backend.domain.agent.entity.Agent;
 import com.househub.backend.domain.agent.entity.AgentStatus;
+import com.househub.backend.domain.agent.entity.RealEstate;
 import com.househub.backend.domain.agent.repository.AgentRepository;
 import com.househub.backend.domain.contract.dto.ContractReqDto;
 import com.househub.backend.domain.contract.dto.ContractSearchDto;
@@ -67,6 +68,7 @@ public class ContractServiceTest {
 		agent = Agent.builder()
 			.id(1L)
 			.status(AgentStatus.ACTIVE)
+			.realEstate(RealEstate.builder().id(1L).build())
 			.build();
 
 		customer = Customer.builder()
@@ -148,22 +150,24 @@ public class ContractServiceTest {
 		Pageable pageable = PageRequest.of(0, 10);
 		Page<Contract> page = new PageImpl<>(List.of(contract), pageable, 1);
 
-		// Mocking contractRepository.findContractsByFilters
-		when(contractRepository.findContractsByFilters(
-			any(), any(), any(), any(), any())).thenReturn(page);
+		// Mocking contractRepository.findContractsByRealEstateAndFilters
+		when(agentRepository.findByIdAndStatus(agent.getId(), AgentStatus.ACTIVE)).thenReturn(Optional.of(agent));
+		when(contractRepository.findContractsByRealEstateAndFilters(
+			any(), any(), any(), any(), any(), any())).thenReturn(page);
 
 		// when
-		List<FindContractResDto> result = contractService.findContracts(searchDto, pageable);
+		List<FindContractResDto> result = contractService.findContracts(searchDto, pageable, agent.getId());
 
 		// then
 		assertThat(result.get(0).getId()).isEqualTo(1L);  // 반환된 계약 ID가 1L인지 확인
-		verify(contractRepository, times(1)).findContractsByFilters(
+		verify(contractRepository, times(1)).findContractsByRealEstateAndFilters(
+			agent.getRealEstate().getId(),
 			searchDto.getAgentName(),
 			searchDto.getCustomerName(),
 			searchDto.getContractType(),
 			searchDto.getStatus(),
 			pageable
-		);  // contractRepository.findContractsByFilters가 정확하게 호출되었는지 검증
+		);  // contractRepository.findContractsByRealEstateAndFilters 정확하게 호출되었는지 검증
 	}
 
 	@Test

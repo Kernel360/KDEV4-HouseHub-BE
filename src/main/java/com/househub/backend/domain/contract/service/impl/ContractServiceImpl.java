@@ -80,13 +80,16 @@ public class ContractServiceImpl implements ContractService {
      * 전체 계약 조회 (검색 포함)
      * @param searchDto 계약 검색 조건 DTO
      * @param pageable 페이지네이션 정보
+     * @param agentId 공인중개사 ID
      * @return 계약 정보 응답 DTO LIST
      */
     @Override
     @Transactional(readOnly = true)
-    public List<FindContractResDto> findContracts(ContractSearchDto searchDto, Pageable pageable) {
+    public List<FindContractResDto> findContracts(ContractSearchDto searchDto, Pageable pageable, Long agentId) {
         // 페이지네이션 적용하여 계약 조회
-        Page<Contract> contractPage = contractRepository.findContractsByFilters(
+        Agent agent = findAgentById(agentId);
+        Page<Contract> contractPage = contractRepository.findContractsByRealEstateAndFilters(
+            agent.getRealEstate().getId(),
             searchDto.getAgentName(),
             searchDto.getCustomerName(),
             searchDto.getContractType(),

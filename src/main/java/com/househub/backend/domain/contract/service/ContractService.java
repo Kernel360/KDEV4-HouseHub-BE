@@ -14,7 +14,7 @@ public interface ContractService {
     public void updateContract(Long id, ContractReqDto dto);
 
     // 계약 목록 조회
-    public List<FindContractResDto> findContracts(ContractSearchDto searchDto, Pageable pageable);
+    public List<FindContractResDto> findContracts(ContractSearchDto searchDto, Pageable pageable, Long agentId);
 
     // 계약 삭제
     public void deleteContract(Long id);
