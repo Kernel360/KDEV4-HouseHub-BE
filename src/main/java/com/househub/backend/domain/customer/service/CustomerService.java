@@ -9,11 +9,7 @@ import com.househub.backend.domain.customer.dto.CreateCustomerResDto;
 
 public interface CustomerService {
 
-<<<<<<< Updated upstream
-    CreateCustomerResDto createCustomer(CreateCustomerReqDto request, Long id);
-=======
     CreateCustomerResDto createCustomer(CreateCustomerReqDto request, Long agentId);
->>>>>>> Stashed changes
 
     CreateCustomerResDto findByIdAndDeletedAtIsNull(Long id, Long agentId);
 
@@ -23,9 +19,5 @@ public interface CustomerService {
 
     List<CreateCustomerResDto> findAllByDeletedAtIsNull(Long agentId);
 
-<<<<<<< Updated upstream
-    List<CreateCustomerResDto> createCustomersByExcel(MultipartFile file, Long id);
-=======
     List<CreateCustomerResDto> createCustomersByExcel(MultipartFile file, Long agentId);
->>>>>>> Stashed changes
 }
