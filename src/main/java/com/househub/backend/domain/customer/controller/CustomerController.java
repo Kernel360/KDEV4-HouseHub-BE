@@ -20,7 +20,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.househub.backend.common.response.SuccessResponse;
 import com.househub.backend.common.util.SecurityUtil;
-import com.househub.backend.domain.agent.dto.AgentResDto;
 import com.househub.backend.domain.customer.dto.CreateCustomerReqDto;
 import com.househub.backend.domain.customer.dto.CreateCustomerResDto;
 import com.househub.backend.domain.customer.service.CustomerService;
@@ -34,6 +33,7 @@ import lombok.RequiredArgsConstructor;
 public class CustomerController {
 
     private final CustomerService customerService;
+
 	// 고객 등록
 	// 이메일이 중복되는 경우, 가입이 되지 않게 해야함
 	// 로그인한 공인중개사도 같이 저장
@@ -52,9 +52,9 @@ public class CustomerController {
 	public ResponseEntity<SuccessResponse<List<CreateCustomerResDto>>> findAllCustomer() {
 		Long agentId = SecurityUtil.getAuthenticatedAgent().getId();
 		List<CreateCustomerResDto> response = customerService.findAllByDeletedAtIsNull(agentId);
-
         return ResponseEntity.ok(SuccessResponse.success("고객 목록 조회에 성공했습니다.", "FIND_ALL_CUSTOMER_SUCCESS", response));
     }
+
 	// 고객 상세 정보 조회
 	// 삭제 처리된 고객은 조회되지 않게 예외처리
 	// 본인이 등록한 고객만 보게함
@@ -64,6 +64,7 @@ public class CustomerController {
 		CreateCustomerResDto response = customerService.findByIdAndDeletedAtIsNull(id,agentId);
         return ResponseEntity.ok(SuccessResponse.success("고객 상세 조회가 완료되었습니다.", "FIND_CUSTOMER_SUCCESS", response));
     }
+
 	// 고객 수정
 	// 이메일이 중복되는 경우, 에러처리 해야함
 	// 본인이 담당하는 고객만 수정 가능

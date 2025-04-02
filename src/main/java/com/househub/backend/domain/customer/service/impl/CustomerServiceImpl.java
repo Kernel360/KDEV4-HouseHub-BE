@@ -31,6 +31,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class CustomerServiceImpl implements CustomerService {
+
     private final CustomerRepository customerRepository;
     private final AgentRepository agentRepository;
 
@@ -93,10 +94,6 @@ public class CustomerServiceImpl implements CustomerService {
 			.build();
 	}
 
-	public List<CreateCustomerResDto> findAllByDeletedAtIsNull() {
-		return customerRepository.findAllByDeletedAtIsNull().stream().map(Customer::toDto).toList();
-	}
-
     public List<CreateCustomerResDto> findAllByDeletedAtIsNull(Long agentId) {
         Agent agent = validateAgent(agentId);
         return customerRepository.findAllByAgentAndDeletedAtIsNull(agent).stream().map(Customer::toDto).toList();
@@ -115,6 +112,7 @@ public class CustomerServiceImpl implements CustomerService {
             throw new AlreadyExistsException("해당 이메일(" + request.getEmail() + ")로 생성되었던 계정이 이미 존재합니다.", "EMAIL_ALREADY_EXIST");
         });
         Customer customer = customerRepository.findByIdAndAgentAndDeletedAtIsNull(id,agent).orElseThrow(() -> new ResourceNotFoundException("해당 고객이 존재하지 않습니다:", "CUSTOMER_NOT_FOUND"));
+		customer.update(request);
 		return customer.toDto();
 	}
 

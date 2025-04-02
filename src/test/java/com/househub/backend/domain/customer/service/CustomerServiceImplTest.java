@@ -20,10 +20,7 @@ import com.househub.backend.common.enums.Gender;
 import com.househub.backend.common.exception.AlreadyExistsException;
 import com.househub.backend.common.exception.ResourceNotFoundException;
 import com.househub.backend.domain.agent.entity.Agent;
-<<<<<<< Updated upstream
-=======
 import com.househub.backend.domain.agent.repository.AgentRepository;
->>>>>>> Stashed changes
 import com.househub.backend.domain.customer.dto.CreateCustomerReqDto;
 import com.househub.backend.domain.customer.dto.CreateCustomerResDto;
 import com.househub.backend.domain.customer.entity.Customer;
@@ -98,11 +95,7 @@ public class CustomerServiceImplTest {
         when(customerRepository.save(any(Customer.class))).thenReturn(customer);
 
         // when
-<<<<<<< Updated upstream
-        CreateCustomerResDto result = customerService.createCustomer(createCustomerReqDto, agent.getId());
-=======
         CreateCustomerResDto result = customerService.createCustomer(createCustomerReqDto, agentId);
->>>>>>> Stashed changes
 
         // then
         assertNotNull(result);
@@ -131,11 +124,7 @@ public class CustomerServiceImplTest {
 
         // when & then
         AlreadyExistsException exception = assertThrows(AlreadyExistsException.class,
-<<<<<<< Updated upstream
-                () -> customerService.createCustomer(createCustomerReqDto,agent.getId()));
-=======
                 () -> customerService.createCustomer(createCustomerReqDto, agentId));
->>>>>>> Stashed changes
 
         assertEquals("해당 이메일(test@example.com)로 생성되었던 계정이 이미 존재합니다.", exception.getMessage());
         assertEquals("EMAIL_ALREADY_EXIST", exception.getCode());
