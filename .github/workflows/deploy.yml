@@ -1,0 +1,120 @@
+name: Backend CI/CD
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - develop
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      # 1. GitHub 저장소에서 코드 체크아웃
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. JDK 17 설정 (Corretto 배포판)
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'corretto'  # 수정된 부분
+          java-version: '17'
+
+      # 3. 환경 변수 설정
+      - name: Set environment variables
+        run: |
+          echo "DB_URL=${{ secrets.DB_URL }}" >> $GITHUB_ENV
+          echo "DB_USERNAME=${{ secrets.DB_USERNAME }}" >> $GITHUB_ENV
+          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> $GITHUB_ENV
+
+      # 4. application.yml 생성
+      - name: Create application.yml
+        run: |
+          # 디렉토리 생성 (명시적으로)
+          mkdir -p src/main/resources
+          
+          cat << EOF > src/main/resources/application.yml
+          spring:
+            application:
+              name: HouseHub Backend
+            datasource:
+              url: ${{ env.DB_URL }}  # 수정된 부분
+              username: ${{ env.DB_USERNAME }}  # 수정된 부분
+              password: '${{ env.DB_PASSWORD }}'  # 수정된 부분
+              driver-class-name: com.mysql.cj.jdbc.Driver
+            jpa:
+              hibernate:
+                ddl-auto: update
+              properties:
+                hibernate:
+                  dialect: org.hibernate.dialect.MySQL8Dialect
+            devtools:
+              livereload:
+                enabled: true
+              restart:
+                enabled: true
+          server:
+            port: 8080
+          EOF
+          
+          # 파일 생성 확인
+          ls -l src/main/resources/application.yml
+
+      # 5. Gradle 빌드
+      - name: Build with Gradle
+        run: chmod +x gradlew && ./gradlew -i clean build --no-daemon
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build # build 작업이 성공해야 deploy 작업 실행
+    if: github.ref == 'refs/heads/main' # main 브랜치로 push 될 때만 실행
+
+    steps:
+      # 1. GitHub 저장소에서 코드 체크아웃
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Docker 이미지 빌드
+      - name: Build Docker image
+        run: docker build -f Dockerfile -t ${{ secrets.DOCKERHUB_REPO }}:latest .
+
+      # 3. Docker Hub 로그인
+      - name: DockerHub login
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # 4. Docker Hub에 이미지 푸시
+      - name: Push Docker image
+        run: docker push ${{ secrets.DOCKERHUB_REPO }}:latest
+
+      # 5. Connect to EC2 and Deploy
+      - name: Connect to EC2 and Deploy
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.AWS_HOST }}
+          username: ${{ secrets.AWS_USERNAME }}
+          key: ${{ secrets.AWS_KEY }}
+          script: |
+            # 작업 디렉토리 이동
+            cd ~/househub
+
+            # 기존 컨테이너 중지 및 제거
+            docker-compose down
+
+            # 최신 이미지 가져오기
+            docker pull ${{ secrets.DOCKERHUB_REPO }}:latest
+
+            # 불필요한 이미지 삭제
+            docker image prune -f
+
+            # 컨테이너 실행
+            docker-compose up -d --force-recreate

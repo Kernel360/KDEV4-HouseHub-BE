@@ -1,0 +1,23 @@
+{
+  "name": "kdev4-househub-be",
+  "version": "1.0.0",
+  "description": "4기 8조의 백엔드 레포입니다.",
+  "scripts": {
+    "prepare": "husky install"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Kernel360/KDEV4-HouseHub-BE.git"
+  },
+  "author": "Househub",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Kernel360/KDEV4-HouseHub-BE/issues"
+  },
+  "homepage": "https://github.com/Kernel360/KDEV4-HouseHub-BE#readme",
+  "devDependencies": {
+    "@commitlint/cli": "^19.8.0",
+    "@commitlint/config-conventional": "^19.8.0",
+    "husky": "^9.1.7"
+  }
+}
