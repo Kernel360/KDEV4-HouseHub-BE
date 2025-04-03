@@ -6,13 +6,17 @@ import com.househub.backend.domain.property.entity.Property;
 import com.househub.backend.domain.property.enums.PropertyType;
 
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 
 @Builder
 @Getter
+@NoArgsConstructor
+@AllArgsConstructor
 public class PropertyReqDto {
 	@NotNull(message = "의뢰인을 설정해 주세요.")
 	private Long customerId;

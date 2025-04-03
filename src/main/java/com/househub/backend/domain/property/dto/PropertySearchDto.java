@@ -2,13 +2,17 @@ package com.househub.backend.domain.property.dto;
 
 import com.househub.backend.domain.property.enums.PropertyType;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Setter
 @Getter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class PropertySearchDto {
     private String province;      // 도, 특별시, 광역시
     private String city;          // 시/군/구

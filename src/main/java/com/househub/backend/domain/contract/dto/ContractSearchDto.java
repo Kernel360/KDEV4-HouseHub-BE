@@ -3,13 +3,17 @@ package com.househub.backend.domain.contract.dto;
 import com.househub.backend.domain.contract.enums.ContractStatus;
 import com.househub.backend.domain.contract.enums.ContractType;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ContractSearchDto {
 	private String agentName;     // 공인중개사 이름
 	private String customerName;  // 고객 이름
