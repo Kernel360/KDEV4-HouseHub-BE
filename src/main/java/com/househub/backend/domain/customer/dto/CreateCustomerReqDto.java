@@ -2,8 +2,14 @@ package com.househub.backend.domain.customer.dto;
 
 import com.househub.backend.common.enums.Gender;
 import com.househub.backend.common.validation.ValidAgeGroup;
+import com.househub.backend.domain.agent.entity.Agent;
 import com.househub.backend.domain.customer.entity.Customer;
-import jakarta.validation.constraints.*;
+
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -36,7 +42,7 @@ public class CreateCustomerReqDto {
     @NotNull(message = "성별은 필수입니다.")
     private Gender gender;
 
-    public Customer toEntity() {
+    public Customer toEntity(Agent agent) {
         return Customer.builder()
                 .name(this.name)
                 .ageGroup(this.ageGroup)
@@ -44,6 +50,7 @@ public class CreateCustomerReqDto {
                 .email(this.email)
                 .memo(this.memo)
                 .gender(this.gender)
+                .agent(agent)
                 .build();
     }
 }
