@@ -17,13 +17,13 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ContractReqDto {
-    @NotNull
+    @NotNull(message = "매물 id를 입력해 주세요.")
     private Long propertyId; // 매물 ID
-    @NotNull
+    @NotNull(message = "고객 id를 입력해 주세요.")
     private Long customerId; // 고객 ID
-    @NotNull
+    @NotNull(message = "거래 유형은 필수입니다.")
     private ContractType contractType; // 거래 유형 (매매, 전세, 월세)
-    @NotNull
+    @NotNull(message = "거래 상태는 필수입니다.")
     private ContractStatus contractStatus; // 거래 상태 ( 판매중, 판매 완료 )
 
     private Long salePrice; // 매매가 (매매 계약일 경우 필요)
@@ -54,7 +54,7 @@ public class ContractReqDto {
         if (contractStatus == ContractStatus.AVAILABLE) { // 거래가능일 경우
             return startedAt == null && expiredAt == null;
         }
-        return false;
+        return true;
     }
 
     public Contract toEntity(Property property, Customer customer, Agent agent) {
