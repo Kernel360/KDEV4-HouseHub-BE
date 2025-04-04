@@ -2,7 +2,6 @@ package com.househub.backend.domain.consultation.service;
 
 import com.househub.backend.domain.consultation.dto.ConsultationReqDto;
 import com.househub.backend.domain.consultation.dto.ConsultationResDto;
-import com.househub.backend.domain.consultation.entity.Consultation;
 
 import java.util.List;
 

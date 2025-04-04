@@ -6,7 +6,6 @@ import com.househub.backend.domain.consultation.dto.ConsultationResDto;
 import com.househub.backend.domain.consultation.entity.Consultation;
 import com.househub.backend.domain.consultation.repository.ConsultationRepository;
 import com.househub.backend.domain.consultation.service.ConsultationService;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

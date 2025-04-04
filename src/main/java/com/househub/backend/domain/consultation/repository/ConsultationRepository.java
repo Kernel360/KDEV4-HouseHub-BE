@@ -8,9 +8,9 @@ import java.util.Optional;
 
 public interface ConsultationRepository extends JpaRepository<Consultation, Long> {
 
-    // deleteaAt이 null인 데이터에 대한 조회
+    // deletedAt이 null인 데이터에 대한 조회
     Optional<Consultation> findByIdAndDeletedAtIsNull(Long id);
 
-    // deleteaAt이 null인 데이터에 대한 조회
+    // deletedAt이 null인 데이터에 대한 조회
     List<Consultation> findAllByDeletedAtIsNull();
 }

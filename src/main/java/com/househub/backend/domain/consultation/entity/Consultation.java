@@ -1,7 +1,6 @@
 package com.househub.backend.domain.consultation.entity;
 
 import com.househub.backend.domain.consultation.dto.ConsultationReqDto;
-import com.househub.backend.domain.consultation.dto.ConsultationResDto;
 import com.househub.backend.domain.consultation.enums.ConsultationStatus;
 import com.househub.backend.domain.consultation.enums.ConsultationType;
 import jakarta.persistence.*;
