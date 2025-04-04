@@ -22,12 +22,12 @@ public class Consultation {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    public Long id;
+    private Long id;
 
-    @Column(nullable = false, length = 50)
+    @Column(nullable = false)
     private Long agentId;
 
-    @Column(nullable = false, length = 50)
+    @Column(nullable = false)
     private Long customerId;
 
     @Column(nullable = false)
@@ -75,20 +75,5 @@ public class Consultation {
         this.content = consultationReqDto.getContent();
         this.consultationDate = consultationReqDto.getConsultationDate();
         this.status = consultationReqDto.getStatus();
-    }
-
-    public ConsultationResDto toDto() {
-        return ConsultationResDto.builder()
-                .agentId(this.getAgentId())
-                .customerId(this.getCustomerId())
-                .consultationType(this.getConsultationType())
-                .content(this.getContent())
-                .consultationDate(this.getConsultationDate())
-                .status(this.getStatus())
-                .createdAt(this.getCreatedAt())
-                .updatedAt(this.getUpdatedAt())
-                .deletedAt(this.getDeletedAt())
-                .build()
-                ;
     }
 }

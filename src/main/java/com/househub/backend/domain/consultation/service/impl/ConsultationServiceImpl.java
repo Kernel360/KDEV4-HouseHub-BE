@@ -27,22 +27,22 @@ public class ConsultationServiceImpl implements ConsultationService {
         ConsultationReqDto consultationReqDto
     ) {
         Consultation consultation = consultationReqDto.toEntity();
-        return consultationRepository.save(consultation).toDto();
+        return ConsultationResDto.fromEntity(consultationRepository.save(consultation));
     }
 
     public ConsultationResDto findOne(Long id) {
         Consultation consultation = consultationRepository.findByIdAndDeletedAtIsNull(id).orElseThrow(() -> new ResourceNotFoundException("해당 상담 내역이 존재하지 않습니다:" + id, "CONSULTATION_NOT_FOUND"));
-        return consultation.toDto();
+        return ConsultationResDto.fromEntity(consultation);
     }
 
     public List<ConsultationResDto> findAll() {
         List<Consultation> consultations = consultationRepository.findAllByDeletedAtIsNull();
 
         if (consultations.isEmpty()) {
-            new ResourceNotFoundException("상담 내역이 존재하지 않습니다:", "CONSULTATION_NOT_FOUND");
+            throw new ResourceNotFoundException("상담 내역이 존재하지 않습니다:", "CONSULTATION_NOT_FOUND");
         }
 
-        return consultations.stream().map(Consultation::toDto).collect(Collectors.toList());
+        return consultations.stream().map(ConsultationResDto::fromEntity).collect(Collectors.toList());
     }
 
     @Transactional
@@ -54,7 +54,7 @@ public class ConsultationServiceImpl implements ConsultationService {
 
         consultation.update(consultationReqDto);
 
-        return consultation.toDto();
+        return ConsultationResDto.fromEntity(consultation);
     }
 
     @Transactional
@@ -63,6 +63,6 @@ public class ConsultationServiceImpl implements ConsultationService {
 
         consultation.softDelete();
 
-        return consultation.toDto();
+        return ConsultationResDto.fromEntity(consultation);
     }
 }
