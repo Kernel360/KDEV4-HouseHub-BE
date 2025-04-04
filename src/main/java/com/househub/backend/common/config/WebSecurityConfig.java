@@ -49,11 +49,9 @@ public class WebSecurityConfig {
 					"/api/auth/email/**",
 					"/api/auth/signup",
 					"/api/auth/signin",
-					"/api/auth/signup",
-					"/api/auth/signin",
-					"/api/auth/email/**",
+					"/api/agents/**",
 					"/v3/api-docs/**",
-					"/swagger-ui/**",
+					"/swagger-ui/index.html",
 					"/swagger-ui.html"
 				).permitAll() // 공개 API
 				.requestMatchers("/api/**").authenticated() // 인증 필요한 경로
@@ -86,8 +84,8 @@ public class WebSecurityConfig {
 				.clearAuthentication(true)
 			)
 			.sessionManagement((sessionManagement) ->
-					sessionManagement.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED).maximumSessions(1)
 				// 세션 기반 인증 사용
+				sessionManagement.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED).maximumSessions(1)
 			);
 		return http.build();
 	}
@@ -100,7 +98,8 @@ public class WebSecurityConfig {
 	@Bean
 	public CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration configuration = new CorsConfiguration();
-		configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "http://localhost:8080")); // 허용할 Origin
+		configuration.setAllowedOrigins(
+			Arrays.asList("http://api.house-hub.store", "http://localhost:3000")); // 허용할 Origin
 		configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS")); // 허용할 HTTP 메서드
 		configuration.setAllowedHeaders(
 			Arrays.asList("Authorization", "Content-Type", "X-Requested-With")); // 허용할 Header

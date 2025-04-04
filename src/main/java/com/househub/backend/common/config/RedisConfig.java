@@ -10,11 +10,13 @@ import org.springframework.data.redis.repository.configuration.EnableRedisReposi
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Redis 설정 클래스
  * Redis 연결 및 RedisTemplate 빈 설정 담당
  */
+@Slf4j
 @Configuration
 @EnableRedisRepositories
 @RequiredArgsConstructor
@@ -33,7 +35,8 @@ public class RedisConfig {
 	 */
 	@Bean
 	public RedisConnectionFactory redisConnectionFactory() {
-		return new LettuceConnectionFactory("localhost", 6379);
+		log.info("Redis host: {}, port: {}", host, port);
+		return new LettuceConnectionFactory(host, port);
 	}
 
 	/**
