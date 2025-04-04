@@ -1,5 +1,7 @@
 package com.househub.backend.domain.auth.controller;
 
+import java.time.LocalDateTime;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -40,7 +42,11 @@ import lombok.extern.slf4j.Slf4j;
 public class AuthController {
 	private final AuthService authService;
 
-	// 회원가입
+	/**
+	 * 회원가입
+	 * @param request 회원가입 요청 정보
+	 * @return 회원가입 성공 여부
+	 */
 	@PostMapping("/signup")
 	public ResponseEntity<SuccessResponse<Void>> signup(@Valid @RequestBody SignUpReqDto request) {
 		log.info("{}", request.getAgent());
@@ -120,8 +126,10 @@ public class AuthController {
 	@PostMapping("/email/send")
 	public ResponseEntity<SuccessResponse<SendEmailResDto>> sendEmail(@Valid @RequestBody SendEmailReqDto request) {
 		String authCode = authService.generateAndSaveAuthCode(request.getEmail());
+		log.info("인증 코드: {}", authCode);
+		String expiresAt = String.valueOf(LocalDateTime.now().plusMinutes(3));
 		return ResponseEntity.ok(SuccessResponse.success("이메일 발송 성공", "EMAIL_SEND_SUCCESS",
-			SendEmailResDto.builder().authCode(authCode).build()));
+			SendEmailResDto.builder().expiresAt(expiresAt).build()));
 	}
 
 	@PostMapping("/email/verify")

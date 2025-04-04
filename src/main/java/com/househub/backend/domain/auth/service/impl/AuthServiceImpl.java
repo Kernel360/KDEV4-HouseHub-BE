@@ -258,6 +258,12 @@ public class AuthServiceImpl implements AuthService {
 		authCode.deleteAuthCode(email);
 	}
 
+	/**
+	 * 인증 코드를 검증합니다.
+	 *
+	 * @param email 사용자 이메일
+	 * @param code  인증 코드
+	 */
 	@Transactional
 	@Override
 	public void verifyCode(String email, String code) {

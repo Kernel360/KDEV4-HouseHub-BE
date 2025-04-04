@@ -49,10 +49,6 @@ dependencies {
     runtimeOnly 'org.apache.logging.log4j:log4j-core:2.20.0'
 
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
-    //엑셀 파싱 관련 의존성
-    implementation 'org.apache.poi:poi:5.2.3'
-    implementation 'org.apache.poi:poi-ooxml:5.2.3'
-    runtimeOnly 'org.apache.logging.log4j:log4j-core:2.20.0'
 }
 
 tasks.named('test') {

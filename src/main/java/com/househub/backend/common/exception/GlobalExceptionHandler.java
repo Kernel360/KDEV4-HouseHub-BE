@@ -19,11 +19,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(AlreadyExistsException.class)
     public ResponseEntity<ErrorResponse> handleAlreadyExistsException(AlreadyExistsException ex) {
         ErrorResponse response = ErrorResponse.builder()
-                .success(false)
-                .message(ex.getMessage())
-                .code(ex.getCode())
-                .errors(null)
-                .build();
+            .success(false)
+            .message(ex.getMessage())
+            .code(ex.getCode())
+            .errors(null)
+            .build();
 
         return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
     }
@@ -31,11 +31,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleResourceNotFoundException(ResourceNotFoundException ex) {
         ErrorResponse response = ErrorResponse.builder()
-                .success(false)
-                .message(ex.getMessage())
-                .code(ex.getCode())
-                .errors(null)
-                .build();
+            .success(false)
+            .message(ex.getMessage())
+            .code(ex.getCode())
+            .errors(null)
+            .build();
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
@@ -44,15 +44,18 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidationException(MethodArgumentNotValidException ex) {
         List<ErrorResponse.FieldError> fieldErrors = ex.getFieldErrors().stream()
-                .map(fieldError -> ErrorResponse.FieldError.builder().field(fieldError.getField()).message(fieldError.getDefaultMessage()).build())
-                .collect(Collectors.toList());
+            .map(fieldError -> ErrorResponse.FieldError.builder()
+                .field(fieldError.getField())
+                .message(fieldError.getDefaultMessage())
+                .build())
+            .collect(Collectors.toList());
 
         ErrorResponse response = ErrorResponse.builder()
-                .success(false)
-                .message("입력값을 확인해주세요.")
-                .code("VALIDATION_ERROR")
-                .errors(fieldErrors)
-                .build();
+            .success(false)
+            .message("입력값을 확인해주세요.")
+            .code("VALIDATION_ERROR")
+            .errors(fieldErrors)
+            .build();
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
@@ -60,11 +63,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleInternalServerError(Exception ex) {
         ErrorResponse response = ErrorResponse.builder()
-                .success(false)
-                .message("서버 내부 오류가 발생했습니다.")
-                .code("INTERNAL_SERVER_ERROR")
-                .errors(null)
-                .build();
+            .success(false)
+            .message("서버 내부 오류가 발생했습니다.")
+            .code("INTERNAL_SERVER_ERROR")
+            .errors(null)
+            .build();
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
@@ -76,11 +79,11 @@ public class GlobalExceptionHandler {
 
         // ErrorResponse 객체 생성
         ErrorResponse errorResponse = ErrorResponse.builder()
-                .success(false)
-                .message(ex.getMessage())
-                .code(ex.getCode())
-                .errors(fieldErrors)
-                .build();
+            .success(false)
+            .message(ex.getMessage())
+            .code(ex.getCode())
+            .errors(fieldErrors)
+            .build();
 
         // HTTP 응답으로 반환
         return ResponseEntity.badRequest().body(errorResponse);

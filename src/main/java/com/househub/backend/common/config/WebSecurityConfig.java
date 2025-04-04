@@ -45,9 +45,13 @@ public class WebSecurityConfig {
 			.cors(cors -> cors.configurationSource(corsConfigurationSource()))
 			.authorizeHttpRequests((authz) -> authz
 				.requestMatchers(
+					"/api/auth/session",
 					"/api/auth/email/**",
 					"/api/auth/signup",
 					"/api/auth/signin",
+					"/api/auth/signup",
+					"/api/auth/signin",
+					"/api/auth/email/**",
 					"/v3/api-docs/**",
 					"/swagger-ui/**",
 					"/swagger-ui.html"

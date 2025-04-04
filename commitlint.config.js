@@ -16,11 +16,7 @@ module.exports = {
                 },
                 'type-enum': ({ type }) => {
                     const realType = type ?? '';
-<<<<<<< HEAD
-                    const allowedTypes = ['feat', 'hotfix', 'chore','feature','fix'];
-=======
-                    const allowedTypes = ['feat', 'hotfix', 'chore', 'fix', 'docs'];
->>>>>>> 05f0fee (byungchan, fix: merge conflict 해결 #56)
+                    const allowedTypes = ['feat', 'hotfix', 'chore','feature','fix', 'docs'];
                     return [allowedTypes.includes(realType), `타입은 ${allowedTypes.join(', ')} 중 하나여야 합니다`];
                 },
                 'subject-empty': ({ subject }) => {
