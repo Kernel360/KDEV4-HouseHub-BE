@@ -4,11 +4,12 @@ import com.househub.backend.domain.consultation.entity.Consultation;
 import com.househub.backend.domain.consultation.enums.ConsultationStatus;
 import com.househub.backend.domain.consultation.enums.ConsultationType;
 import jakarta.validation.constraints.NotNull;
-import lombok.Builder;
-import lombok.Getter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
 @Getter
 public class ConsultationReqDto {
