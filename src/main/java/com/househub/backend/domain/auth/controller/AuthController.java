@@ -125,6 +125,8 @@ public class AuthController {
 
 	@PostMapping("/email/send")
 	public ResponseEntity<SuccessResponse<SendEmailResDto>> sendEmail(@Valid @RequestBody SendEmailReqDto request) {
+		// 이미 가입된 사용자인지 확인
+		authService.checkEmailAlreadyExists(request.getEmail());
 		String authCode = authService.generateAndSaveAuthCode(request.getEmail());
 		log.info("인증 코드: {}", authCode);
 		String expiresAt = String.valueOf(LocalDateTime.now().plusMinutes(3));
