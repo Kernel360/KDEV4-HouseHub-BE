@@ -27,6 +27,7 @@ public class ConsultationResDto {
     public static ConsultationResDto fromEntity(Consultation consultation) {
         return ConsultationResDto.builder()
                 .agentId(consultation.getAgentId())
+                .customerId(consultation.getCustomerId())
                 .consultationType(consultation.getConsultationType())
                 .content(consultation.getContent())
                 .consultationDate(consultation.getConsultationDate())
