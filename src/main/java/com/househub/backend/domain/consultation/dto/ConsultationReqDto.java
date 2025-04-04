@@ -31,12 +31,6 @@ public class ConsultationReqDto {
     @NotNull(message = "상담 상태를 입력하세요.")
     private ConsultationStatus status; // RESERVED, COMPLETED, CANCELED
 
-    private LocalDateTime createdAt;
-
-    private LocalDateTime updatedAt;
-
-    private LocalDateTime deletedAt;
-
     public Consultation toEntity() {
         return Consultation.builder()
                 .agentId(agentId)
