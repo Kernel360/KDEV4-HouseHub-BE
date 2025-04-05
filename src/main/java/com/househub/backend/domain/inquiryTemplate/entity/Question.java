@@ -1,10 +1,9 @@
-package com.househub.backend.domain.inquiryForm.entity;
+package com.househub.backend.domain.inquiryTemplate.entity;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.househub.backend.domain.inquiryForm.dto.CreateInquiryTemplateReqDto;
-import com.househub.backend.domain.inquiryForm.dto.UpdateInquiryTemplateReqDto;
+import com.househub.backend.domain.inquiryTemplate.dto.QuestionDto;
 
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
@@ -44,7 +43,7 @@ public class Question {
 	@Enumerated(EnumType.STRING)
 	private QuestionType type;
 
-	private boolean required;
+	private Boolean required;
 
 	@ElementCollection
 	@CollectionTable(
@@ -58,20 +57,23 @@ public class Question {
 	@Column(nullable = false)
 	private int questionOrder;
 
-	public static Question fromDto(CreateInquiryTemplateReqDto.QuestionDto questionDto,
+	public static Question fromDto(QuestionDto questionDto,
 		InquiryTemplate inquiryTemplate) {
 		return Question.builder()
 			.inquiryTemplate(inquiryTemplate)
 			.label(questionDto.getLabel())
 			.type(QuestionType.valueOf(questionDto.getType().name()))
-			.required(questionDto.isRequired())
+			.required(questionDto.getRequired())
 			.options(questionDto.getOptions())
 			.questionOrder(questionDto.getQuestionOrder())
 			.build();
 	}
 
 	// 각 필드가 null이 아닌 경우에만 업데이트
-	public void update(UpdateInquiryTemplateReqDto.QuestionDto questionDto) {
+	public void update(QuestionDto questionDto) {
+		// 필수
+		this.questionOrder = questionDto.getQuestionOrder();
+
 		if (questionDto.getLabel() != null) {
 			this.label = questionDto.getLabel();
 		}
@@ -81,11 +83,8 @@ public class Question {
 		if (questionDto.getRequired() != null) {
 			this.required = questionDto.getRequired();
 		}
-		if (questionDto.getOptions().isPresent()) {
-			this.options = questionDto.getOptions().orElse(null);
-		}
-		if (questionDto.getQuestionOrder() != null) {
-			this.questionOrder = questionDto.getQuestionOrder();
+		if (questionDto.getOptions() != null) {
+			this.options = questionDto.getOptions();
 		}
 	}
 }

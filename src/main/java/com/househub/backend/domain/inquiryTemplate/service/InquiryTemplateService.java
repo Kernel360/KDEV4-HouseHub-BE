@@ -1,16 +1,16 @@
-package com.househub.backend.domain.inquiryForm.service;
+package com.househub.backend.domain.inquiryTemplate.service;
 
 import org.springframework.data.domain.Pageable;
 
-import com.househub.backend.domain.inquiryForm.dto.CreateInquiryTemplateReqDto;
-import com.househub.backend.domain.inquiryForm.dto.InquiryTemplateListResDto;
-import com.househub.backend.domain.inquiryForm.dto.InquiryTemplatePreviewResDto;
-import com.househub.backend.domain.inquiryForm.dto.UpdateInquiryTemplateReqDto;
+import com.househub.backend.domain.inquiryTemplate.dto.CreateInquiryTemplateReqDto;
+import com.househub.backend.domain.inquiryTemplate.dto.InquiryTemplateListResDto;
+import com.househub.backend.domain.inquiryTemplate.dto.InquiryTemplatePreviewResDto;
+import com.househub.backend.domain.inquiryTemplate.dto.UpdateInquiryTemplateReqDto;
 
 public interface InquiryTemplateService {
 	void createNewInquiryTemplate(CreateInquiryTemplateReqDto reqDto, Long agentId);
 
-	InquiryTemplateListResDto getInquiryTemplates(Boolean isActive, Pageable pageable, Long agentId);
+	InquiryTemplateListResDto getInquiryTemplates(Boolean isActive, String keyword, Pageable pageable, Long agentId);
 
 	InquiryTemplateListResDto searchInquiryTemplates(String keyword, Pageable pageable, Long agentId);
 
