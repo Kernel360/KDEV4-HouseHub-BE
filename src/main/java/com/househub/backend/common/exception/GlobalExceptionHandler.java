@@ -60,6 +60,18 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<ErrorResponse> handleUnauthorizedException(UnauthorizedException ex) {
+        ErrorResponse response = ErrorResponse.builder()
+            .success(false)
+            .message(ex.getMessage())
+            .code(ex.getCode())
+            .errors(null)
+            .build();
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleInternalServerError(Exception ex) {
         ErrorResponse response = ErrorResponse.builder()

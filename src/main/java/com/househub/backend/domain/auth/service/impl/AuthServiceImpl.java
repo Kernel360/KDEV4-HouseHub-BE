@@ -281,4 +281,15 @@ public class AuthServiceImpl implements AuthService {
 		// 인증번호 삭제
 		deleteAuthCode(email);
 	}
+
+	/**
+	 * 이메일 중복 여부를 확인합니다.
+	 * @param email 중복을 확인할 이메일
+	 */
+	@Override
+	public void checkEmailAlreadyExists(String email) {
+		if (agentRepository.existsByEmail(email)) {
+			throw new AlreadyExistsException("이미 가입된 이메일입니다.", "EMAIL_ALREADY_EXISTS");
+		}
+	}
 }
