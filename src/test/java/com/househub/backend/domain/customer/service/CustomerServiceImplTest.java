@@ -251,31 +251,50 @@ public class CustomerServiceImplTest {
 
 
     @Test
-    @DisplayName("수정 시 이미 존재하는 이메일 사용")
+    @DisplayName("고객 수정 시 다른 사용자의 이메일 사용 시 AlreadyExistsException 발생")
     void updateCustomer_EmailConflict() {
         // given
-        Long id = 1L;
+        Long customerId = 1L;
         Long agentId = 1L;
         CreateCustomerReqDto updateRequest = CreateCustomerReqDto.builder()
-            .email("existing@example.com")
+            .email("conflict@example.com")
             .build();
 
-        Agent mockAgent = Agent.builder().id(agentId).name("Test Agent").build();
-        Customer otherCustomer = Customer.builder().id(2L).email("existing@example.com").build();
+        Agent mockAgent = Agent.builder().id(agentId).build();
+        Customer existingCustomer = Customer.builder()
+            .id(customerId)
+            .email("original@example.com")
+            .agent(mockAgent)
+            .build();
+        Customer otherCustomer = Customer.builder()
+            .id(2L)
+            .email("conflict@example.com")
+            .build();
 
+        // Agent 조회 Mocking
         when(agentRepository.findById(agentId)).thenReturn(Optional.of(mockAgent));
-        when(customerRepository.findByEmail(updateRequest.getEmail())).thenReturn(Optional.of(otherCustomer));
+
+        // 고객 조회 Mocking
+        when(customerRepository.findByIdAndAgentAndDeletedAtIsNull(customerId, mockAgent))
+            .thenReturn(Optional.of(existingCustomer));
+
+        // 이메일 충돌 Mocking
+        when(customerRepository.findByEmail("conflict@example.com"))
+            .thenReturn(Optional.of(otherCustomer));
 
         // when & then
         AlreadyExistsException exception = assertThrows(AlreadyExistsException.class,
-            () -> customerService.updateCustomer(id, updateRequest, agentId));
+            () -> customerService.updateCustomer(customerId, updateRequest, agentId));
 
-        assertEquals("해당 이메일(existing@example.com)로 생성되었던 계정이 이미 존재합니다.", exception.getMessage());
+        assertEquals("이미 사용 중인 이메일입니다: conflict@example.com", exception.getMessage());
 
+        // verify
         verify(agentRepository).findById(agentId);
-        verify(customerRepository).findByEmail(updateRequest.getEmail());
-        verify(customerRepository, never()).findByIdAndAgentAndDeletedAtIsNull(any(), any());
+        verify(customerRepository).findByIdAndAgentAndDeletedAtIsNull(customerId, mockAgent);
+        verify(customerRepository).findByEmail("conflict@example.com");
     }
+
+
 
 
     @Test
