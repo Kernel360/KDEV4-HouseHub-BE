@@ -1,12 +1,15 @@
 package com.househub.backend.domain.consultation.dto;
 
+import com.househub.backend.domain.agent.entity.Agent;
 import com.househub.backend.domain.consultation.entity.Consultation;
 import com.househub.backend.domain.consultation.enums.ConsultationStatus;
 import com.househub.backend.domain.consultation.enums.ConsultationType;
+import com.househub.backend.domain.customer.entity.Customer;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -30,10 +33,10 @@ public class ConsultationReqDto {
     @NotNull(message = "상담 상태를 입력하세요.")
     private ConsultationStatus status; // RESERVED, COMPLETED, CANCELED
 
-    public Consultation toEntity() {
+    public Consultation toEntity(Agent agent, Customer customer) {
         return Consultation.builder()
-                .agentId(agentId)
-                .customerId(customerId)
+                .agent(agent)
+                .customer(customer)
                 .consultationType(this.getConsultationType())
                 .content(this.getContent())
                 .consultationDate(this.getConsultationDate())
