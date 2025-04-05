@@ -1,5 +1,6 @@
 package com.househub.backend.domain.inquiryTemplate.service.impl;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -20,10 +21,15 @@ import com.househub.backend.domain.inquiryTemplate.dto.CreateInquiryTemplateReqD
 import com.househub.backend.domain.inquiryTemplate.dto.InquiryTemplateListResDto;
 import com.househub.backend.domain.inquiryTemplate.dto.InquiryTemplatePreviewResDto;
 import com.househub.backend.domain.inquiryTemplate.dto.InquiryTemplateResDto;
+import com.househub.backend.domain.inquiryTemplate.dto.InquiryTemplateSharedResDto;
 import com.househub.backend.domain.inquiryTemplate.dto.UpdateInquiryTemplateReqDto;
 import com.househub.backend.domain.inquiryTemplate.entity.InquiryTemplate;
+import com.househub.backend.domain.inquiryTemplate.entity.InquiryTemplateSharedToken;
 import com.househub.backend.domain.inquiryTemplate.entity.Question;
+import com.househub.backend.domain.inquiryTemplate.exception.InactiveTemplateException;
+import com.househub.backend.domain.inquiryTemplate.exception.InvalidShareTokenException;
 import com.househub.backend.domain.inquiryTemplate.repository.InquiryTemplateRepository;
+import com.househub.backend.domain.inquiryTemplate.repository.InquiryTemplateSharedTokenRepository;
 import com.househub.backend.domain.inquiryTemplate.repository.QuestionRepository;
 import com.househub.backend.domain.inquiryTemplate.service.InquiryTemplateService;
 
@@ -35,6 +41,8 @@ public class InquiryTemplateServiceImpl implements InquiryTemplateService {
 	private final AgentRepository agentRepository;
 	private final InquiryTemplateRepository inquiryTemplateRepository;
 	private final QuestionRepository questionRepository;
+
+	private final InquiryTemplateSharedTokenRepository sharedTokenRepository;
 
 	/**
 	 * 새로운 문의 템플릿을 생성합니다.
@@ -66,6 +74,13 @@ public class InquiryTemplateServiceImpl implements InquiryTemplateService {
 			.map(questionDto -> Question.fromDto(questionDto, inquiryTemplate))
 			.collect(Collectors.toList());
 		questionRepository.saveAll(questions);
+
+		// 4. 공유 토큰 저장 (InquiryTemplateSharedToken)
+		// 문의 템플릿 생성 시 공유 토큰도 무조건 함께 생성하되, 활성화 여부는 템플릿의 isActive 상태를 반영한다.
+		// 공유 토큰은 고객이 해당 템플릿에 접근할 수 있는 식별자이며, 관리자가 공유 여부를 토글하여 사용 여부를 제어할 수 있다.
+		InquiryTemplateSharedToken token = InquiryTemplateSharedToken.create(inquiryTemplate);
+		token.setActive(inquiryTemplate.getActive());
+		sharedTokenRepository.save(token);
 	}
 
 	/**
@@ -190,6 +205,25 @@ public class InquiryTemplateServiceImpl implements InquiryTemplateService {
 
 		// 3. 문의 템플릿 삭제
 		inquiryTemplateRepository.delete(inquiryTemplate);
+	}
+
+	@Override
+	public InquiryTemplateSharedResDto getInquiryTemplateByShareToken(String shareToken) {
+		InquiryTemplateSharedToken shareTokenEntity = sharedTokenRepository.findByShareTokenAndActiveTrue(shareToken)
+			.orElseThrow(() -> new InvalidShareTokenException("유효하지 않거나 존재하지 않는 공유 토큰입니다."));
+
+		InquiryTemplate inquiryTemplate = shareTokenEntity.getTemplate();
+		if (!Boolean.TRUE.equals(inquiryTemplate.getActive())) {
+			throw new InactiveTemplateException("비활성화된 템플릿입니다. 접근이 제한됩니다.");
+		}
+
+		// 질문 리스트 가져오기 (질문 순서 기준 정렬)
+		List<Question> questions = inquiryTemplate.getQuestions().stream()
+			.sorted(Comparator.comparingInt(Question::getQuestionOrder))
+			.toList();
+
+		return InquiryTemplateSharedResDto.fromEntity(inquiryTemplate, questions);
+
 	}
 
 	/**

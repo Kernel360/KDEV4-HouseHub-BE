@@ -17,17 +17,15 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class InquiryTemplatePreviewResDto {
-	private Long id;
+public class InquiryTemplateSharedResDto {
 	private String name;
 	private String description;
 	@JsonProperty("isActive")
 	private Boolean active;
 	private List<InquiryQuestionResDto> questions;
 
-	public static InquiryTemplatePreviewResDto fromEntity(InquiryTemplate inquiryTemplate, List<Question> questions) {
-		return InquiryTemplatePreviewResDto.builder()
-			.id(inquiryTemplate.getId())
+	public static InquiryTemplateSharedResDto fromEntity(InquiryTemplate inquiryTemplate, List<Question> questions) {
+		return InquiryTemplateSharedResDto.builder()
 			.name(inquiryTemplate.getName())
 			.description(inquiryTemplate.getDescription())
 			.active(inquiryTemplate.getActive())
