@@ -27,6 +27,7 @@ import com.househub.backend.domain.auth.dto.VerifyEmailReqDto;
 import com.househub.backend.domain.auth.exception.EmailVerifiedException;
 import com.househub.backend.domain.auth.exception.InvalidPasswordException;
 import com.househub.backend.domain.auth.service.AuthService;
+import com.househub.backend.domain.auth.service.EmailService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -41,6 +42,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class AuthController {
 	private final AuthService authService;
+	private final EmailService emailService;
 
 	/**
 	 * 회원가입
@@ -125,7 +127,10 @@ public class AuthController {
 
 	@PostMapping("/email/send")
 	public ResponseEntity<SuccessResponse<SendEmailResDto>> sendEmail(@Valid @RequestBody SendEmailReqDto request) {
+		// 이미 가입된 사용자인지 확인
+		authService.checkEmailAlreadyExists(request.getEmail());
 		String authCode = authService.generateAndSaveAuthCode(request.getEmail());
+		emailService.sendVerificationCode(request.getEmail(), authCode);
 		log.info("인증 코드: {}", authCode);
 		String expiresAt = String.valueOf(LocalDateTime.now().plusMinutes(3));
 		return ResponseEntity.ok(SuccessResponse.success("이메일 발송 성공", "EMAIL_SEND_SUCCESS",

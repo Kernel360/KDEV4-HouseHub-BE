@@ -16,4 +16,6 @@ public interface AuthService {
 	public void deleteAuthCode(String email);
 
 	public void verifyCode(String email, String code);
+
+	void checkEmailAlreadyExists(String email);
 }
