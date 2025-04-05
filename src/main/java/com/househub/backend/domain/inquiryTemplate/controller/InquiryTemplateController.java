@@ -1,6 +1,8 @@
-package com.househub.backend.domain.inquiryForm.controller;
+package com.househub.backend.domain.inquiryTemplate.controller;
 
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -16,11 +18,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.househub.backend.common.response.SuccessResponse;
 import com.househub.backend.common.util.SecurityUtil;
-import com.househub.backend.domain.inquiryForm.dto.CreateInquiryTemplateReqDto;
-import com.househub.backend.domain.inquiryForm.dto.InquiryTemplateListResDto;
-import com.househub.backend.domain.inquiryForm.dto.InquiryTemplatePreviewResDto;
-import com.househub.backend.domain.inquiryForm.dto.UpdateInquiryTemplateReqDto;
-import com.househub.backend.domain.inquiryForm.service.InquiryTemplateService;
+import com.househub.backend.domain.inquiryTemplate.dto.CreateInquiryTemplateReqDto;
+import com.househub.backend.domain.inquiryTemplate.dto.InquiryTemplateListResDto;
+import com.househub.backend.domain.inquiryTemplate.dto.InquiryTemplatePreviewResDto;
+import com.househub.backend.domain.inquiryTemplate.dto.UpdateInquiryTemplateReqDto;
+import com.househub.backend.domain.inquiryTemplate.service.InquiryTemplateService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -30,7 +32,9 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Validated
 @RestController
 @RequestMapping("/api/inquiry-templates")
@@ -68,6 +72,7 @@ public class InquiryTemplateController {
 	 * 문의 템플릿 목록을 조회합니다.
 	 *
 	 * @param isActive 활성화 여부 필터 (선택 사항)
+	 * @param keyword 검색어 (선택 사항)
 	 * @param pageable 페이지네이션 정보
 	 * @return 문의 템플릿 목록을 포함한 응답
 	 */
@@ -81,35 +86,20 @@ public class InquiryTemplateController {
 	public ResponseEntity<SuccessResponse<InquiryTemplateListResDto>> findInquiryTemplates(
 		@RequestParam(required = false)
 		Boolean isActive,
-		Pageable pageable
+		@RequestParam(required = false, defaultValue = "")
+		String keyword,
+		@PageableDefault(size = 10) Pageable pageable
 	) {
-		InquiryTemplateListResDto response = inquiryTemplateService.getInquiryTemplates(isActive, pageable,
+		// 💡 page를 1-based에서 0-based로 변경
+		int page = Math.max(pageable.getPageNumber() - 1, 0);
+		int size = pageable.getPageSize();
+
+		Pageable adjustedPageable = PageRequest.of(page, size, pageable.getSort());
+
+		InquiryTemplateListResDto response = inquiryTemplateService.getInquiryTemplates(isActive, keyword,
+			adjustedPageable,
 			getSignInAgentId());
 		return ResponseEntity.ok(SuccessResponse.success("문의 템플릿 목록 조회 성공", "GET_INQUIRY_TEMPLATES_SUCCESS", response));
-	}
-
-	/**
-	 * 키워드를 사용하여 문의 템플릿을 검색합니다.
-	 *
-	 * @param keyword  검색할 키워드
-	 * @param pageable 페이지네이션 정보
-	 * @return 검색 결과를 포함한 응답
-	 */
-	@Operation(summary = "문의 템플릿 검색", description = "키워드를 사용하여 문의 템플릿을 검색합니다.")
-	@ApiResponses(value = {
-		@ApiResponse(responseCode = "200", description = "문의 템플릿 검색 성공"),
-		@ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
-		@ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
-	})
-	@GetMapping("/search")
-	public ResponseEntity<SuccessResponse<InquiryTemplateListResDto>> searchInquiryTemplates(
-		@RequestParam
-		String keyword,
-		Pageable pageable
-	) {
-		InquiryTemplateListResDto response = inquiryTemplateService.searchInquiryTemplates(keyword, pageable,
-			getSignInAgentId());
-		return ResponseEntity.ok(SuccessResponse.success("문의 템플릿 검색 성공", "SEARCH_INQUIRY_TEMPLATES_SUCCESS", response));
 	}
 
 	/**
