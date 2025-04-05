@@ -5,9 +5,9 @@ import lombok.Getter;
 @Getter
 public class CreatePropertyResDto {
 
-    private Long propertyId;
+    private Long id;
 
-    public CreatePropertyResDto(Long propertyId) {
-        this.propertyId = propertyId;
+    public CreatePropertyResDto(Long id) {
+        this.id = id;
     }
 }

@@ -23,7 +23,7 @@ import java.time.LocalDateTime;
 public class Contract {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long contractId;
+    private Long id;
 
     @ManyToOne
     @JoinColumn(name = "agentId", nullable = false)

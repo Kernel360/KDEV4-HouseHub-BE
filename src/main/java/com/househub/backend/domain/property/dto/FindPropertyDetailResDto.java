@@ -15,7 +15,7 @@ import java.util.List;
 @Getter
 public class FindPropertyDetailResDto {
 
-    private Long propertyId; // 매물 고유 식별자
+    private Long id; // 매물 고유 식별자
     private PropertyType propertyType; // 매물 유형
     private CreateCustomerResDto customer; // 의뢰인(임대인 또는 매도인)
     private String memo; // 참고 설명
@@ -33,7 +33,7 @@ public class FindPropertyDetailResDto {
     // Entity -> DTO 변환
     public static FindPropertyDetailResDto toDto(Property property) {
         return FindPropertyDetailResDto.builder()
-                .propertyId(property.getPropertyId())
+                .id(property.getId())
                 .propertyType(property.getPropertyType())
                 .customer(property.getCustomer().toDto())
                 .memo(property.getMemo())

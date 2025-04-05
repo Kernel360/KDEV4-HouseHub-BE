@@ -16,7 +16,7 @@ module.exports = {
                 },
                 'type-enum': ({ type }) => {
                     const realType = type ?? '';
-                    const allowedTypes = ['feat', 'hotfix', 'chore'];
+                    const allowedTypes = ['feat', 'hotfix', 'chore','feature','fix', 'docs'];
                     return [allowedTypes.includes(realType), `타입은 ${allowedTypes.join(', ')} 중 하나여야 합니다`];
                 },
                 'subject-empty': ({ subject }) => {
@@ -35,7 +35,7 @@ module.exports = {
         }
     ],
     rules: {
-        'header-max-length': [2, 'always', 72], // 메세지의 최대 길이 72글자
+        'header-max-length': [2, 'always', 100], // 메세지의 최대 길이 100글자
         'developer-format': [2, 'always'], // 개발자 이름은 3글자 이상 영문
         'type-enum': [2, 'always'], // feat,hotfix,chore 중 택 1
         'subject-empty': [2, 'never'], // subject가 비어있으면 안됨
