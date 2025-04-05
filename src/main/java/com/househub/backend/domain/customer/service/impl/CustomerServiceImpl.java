@@ -44,7 +44,7 @@ public class CustomerServiceImpl implements CustomerService {
         });
         Customer customer = request.toEntity(agent);
         // 새로운 고객 생성 및 저장
-        return customerRepository.save(customer).toDto();
+        return CreateCustomerResDto.fromEntity(customerRepository.save(customer));
     }
 
     @Transactional
@@ -96,13 +96,13 @@ public class CustomerServiceImpl implements CustomerService {
 
     public List<CreateCustomerResDto> findAllByDeletedAtIsNull(Long agentId) {
         Agent agent = validateAgent(agentId);
-        return customerRepository.findAllByAgentAndDeletedAtIsNull(agent).stream().map(Customer::toDto).toList();
+        return customerRepository.findAllByAgentAndDeletedAtIsNull(agent).stream().map(CreateCustomerResDto::fromEntity).toList();
     }
 
     public CreateCustomerResDto findByIdAndDeletedAtIsNull(Long id, Long agentId) {
         Agent agent = validateAgent(agentId);
         Customer customer = customerRepository.findByIdAndAgentAndDeletedAtIsNull(id,agent).orElseThrow(() -> new ResourceNotFoundException("해당 아이디를 가진 고객이 존재하지 않습니다:" + id, "CUSTOMER_NOT_FOUND"));
-        return customer.toDto();
+        return CreateCustomerResDto.fromEntity(customer);
     }
 
     @Transactional
@@ -123,7 +123,7 @@ public class CustomerServiceImpl implements CustomerService {
 		}
 
 		customer.update(request);
-		return customer.toDto();
+		return CreateCustomerResDto.fromEntity(customer);
 	}
 
     @Transactional
@@ -133,7 +133,7 @@ public class CustomerServiceImpl implements CustomerService {
         Customer customer = customerRepository.findByIdAndAgentAndDeletedAtIsNull(id,agent).orElseThrow(() -> new ResourceNotFoundException("해당 고객이 존재하지 않습니다:", "CUSTOMER_NOT_FOUND"));
         // 소프트 딜리트
         customer.delete();
-        return customer.toDto();
+        return CreateCustomerResDto.fromEntity(customer);
     }
 
     private Agent validateAgent(Long agentId) {

@@ -28,19 +28,19 @@ public class CreateCustomerResDto{
     private LocalDateTime updatedAt;
     private LocalDateTime deletedAt;
 
-    public Customer toEntity() {
-        return Customer.builder()
-                .id(this.id)
-                .name(this.name)
-                .ageGroup(this.ageGroup)
-                .contact(this.contact)
-                .email(this.email)
-                .memo(this.memo)
-                .gender(this.gender)
-                .createdAt(this.createdAt)
-                .updatedAt(this.updatedAt)
-                .deletedAt(this.deletedAt)
-                .build();
+    public static CreateCustomerResDto fromEntity(Customer customer) {
+        return CreateCustomerResDto.builder()
+            .id(customer.getId())
+            .name(customer.getName())
+            .ageGroup(customer.getAgeGroup())
+            .contact(customer.getContact())
+            .email(customer.getEmail())
+            .memo(customer.getMemo())
+            .gender(customer.getGender())
+            .createdAt(customer.getCreatedAt())
+            .updatedAt(customer.getUpdatedAt())
+            .deletedAt(customer.getDeletedAt())
+            .build();
     }
 
 }

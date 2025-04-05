@@ -6,7 +6,6 @@ import java.util.Optional;
 import com.househub.backend.common.enums.Gender;
 import com.househub.backend.domain.agent.entity.Agent;
 import com.househub.backend.domain.customer.dto.CreateCustomerReqDto;
-import com.househub.backend.domain.customer.dto.CreateCustomerResDto;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -90,20 +89,5 @@ public class Customer {
 
 	public void delete() {
 		this.deletedAt = LocalDateTime.now();
-	}
-
-	public CreateCustomerResDto toDto() {
-		return CreateCustomerResDto.builder()
-			.id(this.id)
-			.name(this.name)
-			.ageGroup(this.ageGroup)
-			.contact(this.contact)
-			.email(this.email)
-			.memo(this.memo)
-			.gender(this.gender)
-			.createdAt(this.createdAt)
-			.updatedAt(this.updatedAt)
-			.deletedAt(this.deletedAt)
-			.build();
 	}
 }

@@ -1,14 +1,15 @@
 package com.househub.backend.domain.contract.dto;
 
+import java.time.LocalDate;
+
 import com.househub.backend.domain.contract.entity.Contract;
 import com.househub.backend.domain.contract.enums.ContractStatus;
 import com.househub.backend.domain.contract.enums.ContractType;
 import com.househub.backend.domain.customer.dto.CreateCustomerResDto;
 import com.househub.backend.domain.property.dto.FindPropertyResDto;
+
 import lombok.Builder;
 import lombok.Getter;
-
-import java.time.LocalDate;
 
 @Getter
 @Builder
@@ -31,7 +32,7 @@ public class FindContractResDto {
         return FindContractResDto.builder()
                 .id(contract.getId())
                 .property(FindPropertyResDto.toDto(contract.getProperty()))
-                .customer(contract.getCustomer().toDto())
+                .customer(CreateCustomerResDto.fromEntity(contract.getCustomer()))
                 .contractType(contract.getContractType())
                 .salePrice(contract.getSalePrice())
                 .jeonsePrice(contract.getJeonsePrice())
