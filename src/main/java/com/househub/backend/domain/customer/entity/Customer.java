@@ -1,6 +1,7 @@
 package com.househub.backend.domain.customer.entity;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import com.househub.backend.common.enums.Gender;
 import com.househub.backend.domain.agent.entity.Agent;
@@ -79,12 +80,12 @@ public class Customer {
 	}
 
 	public void update(CreateCustomerReqDto reqDto) {
-		this.name = reqDto.getName();
-		this.email = reqDto.getEmail();
-		this.ageGroup = reqDto.getAgeGroup();
-		this.memo = reqDto.getMemo();
-		this.contact = reqDto.getContact();
-		this.gender = reqDto.getGender();
+		Optional.ofNullable(reqDto.getName()).ifPresent(name -> this.name = name);
+		Optional.ofNullable(reqDto.getEmail()).ifPresent(email -> this.email = email);
+		Optional.ofNullable(reqDto.getAgeGroup()).ifPresent(ageGroup -> this.ageGroup = ageGroup);
+		Optional.ofNullable(reqDto.getMemo()).ifPresent(memo -> this.memo = memo);
+		Optional.ofNullable(reqDto.getContact()).ifPresent(contact -> this.contact = contact);
+		Optional.ofNullable(reqDto.getGender()).ifPresent(gender -> this.gender = gender);
 	}
 
 	public void delete() {

@@ -26,7 +26,7 @@ import java.util.List;
 public class Property {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long propertyId; // 매물 고유 식별자 (PK)
+    private Long id; // 매물 고유 식별자 (PK)
 
     @OneToMany(mappedBy = "property", cascade = CascadeType.ALL)
     private List<Contract> contracts;

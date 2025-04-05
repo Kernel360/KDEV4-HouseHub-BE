@@ -4,9 +4,9 @@ import lombok.Getter;
 
 @Getter
 public class CreateContractResDto {
-    private Long contractId;
-    public CreateContractResDto(Long contractId) {
-        this.contractId = contractId;
+    private Long id;
+    public CreateContractResDto(Long id) {
+        this.id = id;
     }
 
     public static CreateContractResDto toDto(Long id) {
