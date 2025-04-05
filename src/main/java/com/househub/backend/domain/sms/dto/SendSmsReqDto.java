@@ -1,12 +1,19 @@
 package com.househub.backend.domain.sms.dto;
 
+import com.househub.backend.domain.agent.entity.RealEstate;
+import com.househub.backend.domain.sms.entity.Sms;
+import com.househub.backend.domain.sms.enums.MessageType;
+import com.househub.backend.domain.sms.enums.Status;
+
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+@Builder
 @Getter
 @Setter
 @NoArgsConstructor
@@ -24,11 +31,9 @@ public class SendSmsReqDto {
 	@NotEmpty(message = "발신 내용을 입력해주세요")
 	private String msg;
 
-	private String msgType; // SMS, LMS, MMS 구분
+	private MessageType msgType; // SMS, LMS, MMS 구분
 
 	private String title; // 문자 제목 (LMS, MMS만 해당)
-
-	private String destination; // %고객명% 치환용 입력
 
 	@Pattern(regexp = "^\\d{8}$", message = "예약일은 YYYYMMDD 형식이어야 합니다")
 	private String rdate; // 예약일 (YYYYMMDD)
@@ -36,9 +41,17 @@ public class SendSmsReqDto {
 	@Pattern(regexp = "^\\d{4}$", message = "예약시간은 HHII 형식이어야 합니다")
 	private String rtime; // 예약시간 (HHII)
 
-	private String image1; // 첨부 이미지 1
-
-	private String image2; // 첨부 이미지 2
-
-	private String image3; // 첨부 이미지 3
+	public Sms toEntity(Status status, RealEstate realEstate) {
+		return Sms.builder()
+			.sender(this.sender)
+			.receiver(this.receiver)
+			.msg(this.msg)
+			.msgType(this.msgType)
+			.title(this.title)
+			.status(status)
+			.rdate(this.rdate)
+			.rtime(this.rtime)
+			.realEstate(realEstate)
+			.build();
+	}
 }

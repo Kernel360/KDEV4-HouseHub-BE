@@ -6,9 +6,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
+import com.househub.backend.common.exception.ResourceNotFoundException;
+import com.househub.backend.domain.agent.entity.Agent;
+import com.househub.backend.domain.agent.repository.AgentRepository;
+import com.househub.backend.domain.sms.dto.AligoHistoryResDto;
+import com.househub.backend.domain.sms.dto.AligoSmsResDto;
 import com.househub.backend.domain.sms.dto.SendSmsReqDto;
-import com.househub.backend.domain.sms.dto.SmsHistoryResDto;
-import com.househub.backend.domain.sms.dto.SmsResDto;
+import com.househub.backend.domain.sms.dto.SendSmsResDto;
+import com.househub.backend.domain.sms.entity.Sms;
+import com.househub.backend.domain.sms.enums.Status;
+import com.househub.backend.domain.sms.repository.SmsRepository;
 import com.househub.backend.domain.sms.service.SmsService;
 import com.househub.backend.domain.sms.utils.AligoApiClient;
 
@@ -19,8 +26,12 @@ import lombok.RequiredArgsConstructor;
 public class AligoSmsServiceImpl implements SmsService {
 
 	private final AligoApiClient aligoApiClient;
+	private final SmsRepository smsRepository;
+	private final AgentRepository agentRepository;
 
-	public SmsResDto sendSms(SendSmsReqDto request) {
+	public SendSmsResDto sendSms(SendSmsReqDto request, Long id) {
+		Agent agent = agentRepository.findById(id).orElseThrow(()-> new ResourceNotFoundException("공인중개사가 존재하지 않습니다.", "AGENT_NOT_FOUND"));
+
 		String url = "https://apis.aligo.in/send/";
 
 		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
@@ -35,14 +46,17 @@ public class AligoSmsServiceImpl implements SmsService {
 		}
 
 		// 선택적 파라미터 추가
-		addIfNotNull(params, "destination", request.getDestination());
 		addIfNotNull(params, "rdate", request.getRdate());
 		addIfNotNull(params, "rtime", request.getRtime());
-		addIfNotNull(params, "image1", request.getImage1());
-		addIfNotNull(params, "image2", request.getImage2());
-		addIfNotNull(params, "image3", request.getImage3());
 
-		return aligoApiClient.sendRequestForObject(url, params, SmsResDto.class);
+		AligoSmsResDto aligoResponse = aligoApiClient.sendRequestForObject(url, params, AligoSmsResDto.class);
+		Sms sms;
+		if(aligoResponse.getResultCode() == 1){
+			sms = smsRepository.save(request.toEntity(Status.SUCCESS,agent.getRealEstate()));
+		} else {
+			sms = smsRepository.save(request.toEntity(Status.FAIL,agent.getRealEstate()));
+		}
+		return SendSmsResDto.fromEntity(sms);
 	}
 
 	private void addIfNotNull(MultiValueMap<String, String> params, String key, String value) {
@@ -60,7 +74,7 @@ public class AligoSmsServiceImpl implements SmsService {
 	 * @param limitDay  조회 제한 일수 (선택)
 	 * @return 전송 내역 리스트
 	 */
-	public List<SmsHistoryResDto.HistoryDetailDto> getRecentMessages(Integer page, Integer pageSize, String startDate,
+	public List<AligoHistoryResDto.HistoryDetailDto> getRecentMessages(Integer page, Integer pageSize, String startDate,
 		Integer limitDay) {
 		String url = "https://apis.aligo.in/list/";
 
@@ -75,13 +89,26 @@ public class AligoSmsServiceImpl implements SmsService {
 			params.add("limit_day", limitDay.toString());
 
 		// 전체 응답을 HistoryResDto로 변환
-		SmsHistoryResDto response = aligoApiClient.sendRequestForObject(url, params, SmsHistoryResDto.class);
+		AligoHistoryResDto response = aligoApiClient.sendRequestForObject(url, params, AligoHistoryResDto.class);
 
 		if (response.getResultCode() == 1) {
 			return response.getList();
 		} else {
 			throw new RuntimeException("전송 내역 조회 실패: " + response.getMessage());
 		}
+	}
+
+	@Override
+	public List<SendSmsResDto> getAll(Long id) {
+		Agent agent = agentRepository.findById(id).orElseThrow(()-> new ResourceNotFoundException("공인중개사가 존재하지 않습니다.", "AGENT_NOT_FOUND"));
+		return smsRepository.getAllSmsByRealEstate(agent.getRealEstate()).stream().map(
+			SendSmsResDto::fromEntity).toList();
+	}
+
+	@Override
+	public SendSmsResDto findById(Long id, Long agentId) {
+		Agent agent = agentRepository.findById(id).orElseThrow(()-> new ResourceNotFoundException("공인중개사가 존재하지 않습니다.", "AGENT_NOT_FOUND"));
+		return smsRepository.findByIdAndRealEstate(id,agent.getRealEstate());
 	}
 
 }

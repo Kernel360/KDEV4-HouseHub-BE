@@ -7,7 +7,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class GetSmsHistoryReqDto {
+public class AligoHistoryReqDto {
 
 	@Min(value = 1, message = "페이지 번호는 최소 1 이상이어야 합니다")
 	private int page = 1; // 기본값 1
