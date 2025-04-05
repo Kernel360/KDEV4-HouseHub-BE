@@ -71,6 +71,18 @@ public class GlobalExceptionHandler {
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
 	}
 
+	@ExceptionHandler(UnauthorizedException.class)
+	public ResponseEntity<ErrorResponse> handleUnauthorizedException(UnauthorizedException ex) {
+		ErrorResponse response = ErrorResponse.builder()
+			.success(false)
+			.message(ex.getMessage())
+			.code(ex.getCode())
+			.errors(null)
+			.build();
+
+		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+	}
+
 	@ExceptionHandler(NoAssociatedRealEstateException.class)
 	public ResponseEntity<ErrorResponse> handleNoAssociatedRealEstateException(NoAssociatedRealEstateException ex) {
 		ErrorResponse response = ErrorResponse.builder()
