@@ -94,15 +94,16 @@ public class Customer {
 
 	public CreateCustomerResDto toDto() {
 		return CreateCustomerResDto.builder()
-			.name(this.getName())
-			.ageGroup(this.getAgeGroup())
-			.contact(this.getContact())
-			.email(this.getEmail())
-			.memo(this.getMemo())
-			.gender(this.getGender())
-			.createdAt(this.getCreatedAt())
-			.updatedAt(this.getUpdatedAt())
-			.deletedAt(this.getDeletedAt())
+			.id(this.id)
+			.name(this.name)
+			.ageGroup(this.ageGroup)
+			.contact(this.contact)
+			.email(this.email)
+			.memo(this.memo)
+			.gender(this.gender)
+			.createdAt(this.createdAt)
+			.updatedAt(this.updatedAt)
+			.deletedAt(this.deletedAt)
 			.build();
 	}
 }

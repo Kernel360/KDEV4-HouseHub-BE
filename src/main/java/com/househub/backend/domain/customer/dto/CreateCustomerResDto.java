@@ -1,13 +1,14 @@
 package com.househub.backend.domain.customer.dto;
 
+import java.time.LocalDateTime;
+
 import com.househub.backend.common.enums.Gender;
 import com.househub.backend.domain.customer.entity.Customer;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
 
 @Data
 @Builder
@@ -15,6 +16,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class CreateCustomerResDto{
 
+    private Long id;
     private String name;
     private Integer ageGroup;
     private String contact;
@@ -28,6 +30,7 @@ public class CreateCustomerResDto{
 
     public Customer toEntity() {
         return Customer.builder()
+                .id(this.id)
                 .name(this.name)
                 .ageGroup(this.ageGroup)
                 .contact(this.contact)

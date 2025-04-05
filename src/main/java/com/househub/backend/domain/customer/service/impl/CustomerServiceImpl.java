@@ -108,10 +108,20 @@ public class CustomerServiceImpl implements CustomerService {
     @Transactional
     public CreateCustomerResDto updateCustomer(Long id, CreateCustomerReqDto request, Long agentId) {
         Agent agent = validateAgent(agentId);
-        customerRepository.findByEmail(request.getEmail()).ifPresent(customer -> {
-            throw new AlreadyExistsException("해당 이메일(" + request.getEmail() + ")로 생성되었던 계정이 이미 존재합니다.", "EMAIL_ALREADY_EXIST");
-        });
         Customer customer = customerRepository.findByIdAndAgentAndDeletedAtIsNull(id,agent).orElseThrow(() -> new ResourceNotFoundException("해당 고객이 존재하지 않습니다:", "CUSTOMER_NOT_FOUND"));
+
+		if (!customer.getEmail().equals(request.getEmail())) {
+			customerRepository.findByEmail(request.getEmail())
+				.ifPresent(existingCustomer -> {
+					if (!existingCustomer.getId().equals(customer.getId())) {
+						throw new AlreadyExistsException(
+							"이미 사용 중인 이메일입니다: " + request.getEmail(),
+							"EMAIL_ALREADY_EXISTS"
+						);
+					}
+				});
+		}
+
 		customer.update(request);
 		return customer.toDto();
 	}
