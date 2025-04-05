@@ -15,11 +15,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.househub.backend.common.response.SuccessResponse;
 import com.househub.backend.common.util.SecurityUtil;
+import com.househub.backend.domain.agent.dto.AgentResDto;
+import com.househub.backend.domain.sms.dto.AligoHistoryReqDto;
+import com.househub.backend.domain.sms.dto.AligoHistoryResDto;
 import com.househub.backend.domain.sms.dto.CreateUpdateTemplateReqDto;
-import com.househub.backend.domain.sms.dto.GetSmsHistoryReqDto;
 import com.househub.backend.domain.sms.dto.SendSmsReqDto;
-import com.househub.backend.domain.sms.dto.SmsHistoryResDto;
-import com.househub.backend.domain.sms.dto.SmsResDto;
+import com.househub.backend.domain.sms.dto.SendSmsResDto;
 import com.househub.backend.domain.sms.dto.TemplateResDto;
 import com.househub.backend.domain.sms.entity.SmsTemplate;
 import com.househub.backend.domain.sms.service.SmsService;
@@ -43,18 +44,36 @@ public class SmsController {
 	 * @return Aligo API 응답 (JSON 형식)
 	 */
 	@PostMapping("/send")
-	public ResponseEntity<SuccessResponse<SmsResDto>> sendSms(@RequestBody @Valid SendSmsReqDto sendSmsReqDto) {
-		SmsResDto response = smsService.sendSms(sendSmsReqDto);
+	public ResponseEntity<SuccessResponse<SendSmsResDto>> sendSms(@RequestBody @Valid SendSmsReqDto sendSmsReqDto) {
+		AgentResDto agent = SecurityUtil.getAuthenticatedAgent();
+		SendSmsResDto response = smsService.sendSms(sendSmsReqDto, agent.getId());
 		return ResponseEntity.ok(SuccessResponse.success("문자 전송에 성공했습니다.", "SMS_SEND_SUCCESS", response));
 	}
 
     // 문자 발송 이력 조회
 	@GetMapping("/history")
-	public ResponseEntity<SuccessResponse<List<SmsHistoryResDto.HistoryDetailDto>>> getSmsHistory(
-		@ModelAttribute @Valid GetSmsHistoryReqDto dto
+	public ResponseEntity<SuccessResponse<List<AligoHistoryResDto.HistoryDetailDto>>> getSmsHistories(
+		@ModelAttribute @Valid AligoHistoryReqDto dto
 	) {
-		List<SmsHistoryResDto.HistoryDetailDto> response = smsService.getRecentMessages(dto.getPage(), dto.getSize(), dto.getStartDate(), dto.getLimitDay());
+		List<AligoHistoryResDto.HistoryDetailDto> response = smsService.getRecentMessages(dto.getPage(), dto.getSize(), dto.getStartDate(), dto.getLimitDay());
 		return ResponseEntity.ok(SuccessResponse.success("문자 내역 조회에 성공했습니다.", "SMS_HISTORY_READ_SUCCESS", response));
+	}
+
+	// 문자 단건 조회
+	@GetMapping("/{id}")
+	public ResponseEntity<SuccessResponse<SendSmsResDto>> getSmsHistory(@PathVariable Long id) {
+		AgentResDto agent = SecurityUtil.getAuthenticatedAgent();
+		SendSmsResDto response = smsService.findById(id, agent.getId());
+
+		return ResponseEntity.ok(SuccessResponse.success("문자 단건 조회에 성공했습니다.","SMS_READ_SUCCESS",response));
+	}
+
+	// 문자 전체 조회
+	@GetMapping("/")
+	public ResponseEntity<SuccessResponse<List<SendSmsResDto>>> getAll(){
+		AgentResDto agent = SecurityUtil.getAuthenticatedAgent();
+		List<SendSmsResDto> response = smsService.getAll(agent.getId());
+		return ResponseEntity.ok(SuccessResponse.success("문자 전체 조회에 성공했습니다.", "ALL_SMS_READ_SUCCESS",response));
 	}
 
 	// 문자 발송 템플릿 생성

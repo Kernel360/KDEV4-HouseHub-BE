@@ -17,7 +17,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true) // 알 수 없는 필드 무시
-public class SmsHistoryResDto {
+public class AligoHistoryResDto {
 
 	@JsonProperty("result_code") // API 응답 필드명과 매핑
 	private Integer resultCode;

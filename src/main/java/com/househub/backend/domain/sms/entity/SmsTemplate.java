@@ -71,7 +71,7 @@ public class SmsTemplate {
 			.id(this.getId())
 			.title(this.getTitle())
 			.content(this.getContent())
-			.realEstate(this.getRealEstate())
+			.realEstateId(this.getRealEstate().getId())
 			.createdAt(this.createdAt)
 			.updatedAt(this.updatedAt)
 			.deletedAt(this.deletedAt)
