@@ -1,12 +1,12 @@
-package com.househub.backend.domain.inquiryForm.entity;
+package com.househub.backend.domain.inquiryTemplate.entity;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.househub.backend.domain.agent.entity.Agent;
-import com.househub.backend.domain.inquiryForm.dto.CreateInquiryTemplateReqDto;
-import com.househub.backend.domain.inquiryForm.dto.UpdateInquiryTemplateReqDto;
+import com.househub.backend.domain.agent.entity.RealEstate;
+import com.househub.backend.domain.inquiryTemplate.dto.CreateInquiryTemplateReqDto;
+import com.househub.backend.domain.inquiryTemplate.dto.UpdateInquiryTemplateReqDto;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -21,13 +21,19 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "inquiry_templates")
+@Table(
+	name = "inquiry_templates",
+	uniqueConstraints = {
+		@UniqueConstraint(columnNames = {"real_estate_id", "name"})
+	}
+)
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
@@ -38,10 +44,10 @@ public class InquiryTemplate {
 	private Long id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "agent_id", nullable = false)
-	private Agent agent;
+	@JoinColumn(name = "real_estate_id", nullable = false)
+	private RealEstate realEstate;
 
-	@Column(nullable = false, unique = true)
+	@Column(nullable = false)
 	private String name;
 
 	private String description;
@@ -50,7 +56,7 @@ public class InquiryTemplate {
 	@Builder.Default
 	private List<Question> questions = new ArrayList<>();
 
-	private Boolean isActive;
+	private Boolean active;
 
 	@Column(nullable = false, updatable = false)
 	private LocalDateTime createdAt;
@@ -77,15 +83,15 @@ public class InquiryTemplate {
 	}
 
 	public void setActive(boolean active) {
-		this.isActive = active;
+		this.active = active;
 	}
 
-	public static InquiryTemplate fromDto(CreateInquiryTemplateReqDto reqDto, Agent agent) {
+	public static InquiryTemplate fromDto(CreateInquiryTemplateReqDto reqDto, RealEstate realEstate) {
 		return InquiryTemplate.builder()
-			.agent(agent)
+			.realEstate(realEstate)
 			.name(reqDto.getName())
 			.description(reqDto.getDescription())
-			.isActive(reqDto.isActive())
+			.active(reqDto.getActive())
 			.createdAt(LocalDateTime.now())
 			.build();
 	}
@@ -99,8 +105,8 @@ public class InquiryTemplate {
 		if (reqDto.getDescription() != null) {
 			this.description = reqDto.getDescription();
 		}
-		if (reqDto.getIsActive() != null) {
-			this.isActive = reqDto.getIsActive();
+		if (reqDto.getActive() != null) {
+			this.active = reqDto.getActive();
 		}
 		this.updatedAt = LocalDateTime.now();
 	}

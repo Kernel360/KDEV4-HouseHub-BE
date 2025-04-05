@@ -1,10 +1,11 @@
-package com.househub.backend.domain.inquiryForm.dto;
+package com.househub.backend.domain.inquiryTemplate.dto;
 
 import java.util.List;
 
-import com.househub.backend.domain.inquiryForm.entity.InquiryTemplate;
-import com.househub.backend.domain.inquiryForm.entity.Question;
-import com.househub.backend.domain.inquiryForm.entity.QuestionType;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.househub.backend.domain.inquiryTemplate.entity.InquiryTemplate;
+import com.househub.backend.domain.inquiryTemplate.entity.Question;
+import com.househub.backend.domain.inquiryTemplate.entity.QuestionType;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,7 +22,8 @@ public class InquiryTemplatePreviewResDto {
 	private Long id;
 	private String name;
 	private String description;
-	private boolean isActive;
+	@JsonProperty("isActive")
+	private Boolean active;
 	private List<QuestionDto> questions;
 
 	public static InquiryTemplatePreviewResDto fromEntity(InquiryTemplate inquiryTemplate, List<Question> questions) {
@@ -29,7 +31,7 @@ public class InquiryTemplatePreviewResDto {
 			.id(inquiryTemplate.getId())
 			.name(inquiryTemplate.getName())
 			.description(inquiryTemplate.getDescription())
-			.isActive(inquiryTemplate.getIsActive())
+			.active(inquiryTemplate.getActive())
 			.questions(QuestionDto.fromEntities(questions))
 			.build();
 	}
@@ -42,7 +44,8 @@ public class InquiryTemplatePreviewResDto {
 	public static class QuestionDto {
 		private String label;
 		private QuestionType type;
-		private boolean required;
+		@JsonProperty("isRequired")
+		private Boolean required;
 		private List<String> options;
 		private int questionOrder;
 
@@ -51,7 +54,7 @@ public class InquiryTemplatePreviewResDto {
 				.map(question -> QuestionDto.builder()
 					.label(question.getLabel())
 					.type(question.getType())
-					.required(question.isRequired())
+					.required(question.getRequired())
 					.options(question.getOptions())
 					.questionOrder(question.getQuestionOrder())
 					.build())
