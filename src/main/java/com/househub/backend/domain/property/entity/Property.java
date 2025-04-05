@@ -1,20 +1,35 @@
 package com.househub.backend.domain.property.entity;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
+
+import org.hibernate.annotations.SQLRestriction;
+
 import com.househub.backend.domain.agent.entity.Agent;
 import com.househub.backend.domain.contract.entity.Contract;
 import com.househub.backend.domain.customer.entity.Customer;
 import com.househub.backend.domain.property.dto.PropertyReqDto;
 import com.househub.backend.domain.property.enums.PropertyType;
-import jakarta.persistence.*;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Where;
-
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -22,7 +37,7 @@ import java.util.List;
 @Getter
 @Entity
 @Table(name = "properties")
-@Where(clause = "deleted_at IS NULL") // 조회 시 자동으로 deletedAt == null 조건
+@SQLRestriction("deleted_at IS NULL") // 조회 시 자동으로 deletedAt == null 조건
 public class Property {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

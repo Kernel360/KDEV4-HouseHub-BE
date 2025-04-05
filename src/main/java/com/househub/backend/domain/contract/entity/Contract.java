@@ -1,17 +1,33 @@
 package com.househub.backend.domain.contract.entity;
 
-import com.househub.backend.domain.agent.entity.Agent;
-import com.househub.backend.domain.contract.dto.ContractReqDto;
-import com.househub.backend.domain.customer.entity.Customer;
-import com.househub.backend.domain.property.entity.Property;
-import com.househub.backend.domain.contract.enums.ContractStatus;
-import com.househub.backend.domain.contract.enums.ContractType;
-import jakarta.persistence.*;
-import lombok.*;
-import org.hibernate.annotations.Where;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+
+import org.hibernate.annotations.SQLRestriction;
+
+import com.househub.backend.domain.agent.entity.Agent;
+import com.househub.backend.domain.contract.dto.ContractReqDto;
+import com.househub.backend.domain.contract.enums.ContractStatus;
+import com.househub.backend.domain.contract.enums.ContractType;
+import com.househub.backend.domain.customer.entity.Customer;
+import com.househub.backend.domain.property.entity.Property;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "contracts")
@@ -19,7 +35,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Where(clause = "deleted_at IS NULL") // 조회 시 자동으로 deletedAt == null 조건
+@SQLRestriction("deleted_at IS NULL") // 조회 시 자동으로 deletedAt == null 조건
 public class Contract {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
