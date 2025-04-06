@@ -86,10 +86,11 @@ public class ContractServiceImpl implements ContractService {
     @Override
     @Transactional(readOnly = true)
     public List<FindContractResDto> findContracts(ContractSearchDto searchDto, Pageable pageable, Long agentId) {
-        // 페이지네이션 적용하여 계약 조회
         Agent agent = findAgentById(agentId);
-        Page<Contract> contractPage = contractRepository.findContractsByRealEstateAndFilters(
-            agent.getRealEstate().getId(),
+        // 페이지네이션 적용하여 계약 조회
+        // 해당 공인중개사가 체결한 계약만 조회
+        Page<Contract> contractPage = contractRepository.findContractsByAgentAndFilters(
+            agentId,
             searchDto.getAgentName(),
             searchDto.getCustomerName(),
             searchDto.getContractType(),
@@ -101,6 +102,18 @@ public class ContractServiceImpl implements ContractService {
                 .map(FindContractResDto::toDto)
                 .toList();
         return response;
+    }
+
+    /**
+     * 계약 상세 정보 조회
+     * @param id 계약 ID
+     * @return 계약 정보 응답 DTO
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public FindContractResDto findContract(Long id) {
+        Contract contract = findContractById(id);
+        return FindContractResDto.toDto(contract);
     }
 
     /**

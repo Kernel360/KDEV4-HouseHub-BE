@@ -1,5 +1,6 @@
 package com.househub.backend.domain.contract.dto;
 
+import com.househub.backend.domain.agent.dto.GetMyInfoResDto;
 import com.househub.backend.domain.contract.entity.Contract;
 import com.househub.backend.domain.contract.enums.ContractStatus;
 import com.househub.backend.domain.contract.enums.ContractType;
@@ -14,6 +15,7 @@ import java.time.LocalDate;
 @Builder
 public class FindContractResDto {
     private Long id; // 계약 ID
+    private GetMyInfoResDto agent;
     private FindPropertyResDto property; // 매물
     private CreateCustomerResDto customer; // 고객
     private ContractType contractType; // 거래 유형 (매매, 전세, 월세)
@@ -30,6 +32,7 @@ public class FindContractResDto {
     public static FindContractResDto toDto(Contract contract) {
         return FindContractResDto.builder()
                 .id(contract.getId())
+                .agent(GetMyInfoResDto.from(contract.getAgent()))
                 .property(FindPropertyResDto.toDto(contract.getProperty()))
                 .customer(contract.getCustomer().toDto())
                 .contractType(contract.getContractType())
