@@ -19,17 +19,16 @@ public interface ContractRepository extends JpaRepository<Contract, Long> {
     // true -> 중복 존재, false -> 중복되는 계약 없음
     boolean existsByCustomerAndPropertyAndStatusNot(Customer customer, Property property, ContractStatus status);
 
-    // 최근 계약부터 정렬
     @Query("SELECT c FROM Contract c " +
         "JOIN c.agent a " +
-        "WHERE a.realEstate.id = :realEstateId " +
+        "WHERE a.id = :agentId " +
         "AND (:agentName IS NULL OR a.name LIKE %:agentName%) " +
         "AND (:customerName IS NULL OR c.customer.name LIKE %:customerName%) " +
         "AND (:contractType IS NULL OR c.contractType = :contractType) " +
         "AND (:status IS NULL OR c.status = :status) " +
         "ORDER BY c.createdAt DESC")
-    Page<Contract> findContractsByRealEstateAndFilters(
-        @Param("realEstateId") Long realEstateId,
+    Page<Contract> findContractsByAgentAndFilters(
+        @Param("agentId") Long agentId,
         @Param("agentName") String agentName,
         @Param("customerName") String customerName,
         @Param("contractType") ContractType contractType,
