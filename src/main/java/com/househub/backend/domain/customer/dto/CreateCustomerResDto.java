@@ -1,19 +1,21 @@
 package com.househub.backend.domain.customer.dto;
 
+import java.time.LocalDateTime;
+
 import com.househub.backend.common.enums.Gender;
 import com.househub.backend.domain.customer.entity.Customer;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class CreateCustomerResDto{
+
     private Long id;
     private String name;
     private Integer ageGroup;
@@ -26,18 +28,19 @@ public class CreateCustomerResDto{
     private LocalDateTime updatedAt;
     private LocalDateTime deletedAt;
 
-    public Customer toEntity() {
-        return Customer.builder()
-                .name(this.name)
-                .ageGroup(this.ageGroup)
-                .contact(this.contact)
-                .email(this.email)
-                .memo(this.memo)
-                .gender(this.gender)
-                .createdAt(this.createdAt)
-                .updatedAt(this.updatedAt)
-                .deletedAt(this.deletedAt)
-                .build();
+    public static CreateCustomerResDto fromEntity(Customer customer) {
+        return CreateCustomerResDto.builder()
+            .id(customer.getId())
+            .name(customer.getName())
+            .ageGroup(customer.getAgeGroup())
+            .contact(customer.getContact())
+            .email(customer.getEmail())
+            .memo(customer.getMemo())
+            .gender(customer.getGender())
+            .createdAt(customer.getCreatedAt())
+            .updatedAt(customer.getUpdatedAt())
+            .deletedAt(customer.getDeletedAt())
+            .build();
     }
 
 }
