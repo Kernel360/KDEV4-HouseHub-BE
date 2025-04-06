@@ -94,6 +94,7 @@ public class Customer {
 
 	public CreateCustomerResDto toDto() {
 		return CreateCustomerResDto.builder()
+			.id(this.getId())
 			.name(this.getName())
 			.ageGroup(this.getAgeGroup())
 			.contact(this.getContact())

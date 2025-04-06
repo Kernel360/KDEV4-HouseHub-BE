@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CreateCustomerResDto{
-
+    private Long id;
     private String name;
     private Integer ageGroup;
     private String contact;
