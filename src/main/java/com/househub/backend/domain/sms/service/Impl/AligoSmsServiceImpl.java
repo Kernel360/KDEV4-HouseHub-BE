@@ -107,7 +107,7 @@ public class AligoSmsServiceImpl implements SmsService {
 
 	@Override
 	public SendSmsResDto findById(Long id, Long agentId) {
-		Agent agent = agentRepository.findById(id).orElseThrow(()-> new ResourceNotFoundException("공인중개사가 존재하지 않습니다.", "AGENT_NOT_FOUND"));
+		Agent agent = agentRepository.findById(agentId).orElseThrow(()-> new ResourceNotFoundException("공인중개사가 존재하지 않습니다.", "AGENT_NOT_FOUND"));
 		return smsRepository.findByIdAndRealEstate(id,agent.getRealEstate());
 	}
 

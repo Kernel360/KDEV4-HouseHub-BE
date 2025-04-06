@@ -12,7 +12,6 @@ public class TemplateResDto {
 	private Long id;
 	private String title;
 	private String content;
-	private Long realEstateId;
 	private LocalDateTime createdAt;
 
 	private LocalDateTime updatedAt;
