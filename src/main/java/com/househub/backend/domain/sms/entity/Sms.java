@@ -57,6 +57,8 @@ public class Sms {
 
 	private LocalDateTime deletedAt;
 
+	private Long templateId;
+
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "real_estate_id", nullable = false)
 	private RealEstate realEstate;
