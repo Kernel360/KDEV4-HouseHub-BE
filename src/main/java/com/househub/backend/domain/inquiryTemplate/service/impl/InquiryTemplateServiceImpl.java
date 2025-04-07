@@ -55,18 +55,18 @@ public class InquiryTemplateServiceImpl implements InquiryTemplateService {
 	@Transactional
 	public void createNewInquiryTemplate(CreateInquiryTemplateReqDto reqDto, Long agentId) throws
 		AlreadyExistsException {
-		// 1. 중개사 ID로 부동산 존재 여부 확인
-		RealEstate realEstate = getRealEstateByAgentId(agentId);
+		// 1. 중개사 ID로 중개사 존재 여부 확인
+		Agent agent = findAgentById(agentId);
 
 		// 2. 동일한 이름의 문의 템플릿이 이미 존재하는지 확인
-		boolean exists = inquiryTemplateRepository.existsByRealEstateIdAndName(realEstate.getId(),
+		boolean exists = inquiryTemplateRepository.existsByAgentIdAndName(agent.getId(),
 			reqDto.getName());
 		if (exists) {
 			throw new AlreadyExistsException("이미 동일한 이름의 문의 템플릿이 존재합니다.", "DUPLICATED_INQUIRY_TEMPLATE_NAME");
 		}
 
 		// 3. 문의 템플릿 생성
-		InquiryTemplate inquiryTemplate = InquiryTemplate.fromDto(reqDto, realEstate);
+		InquiryTemplate inquiryTemplate = InquiryTemplate.fromDto(reqDto, agent);
 		inquiryTemplateRepository.save(inquiryTemplate);
 
 		// 3. 질문 목록 생성 및 저장
@@ -93,12 +93,11 @@ public class InquiryTemplateServiceImpl implements InquiryTemplateService {
 	@Override
 	public InquiryTemplateListResDto getInquiryTemplates(Boolean active, String keyword, Pageable pageable,
 		Long agentId) {
-		// active 가 null 나 keyword 가 null 인 걸 고려해야 해.
-		// 1. 중개사 ID로 부동산 존재 여부 확인
-		RealEstate realEstate = getRealEstateByAgentId(agentId);
+		// 1. 중개사 ID로 중개사 존재 여부 확인
+		Agent agent = findAgentById(agentId);
 
 		// 2. 문의 템플릿 목록 조회
-		Page<InquiryTemplateResDto> page = inquiryTemplateRepository.findAllByRealEstateIdAndFilters(realEstate.getId(),
+		Page<InquiryTemplateResDto> page = inquiryTemplateRepository.findAllByAgentIdAndFilters(agent.getId(),
 				active,
 				keyword,
 				pageable)
@@ -115,11 +114,11 @@ public class InquiryTemplateServiceImpl implements InquiryTemplateService {
 	 */
 	@Override
 	public InquiryTemplateListResDto searchInquiryTemplates(String keyword, Pageable pageable, Long agentId) {
-		// 1. 중개사 ID로 부동산 존재 여부 확인
-		RealEstate realEstate = getRealEstateByAgentId(agentId);
+		// 1. 중개사 ID로 중개사 존재 여부 확인
+		Agent agent = findAgentById(agentId);
 
 		// 2. 문의 템플릿 목록 검색
-		Page<InquiryTemplateResDto> page = inquiryTemplateRepository.findAllByRealEstateIdAndKeyword(realEstate.getId(),
+		Page<InquiryTemplateResDto> page = inquiryTemplateRepository.findAllByAgentIdAndKeyword(agent.getId(),
 				keyword,
 				pageable)
 			.map(InquiryTemplateResDto::fromEntity);
@@ -134,11 +133,11 @@ public class InquiryTemplateServiceImpl implements InquiryTemplateService {
 	 */
 	@Override
 	public InquiryTemplatePreviewResDto previewInquiryTemplate(Long templateId, Long agentId) {
-		// 1. 중개사 ID로 부동산 존재 여부 확인
-		RealEstate realEstate = getRealEstateByAgentId(agentId);
+		// 1. 중개사 ID로 중개사 존재 여부 확인
+		Agent agent = findAgentById(agentId);
 
 		// 2. 문의 템플릿 ID 와 중개사 ID로 문의 템플릿 조회
-		InquiryTemplate inquiryTemplate = findInquiryTemplateByIdAndRealEstateId(templateId, realEstate.getId());
+		InquiryTemplate inquiryTemplate = findInquiryTemplateByIdAndAgentId(templateId, agent.getId());
 
 		// 3. 문의 템플릿에 속한 질문 목록 조회
 		List<Question> questions = questionRepository.findAllByInquiryTemplate(inquiryTemplate);
@@ -154,11 +153,11 @@ public class InquiryTemplateServiceImpl implements InquiryTemplateService {
 	@Transactional
 	@Override
 	public void updateInquiryTemplate(Long templateId, UpdateInquiryTemplateReqDto reqDto, Long agentId) {
-		// 1. 중개사 ID로 부동산 존재 여부 확인
-		RealEstate realEstate = getRealEstateByAgentId(agentId);
+		// 1. 중개사 ID로 중개사 존재 여부 확인
+		Agent agent = findAgentById(agentId);
 
 		// 2. 문의 템플릿 ID로 문의 템플릿 조회
-		InquiryTemplate inquiryTemplate = findInquiryTemplateByIdAndRealEstateId(templateId, realEstate.getId());
+		InquiryTemplate inquiryTemplate = findInquiryTemplateByIdAndAgentId(templateId, agent.getId());
 
 		// 3. 문의 템플릿 수정
 		if (reqDto.getQuestions() != null) {
@@ -197,11 +196,11 @@ public class InquiryTemplateServiceImpl implements InquiryTemplateService {
 	 */
 	@Override
 	public void deleteInquiryTemplate(Long templateId, Long agentId) {
-		// 1. 중개사 ID로 부동산 존재 여부 확인
-		RealEstate realEstate = getRealEstateByAgentId(agentId);
+		// 1. 중개사 ID로 중개사 존재 여부 확인
+		Agent agent = findAgentById(agentId);
 
 		// 2. 문의 템플릿 ID로 문의 템플릿 조회
-		InquiryTemplate inquiryTemplate = findInquiryTemplateByIdAndRealEstateId(templateId, realEstate.getId());
+		InquiryTemplate inquiryTemplate = findInquiryTemplateByIdAndAgentId(templateId, agent.getId());
 
 		// 3. 문의 템플릿 삭제
 		inquiryTemplateRepository.delete(inquiryTemplate);
@@ -245,14 +244,14 @@ public class InquiryTemplateServiceImpl implements InquiryTemplateService {
 	}
 
 	/**
-	 * 템플릿 ID 및 부동산 객체 로 문의 템플릿을 조회합니다.
+	 * 템플릿 ID 및 중개사 ID 로 문의 템플릿을 조회합니다.
 	 * @param templateId 문의 템플릿 ID
-	 * @param realEstateId 부동산 ID
+	 * @param agentId 중개사 ID
 	 * @return 문의 템플릿 엔티티
 	 * @throws ResourceNotFoundException 해당 문의 템플릿을 찾을 수 없는 경우
 	 */
-	private InquiryTemplate findInquiryTemplateByIdAndRealEstateId(Long templateId, Long realEstateId) {
-		return inquiryTemplateRepository.findByIdAndRealEstateId(templateId, realEstateId)
+	private InquiryTemplate findInquiryTemplateByIdAndAgentId(Long templateId, Long agentId) {
+		return inquiryTemplateRepository.findByIdAndAgentId(templateId, agentId)
 			.orElseThrow(() -> new ResourceNotFoundException("해당 문의 템플릿을 찾을 수 없습니다.", "INQUIRY_TEMPLATE_NOT_FOUND"));
 	}
 
