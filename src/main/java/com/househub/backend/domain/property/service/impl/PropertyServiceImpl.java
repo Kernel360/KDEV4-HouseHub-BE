@@ -77,7 +77,7 @@ public class PropertyServiceImpl implements PropertyService {
 	 */
 	@Transactional(readOnly = true)
 	@Override
-	public List<FindPropertyResDto> findProperties(PropertySearchDto searchDto, Pageable pageable) {
+	public PropertyListResDto findProperties(PropertySearchDto searchDto, Pageable pageable) {
 		// 페이지네이션, 검색 필터링 적용하여 매물 조회
 		Page<Property> propertyList = propertyRepository.searchProperties(
 			searchDto.getProvince(),
@@ -89,8 +89,7 @@ public class PropertyServiceImpl implements PropertyService {
 			pageable
 		);
 		// 매물 엔티티를 dto 로 변환하여 리스트로 반환
-		return propertyList.stream()
-			.map(FindPropertyResDto::toDto).toList();
+		return PropertyListResDto.fromPage(propertyList.map(FindPropertyResDto::toDto));
 	}
 
 	/**

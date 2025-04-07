@@ -1,4 +1,4 @@
-package com.househub.backend.domain.inquiryTemplate.dto;
+package com.househub.backend.common.dto;
 
 import org.springframework.data.domain.Page;
 

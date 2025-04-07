@@ -2,8 +2,6 @@ package com.househub.backend.domain.property.service;
 
 import com.househub.backend.domain.property.dto.*;
 
-import java.util.List;
-
 import org.springframework.data.domain.Pageable;
 
 public interface PropertyService {
@@ -14,7 +12,7 @@ public interface PropertyService {
     public FindPropertyDetailResDto findProperty(Long propertyId);
 
     // 매물 전체 조회
-    public List<FindPropertyResDto> findProperties(PropertySearchDto searchDto, Pageable pageable);
+    public PropertyListResDto findProperties(PropertySearchDto searchDto, Pageable pageable);
 
     // 매물 정보 수정
     public void updateProperty(Long propertyId, PropertyReqDto updatePropertyReqDto);

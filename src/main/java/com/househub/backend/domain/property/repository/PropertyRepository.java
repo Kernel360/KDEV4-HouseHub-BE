@@ -23,8 +23,8 @@ public interface PropertyRepository extends JpaRepository<Property, Long> {
 		"AND (:city IS NULL OR p.city = :city) " +
 		"AND (:dong IS NULL OR p.dong = :dong) " +
 		"AND (:propertyType IS NULL OR p.propertyType = :propertyType) " +
-		"AND (:agentName IS NULL OR a.name LIKE '%:agentName%') " +
-		"AND (:customerName IS NULL OR c.name LIKE '%:customerName%')")
+		"AND (:agentName IS NULL OR a.name = :agentName) " +
+		"AND (:customerName IS NULL OR c.name = :customerName)")
 	Page<Property> searchProperties(
 		@Param("province") String province,
 		@Param("city") String city,
