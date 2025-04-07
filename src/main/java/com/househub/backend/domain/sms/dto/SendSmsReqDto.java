@@ -38,8 +38,10 @@ public class SendSmsReqDto {
 	@Pattern(regexp = "^\\d{8}$", message = "예약일은 YYYYMMDD 형식이어야 합니다")
 	private String rdate; // 예약일 (YYYYMMDD)
 
-	@Pattern(regexp = "^\\d{4}$", message = "예약시간은 HHII 형식이어야 합니다")
-	private String rtime; // 예약시간 (HHII)
+	@Pattern(regexp = "^\\d{2}:\\d{2}$", message = "예약시간은 HH:MM 형식이어야 합니다")
+	private String rtime;
+
+	private Long templateId;
 
 	public Sms toEntity(Status status, RealEstate realEstate) {
 		return Sms.builder()
@@ -52,6 +54,15 @@ public class SendSmsReqDto {
 			.rdate(this.rdate)
 			.rtime(this.rtime)
 			.realEstate(realEstate)
+			.templateId(this.templateId)
 			.build();
+	}
+
+	public void setSender(String sender) {
+		this.sender = sender != null ? sender.replaceAll("-", "") : null;
+	}
+
+	public void setReceiver(String receiver) {
+		this.receiver = receiver != null ? receiver.replaceAll("-", "") : null;
 	}
 }

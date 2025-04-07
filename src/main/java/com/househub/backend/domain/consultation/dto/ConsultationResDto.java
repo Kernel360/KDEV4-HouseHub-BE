@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 @Getter
 public class ConsultationResDto {
 
+    private Long id;
     private Long agentId;
     private Long customerId;
 
@@ -28,6 +29,7 @@ public class ConsultationResDto {
 
     public static ConsultationResDto fromEntity(Consultation consultation) {
         return ConsultationResDto.builder()
+                .id(consultation.getId())
                 .agentId(consultation.getAgent().getId())
                 .customerId(consultation.getCustomer().getId())
                 .consultationType(consultation.getConsultationType())

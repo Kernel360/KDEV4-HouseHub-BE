@@ -12,9 +12,11 @@ import com.househub.backend.domain.customer.entity.Customer;
 @Repository
 public interface CustomerRepository extends JpaRepository<Customer, Long> {
 
-    Optional<Customer> findByEmail(String email);
+	Optional<Customer> findByEmail(String email);
 
-    List<Customer> findAllByAgentAndDeletedAtIsNull(Agent agent);
+	List<Customer> findAllByAgentAndDeletedAtIsNull(Agent agent);
 
-    Optional<Customer> findByIdAndAgentAndDeletedAtIsNull(Long id, Agent agent);
+	Optional<Customer> findByIdAndAgentAndDeletedAtIsNull(Long id, Agent agent);
+
+	Optional<Customer> findByEmailAndContact(String email, String phone);
 }
