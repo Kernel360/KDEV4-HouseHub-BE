@@ -36,9 +36,9 @@ public class ContractController {
 	@PutMapping("/{id}")
 	public ResponseEntity<SuccessResponse<Void>> updateContract(
 		@PathVariable("id") Long id,
-		@RequestBody @Valid ContractReqDto updatePropertyReqDto
+		@RequestBody @Valid ContractReqDto reqDto
 	) {
-		contractService.updateContract(id, updatePropertyReqDto);
+		contractService.updateContract(id, reqDto);
 		return ResponseEntity.ok(SuccessResponse.success("계약이 성공적으로 수정되었습니다.", "UPDATE_CONTRACT_SUCCESS", null));
 	}
 
@@ -50,6 +50,13 @@ public class ContractController {
 	) {
 		List<FindContractResDto> response = contractService.findContracts(searchDto, pageable, getSignInAgentId());
 		return ResponseEntity.ok(SuccessResponse.success("계약 조회 성공", "FIND_CONTRACTS_SUCCESS", response));
+	}
+
+	// 계약 상세 조회
+	@GetMapping("/{id}")
+	public ResponseEntity<SuccessResponse<FindContractResDto>> findContract(@PathVariable("id") Long id) {
+		FindContractResDto response = contractService.findContract(id);
+		return ResponseEntity.ok(SuccessResponse.success("계약 상세 조회 성공", "FIND_CONTRACT_SUCCESS", response));
 	}
 
 	// 계약 삭제

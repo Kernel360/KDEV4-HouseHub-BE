@@ -1,6 +1,6 @@
 # Created by https://www.toptal.com/developers/gitignore/api/intellij,java,eclipse,gradle,windows,macos,git,visualstudiocode
 # Edit at https://www.toptal.com/developers/gitignore?templates=intellij,java,eclipse,gradle,windows,macos,git,visualstudiocode
-
+package-lock.json
 src/main/resources/application.yml
 # 개발용 docker-compose 파일을 숨김처리
 docker-compose.yml

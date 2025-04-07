@@ -16,6 +16,9 @@ public interface ContractService {
     // 계약 목록 조회
     public List<FindContractResDto> findContracts(ContractSearchDto searchDto, Pageable pageable, Long agentId);
 
+    // 계약 상세 조회
+    public FindContractResDto findContract(Long id);
+
     // 계약 삭제
     public void deleteContract(Long id);
 }

@@ -35,6 +35,7 @@ dependencies {
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.4.0'
     runtimeOnly 'mysql:mysql-connector-java:8.0.33'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation 'org.springframework.boot:spring-boot-starter-mail' // 이메일 발송 의존성 추가
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     annotationProcessor 'org.projectlombok:lombok'
@@ -42,6 +43,8 @@ dependencies {
     testImplementation("org.springframework.security:spring-security-test")
     testImplementation 'org.mockito:mockito-junit-jupiter'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
+
 
     //엑셀 파싱 관련 의존성
     implementation 'org.apache.poi:poi:5.2.3'
@@ -53,4 +56,8 @@ dependencies {
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+
+tasks.withType(JavaCompile) {
+    options.compilerArgs << "-Xlint:deprecation"
 }

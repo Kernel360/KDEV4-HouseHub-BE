@@ -3,6 +3,7 @@ package com.househub.backend.domain.sms.entity;
 import java.time.LocalDateTime;
 
 import com.househub.backend.domain.agent.entity.RealEstate;
+import com.househub.backend.domain.sms.enums.MessageType;
 import com.househub.backend.domain.sms.enums.Status;
 
 import jakarta.persistence.Column;
@@ -39,7 +40,9 @@ public class Sms {
 
 	private String msg;
 
-	private LocalDateTime sendTime;
+	private MessageType msgType;
+
+	private String title;
 
 	private Status status;
 
@@ -53,6 +56,8 @@ public class Sms {
 	private LocalDateTime updatedAt;
 
 	private LocalDateTime deletedAt;
+
+	private Long templateId;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "real_estate_id", nullable = false)

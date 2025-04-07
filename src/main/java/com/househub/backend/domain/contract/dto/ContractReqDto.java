@@ -24,7 +24,7 @@ public class ContractReqDto {
     @NotNull(message = "거래 유형은 필수입니다.")
     private ContractType contractType; // 거래 유형 (매매, 전세, 월세)
     @NotNull(message = "거래 상태는 필수입니다.")
-    private ContractStatus contractStatus; // 거래 상태 ( 판매중, 판매 완료 )
+    private ContractStatus contractStatus; // 거래 상태 ( 거래 가능, 진행중, 완료 )
 
     private Long salePrice; // 매매가 (매매 계약일 경우 필요)
     private Long jeonsePrice; // 전세가 (전세 계약일 경우 필요)

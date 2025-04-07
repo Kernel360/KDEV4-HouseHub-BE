@@ -1,15 +1,16 @@
 package com.househub.backend.domain.property.dto;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
+
 import com.househub.backend.domain.contract.dto.FindContractResDto;
 import com.househub.backend.domain.customer.dto.CreateCustomerResDto;
 import com.househub.backend.domain.property.entity.Property;
 import com.househub.backend.domain.property.enums.PropertyType;
+
 import lombok.Builder;
 import lombok.Getter;
-
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.List;
 
 @Builder
 @Getter
@@ -35,7 +36,7 @@ public class FindPropertyDetailResDto {
         return FindPropertyDetailResDto.builder()
                 .id(property.getId())
                 .propertyType(property.getPropertyType())
-                .customer(property.getCustomer().toDto())
+                .customer(CreateCustomerResDto.fromEntity(property.getCustomer()))
                 .memo(property.getMemo())
                 .province(property.getProvince())
                 .city(property.getCity())
