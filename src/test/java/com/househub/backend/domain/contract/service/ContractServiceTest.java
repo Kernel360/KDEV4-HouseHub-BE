@@ -152,7 +152,7 @@ public class ContractServiceTest {
 
 		// Mocking contractRepository.findContractsByRealEstateAndFilters
 		when(agentRepository.findByIdAndStatus(agent.getId(), AgentStatus.ACTIVE)).thenReturn(Optional.of(agent));
-		when(contractRepository.findContractsByRealEstateAndFilters(
+		when(contractRepository.findContractsByAgentAndFilters(
 			any(), any(), any(), any(), any(), any())).thenReturn(page);
 
 		// when
@@ -160,7 +160,7 @@ public class ContractServiceTest {
 
 		// then
 		assertThat(result.get(0).getId()).isEqualTo(1L);  // 반환된 계약 ID가 1L인지 확인
-		verify(contractRepository, times(1)).findContractsByRealEstateAndFilters(
+		verify(contractRepository, times(1)).findContractsByAgentAndFilters(
 			agent.getRealEstate().getId(),
 			searchDto.getAgentName(),
 			searchDto.getCustomerName(),

@@ -94,6 +94,7 @@ public class Contract {
     // 수정 메서드 (setter 대신 사용)
     public void updateContract(ContractReqDto updateDto) {
         if (updateDto.getContractType() != null) this.contractType = updateDto.getContractType();
+        if (updateDto.getContractStatus() != null) this.status = updateDto.getContractStatus();
         if (updateDto.getMemo() != null) this.memo = updateDto.getMemo();
         if (updateDto.getSalePrice() != null) this.salePrice = updateDto.getSalePrice();
         if (updateDto.getJeonsePrice() != null) this.jeonsePrice = updateDto.getJeonsePrice();
