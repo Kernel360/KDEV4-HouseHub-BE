@@ -1,5 +1,6 @@
 package com.househub.backend.domain.inquiryTemplate.service.impl;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -20,10 +21,15 @@ import com.househub.backend.domain.inquiryTemplate.dto.CreateInquiryTemplateReqD
 import com.househub.backend.domain.inquiryTemplate.dto.InquiryTemplateListResDto;
 import com.househub.backend.domain.inquiryTemplate.dto.InquiryTemplatePreviewResDto;
 import com.househub.backend.domain.inquiryTemplate.dto.InquiryTemplateResDto;
+import com.househub.backend.domain.inquiryTemplate.dto.InquiryTemplateSharedResDto;
 import com.househub.backend.domain.inquiryTemplate.dto.UpdateInquiryTemplateReqDto;
 import com.househub.backend.domain.inquiryTemplate.entity.InquiryTemplate;
+import com.househub.backend.domain.inquiryTemplate.entity.InquiryTemplateSharedToken;
 import com.househub.backend.domain.inquiryTemplate.entity.Question;
+import com.househub.backend.domain.inquiryTemplate.exception.InactiveTemplateException;
+import com.househub.backend.domain.inquiryTemplate.exception.InvalidShareTokenException;
 import com.househub.backend.domain.inquiryTemplate.repository.InquiryTemplateRepository;
+import com.househub.backend.domain.inquiryTemplate.repository.InquiryTemplateSharedTokenRepository;
 import com.househub.backend.domain.inquiryTemplate.repository.QuestionRepository;
 import com.househub.backend.domain.inquiryTemplate.service.InquiryTemplateService;
 
@@ -36,6 +42,8 @@ public class InquiryTemplateServiceImpl implements InquiryTemplateService {
 	private final InquiryTemplateRepository inquiryTemplateRepository;
 	private final QuestionRepository questionRepository;
 
+	private final InquiryTemplateSharedTokenRepository sharedTokenRepository;
+
 	/**
 	 * 새로운 문의 템플릿을 생성합니다.
 	 * @param agentId 문의 템플릿을 생성하는 중개사 ID
@@ -47,18 +55,18 @@ public class InquiryTemplateServiceImpl implements InquiryTemplateService {
 	@Transactional
 	public void createNewInquiryTemplate(CreateInquiryTemplateReqDto reqDto, Long agentId) throws
 		AlreadyExistsException {
-		// 1. 중개사 ID로 부동산 존재 여부 확인
-		RealEstate realEstate = getRealEstateByAgentId(agentId);
+		// 1. 중개사 ID로 중개사 존재 여부 확인
+		Agent agent = findAgentById(agentId);
 
 		// 2. 동일한 이름의 문의 템플릿이 이미 존재하는지 확인
-		boolean exists = inquiryTemplateRepository.existsByRealEstateIdAndName(realEstate.getId(),
+		boolean exists = inquiryTemplateRepository.existsByAgentIdAndName(agent.getId(),
 			reqDto.getName());
 		if (exists) {
 			throw new AlreadyExistsException("이미 동일한 이름의 문의 템플릿이 존재합니다.", "DUPLICATED_INQUIRY_TEMPLATE_NAME");
 		}
 
 		// 3. 문의 템플릿 생성
-		InquiryTemplate inquiryTemplate = InquiryTemplate.fromDto(reqDto, realEstate);
+		InquiryTemplate inquiryTemplate = InquiryTemplate.fromDto(reqDto, agent);
 		inquiryTemplateRepository.save(inquiryTemplate);
 
 		// 3. 질문 목록 생성 및 저장
@@ -66,6 +74,13 @@ public class InquiryTemplateServiceImpl implements InquiryTemplateService {
 			.map(questionDto -> Question.fromDto(questionDto, inquiryTemplate))
 			.collect(Collectors.toList());
 		questionRepository.saveAll(questions);
+
+		// 4. 공유 토큰 저장 (InquiryTemplateSharedToken)
+		// 문의 템플릿 생성 시 공유 토큰도 무조건 함께 생성하되, 활성화 여부는 템플릿의 isActive 상태를 반영한다.
+		// 공유 토큰은 고객이 해당 템플릿에 접근할 수 있는 식별자이며, 관리자가 공유 여부를 토글하여 사용 여부를 제어할 수 있다.
+		InquiryTemplateSharedToken token = InquiryTemplateSharedToken.create(inquiryTemplate);
+		token.setActive(inquiryTemplate.getActive());
+		sharedTokenRepository.save(token);
 	}
 
 	/**
@@ -78,12 +93,11 @@ public class InquiryTemplateServiceImpl implements InquiryTemplateService {
 	@Override
 	public InquiryTemplateListResDto getInquiryTemplates(Boolean active, String keyword, Pageable pageable,
 		Long agentId) {
-		// active 가 null 나 keyword 가 null 인 걸 고려해야 해.
-		// 1. 중개사 ID로 부동산 존재 여부 확인
-		RealEstate realEstate = getRealEstateByAgentId(agentId);
+		// 1. 중개사 ID로 중개사 존재 여부 확인
+		Agent agent = findAgentById(agentId);
 
 		// 2. 문의 템플릿 목록 조회
-		Page<InquiryTemplateResDto> page = inquiryTemplateRepository.findAllByRealEstateIdAndFilters(realEstate.getId(),
+		Page<InquiryTemplateResDto> page = inquiryTemplateRepository.findAllByAgentIdAndFilters(agent.getId(),
 				active,
 				keyword,
 				pageable)
@@ -100,11 +114,11 @@ public class InquiryTemplateServiceImpl implements InquiryTemplateService {
 	 */
 	@Override
 	public InquiryTemplateListResDto searchInquiryTemplates(String keyword, Pageable pageable, Long agentId) {
-		// 1. 중개사 ID로 부동산 존재 여부 확인
-		RealEstate realEstate = getRealEstateByAgentId(agentId);
+		// 1. 중개사 ID로 중개사 존재 여부 확인
+		Agent agent = findAgentById(agentId);
 
 		// 2. 문의 템플릿 목록 검색
-		Page<InquiryTemplateResDto> page = inquiryTemplateRepository.findAllByRealEstateIdAndKeyword(realEstate.getId(),
+		Page<InquiryTemplateResDto> page = inquiryTemplateRepository.findAllByAgentIdAndKeyword(agent.getId(),
 				keyword,
 				pageable)
 			.map(InquiryTemplateResDto::fromEntity);
@@ -119,11 +133,11 @@ public class InquiryTemplateServiceImpl implements InquiryTemplateService {
 	 */
 	@Override
 	public InquiryTemplatePreviewResDto previewInquiryTemplate(Long templateId, Long agentId) {
-		// 1. 중개사 ID로 부동산 존재 여부 확인
-		RealEstate realEstate = getRealEstateByAgentId(agentId);
+		// 1. 중개사 ID로 중개사 존재 여부 확인
+		Agent agent = findAgentById(agentId);
 
 		// 2. 문의 템플릿 ID 와 중개사 ID로 문의 템플릿 조회
-		InquiryTemplate inquiryTemplate = findInquiryTemplateByIdAndRealEstateId(templateId, realEstate.getId());
+		InquiryTemplate inquiryTemplate = findInquiryTemplateByIdAndAgentId(templateId, agent.getId());
 
 		// 3. 문의 템플릿에 속한 질문 목록 조회
 		List<Question> questions = questionRepository.findAllByInquiryTemplate(inquiryTemplate);
@@ -139,11 +153,11 @@ public class InquiryTemplateServiceImpl implements InquiryTemplateService {
 	@Transactional
 	@Override
 	public void updateInquiryTemplate(Long templateId, UpdateInquiryTemplateReqDto reqDto, Long agentId) {
-		// 1. 중개사 ID로 부동산 존재 여부 확인
-		RealEstate realEstate = getRealEstateByAgentId(agentId);
+		// 1. 중개사 ID로 중개사 존재 여부 확인
+		Agent agent = findAgentById(agentId);
 
 		// 2. 문의 템플릿 ID로 문의 템플릿 조회
-		InquiryTemplate inquiryTemplate = findInquiryTemplateByIdAndRealEstateId(templateId, realEstate.getId());
+		InquiryTemplate inquiryTemplate = findInquiryTemplateByIdAndAgentId(templateId, agent.getId());
 
 		// 3. 문의 템플릿 수정
 		if (reqDto.getQuestions() != null) {
@@ -182,14 +196,33 @@ public class InquiryTemplateServiceImpl implements InquiryTemplateService {
 	 */
 	@Override
 	public void deleteInquiryTemplate(Long templateId, Long agentId) {
-		// 1. 중개사 ID로 부동산 존재 여부 확인
-		RealEstate realEstate = getRealEstateByAgentId(agentId);
+		// 1. 중개사 ID로 중개사 존재 여부 확인
+		Agent agent = findAgentById(agentId);
 
 		// 2. 문의 템플릿 ID로 문의 템플릿 조회
-		InquiryTemplate inquiryTemplate = findInquiryTemplateByIdAndRealEstateId(templateId, realEstate.getId());
+		InquiryTemplate inquiryTemplate = findInquiryTemplateByIdAndAgentId(templateId, agent.getId());
 
 		// 3. 문의 템플릿 삭제
 		inquiryTemplateRepository.delete(inquiryTemplate);
+	}
+
+	@Override
+	public InquiryTemplateSharedResDto getInquiryTemplateByShareToken(String shareToken) {
+		InquiryTemplateSharedToken shareTokenEntity = sharedTokenRepository.findByShareTokenAndActiveTrue(shareToken)
+			.orElseThrow(() -> new InvalidShareTokenException("유효하지 않거나 존재하지 않는 공유 토큰입니다."));
+
+		InquiryTemplate inquiryTemplate = shareTokenEntity.getTemplate();
+		if (!Boolean.TRUE.equals(inquiryTemplate.getActive())) {
+			throw new InactiveTemplateException("비활성화된 템플릿입니다. 접근이 제한됩니다.");
+		}
+
+		// 질문 리스트 가져오기 (질문 순서 기준 정렬)
+		List<Question> questions = inquiryTemplate.getQuestions().stream()
+			.sorted(Comparator.comparingInt(Question::getQuestionOrder))
+			.toList();
+
+		return InquiryTemplateSharedResDto.fromEntity(inquiryTemplate, questions);
+
 	}
 
 	/**
@@ -211,14 +244,14 @@ public class InquiryTemplateServiceImpl implements InquiryTemplateService {
 	}
 
 	/**
-	 * 템플릿 ID 및 부동산 객체 로 문의 템플릿을 조회합니다.
+	 * 템플릿 ID 및 중개사 ID 로 문의 템플릿을 조회합니다.
 	 * @param templateId 문의 템플릿 ID
-	 * @param realEstateId 부동산 ID
+	 * @param agentId 중개사 ID
 	 * @return 문의 템플릿 엔티티
 	 * @throws ResourceNotFoundException 해당 문의 템플릿을 찾을 수 없는 경우
 	 */
-	private InquiryTemplate findInquiryTemplateByIdAndRealEstateId(Long templateId, Long realEstateId) {
-		return inquiryTemplateRepository.findByIdAndRealEstateId(templateId, realEstateId)
+	private InquiryTemplate findInquiryTemplateByIdAndAgentId(Long templateId, Long agentId) {
+		return inquiryTemplateRepository.findByIdAndAgentId(templateId, agentId)
 			.orElseThrow(() -> new ResourceNotFoundException("해당 문의 템플릿을 찾을 수 없습니다.", "INQUIRY_TEMPLATE_NOT_FOUND"));
 	}
 
