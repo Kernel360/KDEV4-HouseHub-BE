@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.househub.backend.common.response.ErrorResponse;
+import com.househub.backend.domain.inquiry.exception.InvalidAnswerFormatException;
+import com.househub.backend.domain.inquiry.exception.QuestionNotFoundException;
 
 import io.swagger.v3.oas.annotations.Hidden;
 
@@ -39,17 +41,6 @@ public class GlobalExceptionHandler {
 
 		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
 	}
-
-	// @ExceptionHandler(ValidationFailedException.class)
-	// public ResponseEntity<ErrorResponse> handleValidationFailedException(ValidationFailedException ex) {
-	// 	ErrorResponse errorResponse = ErrorResponse.builder()
-	// 		.success(false)
-	// 		.message(ex.getMessage())
-	// 		.code(ex.getCode())
-	// 		.errors(ex.getFieldErrors())
-	// 		.build();
-	// 	return ResponseEntity.badRequest().body(errorResponse);
-	// }
 
 	// 유효성 검사 실패 예외 처리
 	@ExceptionHandler(MethodArgumentNotValidException.class)
@@ -122,5 +113,27 @@ public class GlobalExceptionHandler {
 
 		// HTTP 응답으로 반환
 		return ResponseEntity.badRequest().body(errorResponse);
+	}
+
+	@ExceptionHandler(QuestionNotFoundException.class)
+	public ResponseEntity<ErrorResponse> handleQuestionNotFound(QuestionNotFoundException e) {
+		ErrorResponse response = ErrorResponse.builder()
+			.success(false)
+			.message(e.getMessage())
+			.code(e.getCode())
+			.errors(null)
+			.build();
+		return ResponseEntity.badRequest().body(response);
+	}
+
+	@ExceptionHandler(InvalidAnswerFormatException.class)
+	public ResponseEntity<ErrorResponse> handleInvalidAnswerFormat(InvalidAnswerFormatException e) {
+		ErrorResponse response = ErrorResponse.builder()
+			.success(false)
+			.message(e.getMessage())
+			.code(e.getCode())
+			.errors(null)
+			.build();
+		return ResponseEntity.badRequest().body(response);
 	}
 }

@@ -49,6 +49,7 @@ public class InquiryTemplateSharedToken {
 
 	// 공유 활성화 여부
 	@Column(nullable = false)
+	@Builder.Default
 	private Boolean active = true;
 
 	@PrePersist
