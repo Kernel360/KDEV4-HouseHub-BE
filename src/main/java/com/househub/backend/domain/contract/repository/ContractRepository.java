@@ -23,7 +23,7 @@ public interface ContractRepository extends JpaRepository<Contract, Long> {
         "JOIN c.agent a " +
         "WHERE a.id = :agentId " +
         "AND (:agentName IS NULL OR a.name LIKE CONCAT('%', :agentName, '%')) " +
-        "AND (:customerName IS NULL OR c.customer.name LIKE CONCAT('%', :customerName, '%') " +
+        "AND (:customerName IS NULL OR c.customer.name LIKE CONCAT('%', :customerName, '%')) " +
         "AND (:contractType IS NULL OR c.contractType = :contractType) " +
         "AND (:status IS NULL OR c.status = :status) " +
         "ORDER BY c.createdAt DESC")
