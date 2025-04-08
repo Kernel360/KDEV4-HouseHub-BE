@@ -23,7 +23,9 @@ import com.househub.backend.domain.agent.repository.AgentRepository;
 import com.househub.backend.domain.auth.dto.SignInReqDto;
 import com.househub.backend.domain.auth.dto.SignInResDto;
 import com.househub.backend.domain.auth.dto.SignUpReqDto;
+import com.househub.backend.domain.auth.exception.BusinessException;
 import com.househub.backend.domain.auth.exception.EmailVerifiedException;
+import com.househub.backend.domain.auth.exception.ErrorCode;
 import com.househub.backend.domain.auth.exception.InvalidPasswordException;
 import com.househub.backend.domain.auth.service.AuthCode;
 import com.househub.backend.domain.auth.service.AuthService;
@@ -269,13 +271,15 @@ public class AuthServiceImpl implements AuthService {
 	public void verifyCode(String email, String code) {
 		// Redis 에서 인증번호 조회
 		String storedAuthCode = getAuthCode(email);
+
+		// 인증번호 만료
 		if (storedAuthCode == null) {
-			throw new RuntimeException("인증번호가 존재하지 않습니다.");
+			throw new BusinessException(ErrorCode.AUTH_CODE_EXPIRED);
 		}
 
 		// 인증번호 비교
 		if (!storedAuthCode.equals(code)) {
-			throw new RuntimeException("인증번호가 일치하지 않습니다.");
+			throw new BusinessException(ErrorCode.AUTH_CODE_MISMATCH);
 		}
 
 		// 인증번호 삭제

@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.househub.backend.common.response.ErrorResponse;
+import com.househub.backend.domain.auth.exception.BusinessException;
+import com.househub.backend.domain.auth.exception.ErrorCode;
 import com.househub.backend.domain.inquiry.exception.InvalidAnswerFormatException;
 import com.househub.backend.domain.inquiry.exception.QuestionNotFoundException;
 
@@ -86,18 +88,6 @@ public class GlobalExceptionHandler {
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
 	}
 
-	@ExceptionHandler(Exception.class)
-	public ResponseEntity<ErrorResponse> handleInternalServerError(Exception ex) {
-		ErrorResponse response = ErrorResponse.builder()
-			.success(false)
-			.message("서버 내부 오류가 발생했습니다.")
-			.code("INTERNAL_SERVER_ERROR")
-			.errors(null)
-			.build();
-
-		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-	}
-
 	@ExceptionHandler(InvalidExcelValueException.class)
 	public ResponseEntity<ErrorResponse> handleInvalidExcelValueException(InvalidExcelValueException ex) {
 		// 필드 오류를 가져옵니다.
@@ -135,5 +125,30 @@ public class GlobalExceptionHandler {
 			.errors(null)
 			.build();
 		return ResponseEntity.badRequest().body(response);
+	}
+
+	@ExceptionHandler(BusinessException.class)
+	public ResponseEntity<ErrorResponse> handleBusinessException(BusinessException ex) {
+		ErrorCode errorCode = ex.getErrorCode();
+		ErrorResponse response = ErrorResponse.builder()
+			.success(false)
+			.message(errorCode.getMessage())
+			.code(errorCode.getCode())
+			.errors(null)
+			.build();
+
+		return ResponseEntity.status(errorCode.getHttpStatus()).body(response);
+	}
+
+	@ExceptionHandler(Exception.class)
+	public ResponseEntity<ErrorResponse> handleInternalServerError(Exception ex) {
+		ErrorResponse response = ErrorResponse.builder()
+			.success(false)
+			.message("서버 내부 오류가 발생했습니다.")
+			.code("INTERNAL_SERVER_ERROR")
+			.errors(null)
+			.build();
+
+		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
 	}
 }
