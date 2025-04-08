@@ -1,11 +1,9 @@
 package com.househub.backend.domain.crawlingProperty.controller;
 
 import com.househub.backend.common.response.SuccessResponse;
-import com.househub.backend.common.util.SecurityUtil;
 import com.househub.backend.domain.crawlingProperty.dto.CrawlingPropertyReqDto;
 import com.househub.backend.domain.crawlingProperty.dto.CrawlingPropertyResDto;
 import com.househub.backend.domain.crawlingProperty.service.CrawlingPropertyService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -23,7 +21,6 @@ public class CrawlingPropertyController {
 
     @GetMapping("/")
     public ResponseEntity<SuccessResponse<List<CrawlingPropertyResDto>>> findAllCrawlingProperty(
-        @Valid
         @ModelAttribute CrawlingPropertyReqDto crawlingPropertyReqDto,
         Pageable pageable
     ) {
