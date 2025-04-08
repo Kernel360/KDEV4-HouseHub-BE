@@ -4,6 +4,7 @@ import org.springframework.data.domain.Page;
 
 import lombok.Builder;
 import lombok.Getter;
+
 @Getter
 @Builder
 public class PaginationDto {
