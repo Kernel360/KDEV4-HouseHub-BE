@@ -8,7 +8,10 @@ import com.househub.backend.domain.crawlingProperty.repository.CrawlingPropertyR
 import com.househub.backend.domain.crawlingProperty.service.CrawlingPropertyService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -19,10 +22,13 @@ public class CrawlingPropertyServiceImpl implements CrawlingPropertyService {
 
     private final CrawlingPropertyRepository crawlingPropertyRepository;
 
+    @Transactional(readOnly = true)
+    @Override
     public List<CrawlingPropertyResDto> findAll(
-        CrawlingPropertyReqDto crawlingPropertyReqDto
+        CrawlingPropertyReqDto crawlingPropertyReqDto,
+        Pageable pageable
     ) {
-        List<CrawlingProperty> crawlingProperties = crawlingPropertyRepository.findByDto(
+        Page<CrawlingProperty> crawlingPropertyList = crawlingPropertyRepository.findByDto(
                 crawlingPropertyReqDto.getPropertyType(),
                 crawlingPropertyReqDto.getTransactionType(),
                 crawlingPropertyReqDto.getProvince(),
@@ -36,7 +42,8 @@ public class CrawlingPropertyServiceImpl implements CrawlingPropertyService {
                 crawlingPropertyReqDto.getMinDeposit(),
                 crawlingPropertyReqDto.getMaxDeposit(),
                 crawlingPropertyReqDto.getMinMonthlyRent(),
-                crawlingPropertyReqDto.getMaxMonthlyRent()
+                crawlingPropertyReqDto.getMaxMonthlyRent(),
+                pageable
         );
 
         System.out.println("=== CrawlingPropertyReqDto ===");
@@ -56,11 +63,11 @@ public class CrawlingPropertyServiceImpl implements CrawlingPropertyService {
         System.out.println("maxMonthlyRent: " + crawlingPropertyReqDto.getMaxMonthlyRent());
         System.out.println("===============================");
 
-        if (crawlingProperties.isEmpty()) {
+        if (crawlingPropertyList.isEmpty()) {
             throw new ResourceNotFoundException("크롤링 매물 목록이 존재하지 않습니다:", "CRAWLING_PROPERTIES_NOT_FOUND");
         }
 
-        return crawlingProperties.stream()
+        return crawlingPropertyList.stream()
                 .map(CrawlingPropertyResDto::fromEntity)
                 .toList();
     }

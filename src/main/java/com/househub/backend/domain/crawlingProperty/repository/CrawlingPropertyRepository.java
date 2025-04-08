@@ -5,6 +5,8 @@ import com.househub.backend.domain.crawlingProperty.entity.CrawlingProperty;
 import com.househub.backend.domain.crawlingProperty.enums.PropertyType;
 import com.househub.backend.domain.crawlingProperty.enums.TransactionType;
 import io.lettuce.core.dynamic.annotation.Param;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -33,7 +35,7 @@ public interface CrawlingPropertyRepository extends JpaRepository<CrawlingProper
 
             "AND (:minMonthlyRent IS NULL OR cp.monthlyRentFee >= :minMonthlyRent) " +
             "AND (:maxMonthlyRent IS NULL OR cp.monthlyRentFee <= :maxMonthlyRent)")
-    List<CrawlingProperty> findByDto(
+    Page<CrawlingProperty> findByDto(
             @Param("propertyType") PropertyType propertyType,
             @Param("transactionType") TransactionType transactionType,
             @Param("province") String province,
@@ -51,7 +53,9 @@ public interface CrawlingPropertyRepository extends JpaRepository<CrawlingProper
             @Param("maxDeposit") Float maxDeposit,
 
             @Param("minMonthlyRent") Float minMonthlyRent,
-            @Param("maxMonthlyRent") Float maxMonthlyRent
+            @Param("maxMonthlyRent") Float maxMonthlyRent,
+
+            Pageable pageable
     );
 
     // findOne
