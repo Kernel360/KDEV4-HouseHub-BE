@@ -2,6 +2,7 @@ package com.househub.backend.domain.contract.controller;
 
 import com.househub.backend.common.response.SuccessResponse;
 import com.househub.backend.common.util.SecurityUtil;
+import com.househub.backend.domain.contract.dto.ContractListResDto;
 import com.househub.backend.domain.contract.dto.ContractReqDto;
 import com.househub.backend.domain.contract.dto.ContractSearchDto;
 import com.househub.backend.domain.contract.dto.CreateContractResDto;
@@ -14,8 +15,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/contracts")
@@ -44,11 +43,11 @@ public class ContractController {
 
 	// 전체 계약 조회
 	@GetMapping
-	public ResponseEntity<SuccessResponse<List<FindContractResDto>>> findContracts(
+	public ResponseEntity<SuccessResponse<ContractListResDto>> findContracts(
 		@ModelAttribute ContractSearchDto searchDto,
 		Pageable pageable
 	) {
-		List<FindContractResDto> response = contractService.findContracts(searchDto, pageable, getSignInAgentId());
+		ContractListResDto response = contractService.findContracts(searchDto, pageable, getSignInAgentId());
 		return ResponseEntity.ok(SuccessResponse.success("계약 조회 성공", "FIND_CONTRACTS_SUCCESS", response));
 	}
 
@@ -56,7 +55,7 @@ public class ContractController {
 	@GetMapping("/{id}")
 	public ResponseEntity<SuccessResponse<FindContractResDto>> findContract(@PathVariable("id") Long id) {
 		FindContractResDto response = contractService.findContract(id);
-		return ResponseEntity.ok(SuccessResponse.success("계약 상세 조회 성공", "FIND_CONTRACT_SUCCESS", response));
+		return ResponseEntity.ok(SuccessResponse.success("계약 상세 조회 성공", "FIND_DETAIL_CONTRACT_SUCCESS", response));
 	}
 
 	// 계약 삭제

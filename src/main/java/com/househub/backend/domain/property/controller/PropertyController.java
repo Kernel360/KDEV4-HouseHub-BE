@@ -12,8 +12,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/api/properties")
 @RequiredArgsConstructor
@@ -31,12 +29,12 @@ public class PropertyController {
 
 	// 전체 매물 조회 및 검색
 	@GetMapping
-	public ResponseEntity<SuccessResponse<List<FindPropertyResDto>>> findProperties(
+	public ResponseEntity<SuccessResponse<PropertyListResDto>> findProperties(
 		@ModelAttribute PropertySearchDto searchDto,
 		Pageable pageable
 	) {
-		List<FindPropertyResDto> response = propertyService.findProperties(searchDto, pageable);
-		return ResponseEntity.ok(SuccessResponse.success("매물 조회 성공", "FIND_PROPERTY_SUCCESS", response));
+		PropertyListResDto response = propertyService.findProperties(searchDto, pageable);
+		return ResponseEntity.ok(SuccessResponse.success("매물 조회 성공", "FIND_PROPERTIES_SUCCESS", response));
 	}
 
 	// 매물 상세 조회

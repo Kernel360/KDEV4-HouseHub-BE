@@ -6,10 +6,10 @@ import com.househub.backend.domain.agent.entity.Agent;
 import com.househub.backend.domain.agent.entity.AgentStatus;
 import com.househub.backend.domain.agent.entity.RealEstate;
 import com.househub.backend.domain.agent.repository.AgentRepository;
+import com.househub.backend.domain.contract.dto.ContractListResDto;
 import com.househub.backend.domain.contract.dto.ContractReqDto;
 import com.househub.backend.domain.contract.dto.ContractSearchDto;
 import com.househub.backend.domain.contract.dto.CreateContractResDto;
-import com.househub.backend.domain.contract.dto.FindContractResDto;
 import com.househub.backend.domain.contract.entity.Contract;
 import com.househub.backend.domain.contract.enums.ContractStatus;
 import com.househub.backend.domain.contract.enums.ContractType;
@@ -156,10 +156,10 @@ public class ContractServiceTest {
 			any(), any(), any(), any(), any(), any())).thenReturn(page);
 
 		// when
-		List<FindContractResDto> result = contractService.findContracts(searchDto, pageable, agent.getId());
+		ContractListResDto result = contractService.findContracts(searchDto, pageable, agent.getId());
 
 		// then
-		assertThat(result.get(0).getId()).isEqualTo(1L);  // 반환된 계약 ID가 1L인지 확인
+		assertThat(result.getContent().get(0).getId()).isEqualTo(1L);  // 반환된 계약 ID가 1L인지 확인
 		verify(contractRepository, times(1)).findContractsByAgentAndFilters(
 			agent.getRealEstate().getId(),
 			searchDto.getAgentName(),
