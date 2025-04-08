@@ -8,6 +8,8 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -22,6 +24,8 @@ import com.househub.backend.domain.agent.entity.Agent;
 import com.househub.backend.domain.agent.repository.AgentRepository;
 import com.househub.backend.domain.customer.dto.CreateCustomerReqDto;
 import com.househub.backend.domain.customer.dto.CreateCustomerResDto;
+import com.househub.backend.domain.customer.dto.CustomerListResDto;
+import com.househub.backend.domain.customer.dto.CustomerSearchDto;
 import com.househub.backend.domain.customer.entity.Customer;
 import com.househub.backend.domain.customer.repository.CustomerRepository;
 import com.househub.backend.domain.customer.service.CustomerService;
@@ -94,9 +98,16 @@ public class CustomerServiceImpl implements CustomerService {
 			.build();
 	}
 
-    public List<CreateCustomerResDto> findAllByDeletedAtIsNull(Long agentId) {
+    public CustomerListResDto findAllByDeletedAtIsNull(CustomerSearchDto searchDto, Long agentId, Pageable pageable) {
         Agent agent = validateAgent(agentId);
-        return customerRepository.findAllByAgentAndDeletedAtIsNull(agent).stream().map(CreateCustomerResDto::fromEntity).toList();
+
+		Page<Customer> customerPage = customerRepository.findAllByAgentAndFiltersAndDeletedAtIsNull(
+			agent.getId(),
+			searchDto.getKeyword(),
+			pageable
+		);
+		Page<CreateCustomerResDto> response = customerPage.map(CreateCustomerResDto::fromEntity);
+		return CustomerListResDto.fromPage(response);
     }
 
     public CreateCustomerResDto findByIdAndDeletedAtIsNull(Long id, Long agentId) {
