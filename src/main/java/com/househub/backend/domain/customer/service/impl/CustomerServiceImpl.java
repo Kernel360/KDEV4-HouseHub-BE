@@ -25,7 +25,6 @@ import com.househub.backend.domain.agent.repository.AgentRepository;
 import com.househub.backend.domain.customer.dto.CreateCustomerReqDto;
 import com.househub.backend.domain.customer.dto.CreateCustomerResDto;
 import com.househub.backend.domain.customer.dto.CustomerListResDto;
-import com.househub.backend.domain.customer.dto.CustomerSearchDto;
 import com.househub.backend.domain.customer.entity.Customer;
 import com.househub.backend.domain.customer.repository.CustomerRepository;
 import com.househub.backend.domain.customer.service.CustomerService;
@@ -98,12 +97,12 @@ public class CustomerServiceImpl implements CustomerService {
 			.build();
 	}
 
-    public CustomerListResDto findAllByDeletedAtIsNull(CustomerSearchDto searchDto, Long agentId, Pageable pageable) {
+    public CustomerListResDto findAllByDeletedAtIsNull(String keyword, Long agentId, Pageable pageable) {
         Agent agent = validateAgent(agentId);
 
 		Page<Customer> customerPage = customerRepository.findAllByAgentAndFiltersAndDeletedAtIsNull(
 			agent.getId(),
-			searchDto.getKeyword(),
+			keyword,
 			pageable
 		);
 		Page<CreateCustomerResDto> response = customerPage.map(CreateCustomerResDto::fromEntity);

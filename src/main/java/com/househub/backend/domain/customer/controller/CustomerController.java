@@ -4,13 +4,13 @@ import java.util.List;
 
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -25,7 +25,6 @@ import com.househub.backend.common.util.SecurityUtil;
 import com.househub.backend.domain.customer.dto.CreateCustomerReqDto;
 import com.househub.backend.domain.customer.dto.CreateCustomerResDto;
 import com.househub.backend.domain.customer.dto.CustomerListResDto;
-import com.househub.backend.domain.customer.dto.CustomerSearchDto;
 import com.househub.backend.domain.customer.service.CustomerService;
 
 import jakarta.validation.Valid;
@@ -53,11 +52,18 @@ public class CustomerController {
 	// 페이지네이션 적용
 	@GetMapping("")
 	public ResponseEntity<SuccessResponse<CustomerListResDto>> findAllCustomer(
-		@ModelAttribute CustomerSearchDto searchDto,
+		// @ModelAttribute CustomerSearchDto searchDto,
+		@RequestParam(required = false) String keyword,
 		Pageable pageable
 	) {
+
+		int page = Math.max(pageable.getPageNumber() -1,0);
+		int size = pageable.getPageSize();
+
+		Pageable adjustedPageable = PageRequest.of(page,size, pageable.getSort());
+
 		Long agentId = SecurityUtil.getAuthenticatedAgent().getId();
-		CustomerListResDto response = customerService.findAllByDeletedAtIsNull(searchDto, agentId, pageable);
+		CustomerListResDto response = customerService.findAllByDeletedAtIsNull(keyword, agentId, adjustedPageable);
         return ResponseEntity.ok(SuccessResponse.success("고객 목록 조회에 성공했습니다.", "FIND_ALL_CUSTOMER_SUCCESS", response));
     }
 

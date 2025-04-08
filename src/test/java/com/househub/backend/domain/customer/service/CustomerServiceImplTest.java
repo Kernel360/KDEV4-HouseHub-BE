@@ -28,7 +28,6 @@ import com.househub.backend.domain.agent.repository.AgentRepository;
 import com.househub.backend.domain.customer.dto.CreateCustomerReqDto;
 import com.househub.backend.domain.customer.dto.CreateCustomerResDto;
 import com.househub.backend.domain.customer.dto.CustomerListResDto;
-import com.househub.backend.domain.customer.dto.CustomerSearchDto;
 import com.househub.backend.domain.customer.entity.Customer;
 import com.househub.backend.domain.customer.repository.CustomerRepository;
 import com.househub.backend.domain.customer.service.impl.CustomerServiceImpl;
@@ -151,9 +150,7 @@ public class CustomerServiceImplTest {
         Pageable pageable = PageRequest.of(page, size);
 
         // searchDto 초기화
-        CustomerSearchDto searchDto = CustomerSearchDto.builder()
-            .keyword("test@example.com")
-            .build();
+        String keyword = "test@example.com";
 
         // Mock 데이터 생성
         Agent mockAgent = Agent.builder()
@@ -174,12 +171,12 @@ public class CustomerServiceImplTest {
         when(agentRepository.findById(agentId)).thenReturn(Optional.of(mockAgent));
         when(customerRepository.findAllByAgentAndFiltersAndDeletedAtIsNull(
             eq(mockAgent.getId()),
-            eq(searchDto.getKeyword()),
+            eq(keyword),
             eq(pageable)))
             .thenReturn(mockCustomerPage);
 
         // when
-        CustomerListResDto result = customerService.findAllByDeletedAtIsNull(searchDto, agentId, pageable);
+        CustomerListResDto result = customerService.findAllByDeletedAtIsNull(keyword, agentId, pageable);
 
         // then
         assertAll(
@@ -194,7 +191,7 @@ public class CustomerServiceImplTest {
         verify(agentRepository).findById(agentId);
         verify(customerRepository).findAllByAgentAndFiltersAndDeletedAtIsNull(
             eq(mockAgent.getId()),
-            eq(searchDto.getKeyword()),
+            eq(keyword),
             eq(pageable));
     }
 
