@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -26,7 +25,9 @@ import com.househub.backend.domain.property.enums.PropertyType;
 import com.househub.backend.domain.property.repository.PropertyRepository;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class DashboardServiceImpl implements DashboardService {
@@ -68,10 +69,12 @@ public class DashboardServiceImpl implements DashboardService {
 	@Override
 	public ChartDataResDto getPropertyTypeChartData(Long agentId) {
 		List<PropertyTypeCount> counts = propertyRepository.countByTypeAndAgentId(agentId);
+
 		List<PropertyType> labels = new ArrayList<>();
 		List<Integer> data = new ArrayList<>();
 
 		for (PropertyTypeCount count : counts) {
+			log.info("{}", count.getPropertyType());
 			labels.add(count.getPropertyType());
 			data.add(count.getCount());
 		}
@@ -80,7 +83,7 @@ public class DashboardServiceImpl implements DashboardService {
 	}
 
 	@Override
-	public List<MultiDatasetChartResDto> getContractChartData(Long agentId) {
+	public MultiDatasetChartResDto getContractChartData(Long agentId) {
 		LocalDate now = LocalDate.now();
 		LocalDateTime startOfYear = now.withDayOfYear(1).atStartOfDay();
 		LocalDateTime endOfNow = now.atTime(23, 59, 59);
@@ -89,7 +92,6 @@ public class DashboardServiceImpl implements DashboardService {
 			agentId, startOfYear, endOfNow
 		);
 
-		// 월별 ACTIVE
 		Map<Month, Long> activeMap = contracts.stream()
 			.filter(c -> c.getStatus() == ContractStatus.IN_PROGRESS)
 			.collect(Collectors.groupingBy(
@@ -97,7 +99,6 @@ public class DashboardServiceImpl implements DashboardService {
 				Collectors.counting()
 			));
 
-		// 월별 COMPLETED
 		Map<Month, Long> completedMap = contracts.stream()
 			.filter(c -> c.getStatus() == ContractStatus.COMPLETED && c.getCompletedAt() != null)
 			.collect(Collectors.groupingBy(
@@ -105,12 +106,6 @@ public class DashboardServiceImpl implements DashboardService {
 				Collectors.counting()
 			));
 
-		return IntStream.rangeClosed(1, now.getMonthValue())
-			.mapToObj(i -> MultiDatasetChartResDto.from(
-				Month.of(i),
-				activeMap,
-				completedMap
-			))
-			.collect(Collectors.toList());
+		return MultiDatasetChartResDto.from(activeMap, completedMap);
 	}
 }

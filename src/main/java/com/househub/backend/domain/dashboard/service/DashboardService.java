@@ -14,5 +14,5 @@ public interface DashboardService {
 
 	ChartDataResDto getPropertyTypeChartData(Long agentId);
 
-	List<MultiDatasetChartResDto> getContractChartData(Long signInAgentId);
+	MultiDatasetChartResDto getContractChartData(Long signInAgentId);
 }
