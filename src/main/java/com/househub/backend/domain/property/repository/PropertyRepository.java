@@ -1,10 +1,15 @@
 package com.househub.backend.domain.property.repository;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 import java.util.List;
 
 =======
 >>>>>>> 21bde5a (byungchan, feature: 대시보드 통계 데이터 조회 API 구현 #101)
+=======
+import java.util.List;
+
+>>>>>>> e670440 (byungchan, feature: 최근 등록된 매물 목록 조회 API 구현 #101)
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -47,6 +52,7 @@ public interface PropertyRepository extends JpaRepository<Property, Long> {
 	@Query("SELECT COUNT(p) FROM Property p WHERE p.agent.id = :agentId")
 	long countByAgentId(@Param("agentId") Long agentId);
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 	@Query("SELECT p FROM Property p WHERE p.agent.id = :agentId ORDER BY p.createdAt DESC")
 	List<Property> findRecentPropertiesByAgentId(@Param("agentId") Long agentId, Pageable pageable);
@@ -59,4 +65,10 @@ public interface PropertyRepository extends JpaRepository<Property, Long> {
 
 =======
 >>>>>>> 21bde5a (byungchan, feature: 대시보드 통계 데이터 조회 API 구현 #101)
+=======
+
+	@Query("SELECT p FROM Property p ORDER BY p.createdAt DESC")
+	List<Property> findRecentProperties(Pageable pageable);
+
+>>>>>>> e670440 (byungchan, feature: 최근 등록된 매물 목록 조회 API 구현 #101)
 }

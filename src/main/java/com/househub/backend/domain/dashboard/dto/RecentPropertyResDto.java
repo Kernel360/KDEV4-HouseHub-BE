@@ -18,7 +18,11 @@ public class RecentPropertyResDto {
 		return RecentPropertyResDto.builder()
 			.id(p.getId())
 			.propertyType(p.getPropertyType())
+<<<<<<< HEAD
 			.location(p.getRoadAddress() + " " + p.getDetailAddress())
+=======
+			.location(p.getRoadAddress() + p.getDetailAddress())
+>>>>>>> e670440 (byungchan, feature: 최근 등록된 매물 목록 조회 API 구현 #101)
 			.createdAt(String.valueOf(p.getCreatedAt()))
 			.build();
 	}
