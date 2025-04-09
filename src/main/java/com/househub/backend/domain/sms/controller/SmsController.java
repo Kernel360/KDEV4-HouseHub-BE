@@ -42,12 +42,7 @@ public class SmsController {
 	private final SmsService smsService;
 	private final TemplateService templateService;
 
-	/**
-	 * SMS 전송 API 엔드포인트
-	 * 문자 발송 예약
-	 * @param sendSmsReqDto 클라이언트로부터 전달받은 SMS 요청 데이터 (JSON 형식)
-	 * @return Aligo API 응답 (JSON 형식)
-	 */
+	// 문자 전송
 	@PostMapping("/send")
 	public ResponseEntity<SuccessResponse<SendSmsResDto>> sendSms(@RequestBody @Valid SendSmsReqDto sendSmsReqDto) {
 		AgentResDto agent = SecurityUtil.getAuthenticatedAgent();

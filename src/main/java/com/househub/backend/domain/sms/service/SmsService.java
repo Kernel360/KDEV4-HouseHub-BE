@@ -14,7 +14,7 @@ import jakarta.validation.Valid;
 public interface SmsService {
 
 	// 문자 단건 발송
-	SendSmsResDto sendSms(@Valid SendSmsReqDto sendSmsReqDto,Long id);
+	SendSmsResDto sendSms(@Valid SendSmsReqDto sendSmsReqDto,Long agentId);
 
 	// 문자 발송 이력 조회
 	List<AligoHistoryResDto.HistoryDetailDto> getRecentMessages(Integer page, Integer pageSize, String startDate,
