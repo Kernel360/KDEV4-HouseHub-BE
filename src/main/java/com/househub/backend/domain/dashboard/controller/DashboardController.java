@@ -1,39 +1,19 @@
 package com.househub.backend.domain.dashboard.controller;
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> e670440 (byungchan, feature: 최근 등록된 매물 목록 조회 API 구현 #101)
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-<<<<<<< HEAD
-=======
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
->>>>>>> 21bde5a (byungchan, feature: 대시보드 통계 데이터 조회 API 구현 #101)
-=======
->>>>>>> e670440 (byungchan, feature: 최근 등록된 매물 목록 조회 API 구현 #101)
 import org.springframework.web.bind.annotation.RestController;
 
 import com.househub.backend.common.response.SuccessResponse;
 import com.househub.backend.common.util.SecurityUtil;
-<<<<<<< HEAD
 import com.househub.backend.domain.dashboard.dto.ChartDataResDto;
 import com.househub.backend.domain.dashboard.dto.DashboardStatsResDto;
-<<<<<<< HEAD
 import com.househub.backend.domain.dashboard.dto.MultiDatasetChartResDto;
 import com.househub.backend.domain.dashboard.dto.RecentPropertyResDto;
-=======
-import com.househub.backend.domain.dashboard.dto.DashboardStatsResDto;
->>>>>>> 21bde5a (byungchan, feature: 대시보드 통계 데이터 조회 API 구현 #101)
-=======
-import com.househub.backend.domain.dashboard.dto.RecentPropertyResDto;
->>>>>>> e670440 (byungchan, feature: 최근 등록된 매물 목록 조회 API 구현 #101)
 import com.househub.backend.domain.dashboard.service.DashboardService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -63,10 +43,6 @@ public class DashboardController {
 		return ResponseEntity.ok(SuccessResponse.success("대시보드 통계 조회 성공", "DASHBOARD_STATS_SUCCESS", response));
 	}
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> e670440 (byungchan, feature: 최근 등록된 매물 목록 조회 API 구현 #101)
 	@Operation(
 		summary = "최근 등록된 매물 조회",
 		description = "최근 등록된 매물을 조회합니다. 기본적으로 5개의 매물이 반환됩니다."
@@ -80,16 +56,11 @@ public class DashboardController {
 	public ResponseEntity<SuccessResponse<List<RecentPropertyResDto>>> getRecentProperties(
 		@RequestParam(defaultValue = "5") int limit
 	) {
-<<<<<<< HEAD
 		List<RecentPropertyResDto> recentProperties = dashboardService.getRecentProperties(getSignInAgentId(), limit);
-=======
-		List<RecentPropertyResDto> recentProperties = dashboardService.getRecentProperties(limit);
->>>>>>> e670440 (byungchan, feature: 최근 등록된 매물 목록 조회 API 구현 #101)
 		return ResponseEntity.ok(SuccessResponse.success("최근 등록된 매물 조회 성공", "RECENT_PROPERTIES_SUCCESS",
 			recentProperties));
 	}
 
-<<<<<<< HEAD
 	@Operation(
 		summary = "매물 유형별 차트 데이터 조회",
 		description = "매물 유형별 차트 데이터를 조회합니다. 에이전트 ID를 기반으로 매물 유형 차트를 가져옵니다."
@@ -122,10 +93,6 @@ public class DashboardController {
 			chartData));
 	}
 
-=======
->>>>>>> 21bde5a (byungchan, feature: 대시보드 통계 데이터 조회 API 구현 #101)
-=======
->>>>>>> e670440 (byungchan, feature: 최근 등록된 매물 목록 조회 API 구현 #101)
 	/**
 	 * 현재 로그인한 에이전트의 ID를 반환합니다.
 	 *
