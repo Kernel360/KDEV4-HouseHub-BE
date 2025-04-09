@@ -2,10 +2,12 @@ package com.househub.backend.domain.customer.service;
 
 import java.util.List;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.househub.backend.domain.customer.dto.CreateCustomerReqDto;
 import com.househub.backend.domain.customer.dto.CreateCustomerResDto;
+import com.househub.backend.domain.customer.dto.CustomerListResDto;
 
 public interface CustomerService {
 
@@ -18,7 +20,7 @@ public interface CustomerService {
 
     CreateCustomerResDto deleteCustomer(Long id, Long agentId);
 
-    List<CreateCustomerResDto> findAllByDeletedAtIsNull(Long agentId);
+    CustomerListResDto findAllByDeletedAtIsNull(String searchDto, Long agentId, Pageable pageable);
 
     List<CreateCustomerResDto> createCustomersByExcel(MultipartFile file, Long agentId);
 }

@@ -8,7 +8,6 @@ import lombok.Getter;
 @Getter
 @Builder
 public class PaginationDto {
-
 	private Integer totalPages;
 	private Long totalElements;
 	private Integer size;
@@ -23,4 +22,3 @@ public class PaginationDto {
 			.build();
 	}
 }
-
