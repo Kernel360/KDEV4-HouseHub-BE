@@ -1,5 +1,7 @@
 package com.househub.backend.domain.property.repository;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -37,4 +39,8 @@ public interface PropertyRepository extends JpaRepository<Property, Long> {
 
 	@Query("SELECT COUNT(p) FROM Property p WHERE p.agent.id = :agentId")
 	long countByAgentId(@Param("agentId") Long agentId);
+
+	@Query("SELECT p FROM Property p ORDER BY p.createdAt DESC")
+	List<Property> findRecentProperties(Pageable pageable);
+
 }

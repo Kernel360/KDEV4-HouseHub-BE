@@ -2,13 +2,16 @@ package com.househub.backend.domain.dashboard.service.impl;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import com.househub.backend.domain.contract.enums.ContractStatus;
 import com.househub.backend.domain.contract.repository.ContractRepository;
 import com.househub.backend.domain.customer.repository.CustomerRepository;
 import com.househub.backend.domain.dashboard.dto.DashboardStatsResDto;
+import com.househub.backend.domain.dashboard.dto.RecentPropertyResDto;
 import com.househub.backend.domain.dashboard.service.DashboardService;
 import com.househub.backend.domain.property.repository.PropertyRepository;
 
@@ -40,7 +43,15 @@ public class DashboardServiceImpl implements DashboardService {
 			.totalProperties(totalProperties)
 			.activeContracts(activeContracts)
 			.newCustomers(newCustomers)
-			.completedContracts(0)
+			.completedContracts(completedContracts)
 			.build();
+	}
+
+	@Override
+	public List<RecentPropertyResDto> getRecentProperties(int limit) {
+		return propertyRepository.findRecentProperties(PageRequest.of(0, limit))
+			.stream()
+			.map(RecentPropertyResDto::fromEntity)
+			.toList();
 	}
 }

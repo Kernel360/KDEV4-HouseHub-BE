@@ -1,13 +1,17 @@
 package com.househub.backend.domain.dashboard.controller;
 
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.househub.backend.common.response.SuccessResponse;
 import com.househub.backend.common.util.SecurityUtil;
 import com.househub.backend.domain.dashboard.dto.DashboardStatsResDto;
+import com.househub.backend.domain.dashboard.dto.RecentPropertyResDto;
 import com.househub.backend.domain.dashboard.service.DashboardService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -35,6 +39,24 @@ public class DashboardController {
 	public ResponseEntity<SuccessResponse<DashboardStatsResDto>> getDashboardStats() {
 		DashboardStatsResDto response = dashboardService.getDashboardStats(getSignInAgentId());
 		return ResponseEntity.ok(SuccessResponse.success("대시보드 통계 조회 성공", "DASHBOARD_STATS_SUCCESS", response));
+	}
+
+	@Operation(
+		summary = "최근 등록된 매물 조회",
+		description = "최근 등록된 매물을 조회합니다. 기본적으로 5개의 매물이 반환됩니다."
+	)
+	@ApiResponses(value = {
+		@ApiResponse(responseCode = "200", description = "최근 등록된 매물 조회 성공"),
+		@ApiResponse(responseCode = "401", description = "인증 실패", content = @Content),
+		@ApiResponse(responseCode = "403", description = "권한 없음", content = @Content)
+	})
+	@GetMapping("/properties/recent")
+	public ResponseEntity<SuccessResponse<List<RecentPropertyResDto>>> getRecentProperties(
+		@RequestParam(defaultValue = "5") int limit
+	) {
+		List<RecentPropertyResDto> recentProperties = dashboardService.getRecentProperties(limit);
+		return ResponseEntity.ok(SuccessResponse.success("최근 등록된 매물 조회 성공", "RECENT_PROPERTIES_SUCCESS",
+			recentProperties));
 	}
 
 	/**
