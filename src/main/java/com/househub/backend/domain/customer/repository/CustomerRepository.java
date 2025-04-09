@@ -1,5 +1,6 @@
 package com.househub.backend.domain.customer.repository;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -38,4 +39,7 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
 		@Param("email") String email,
 		Pageable pageable);
 
+	@Query("SELECT COUNT(c) FROM Customer c WHERE c.agent.id = :agentId AND c.createdAt >= :sevenDaysAgo")
+	long countNewCustomersInLast7DaysByAgentId(@Param("agentId") Long agentId,
+		@Param("sevenDaysAgo") LocalDateTime sevenDaysAgo);
 }
