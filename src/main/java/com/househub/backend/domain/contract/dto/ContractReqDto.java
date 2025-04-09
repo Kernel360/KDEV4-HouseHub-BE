@@ -12,6 +12,7 @@ import lombok.*;
 
 import java.time.LocalDate;
 
+@Setter
 @Getter
 @Builder
 @NoArgsConstructor
@@ -35,6 +36,8 @@ public class ContractReqDto {
     private LocalDate startedAt; // 계약 시작일 (매매일 경우 만료일과 동일)
     private LocalDate expiredAt; // 계약 만료일 (매매일 경우 시작일과 동일)
 
+    private LocalDate completedAt; // 거래 완료일
+
     // 자동 실행
     @AssertTrue(message = "거래 유형에 따라 적절한 가격 정보가 필요합니다.")
     public boolean isValidContractType() {
@@ -46,6 +49,14 @@ public class ContractReqDto {
             return salePrice == null && jeonsePrice == null && monthlyRentDeposit != null && monthlyRentFee != null;
         }
         return false;
+    }
+
+    @AssertTrue(message = "거래 완료 상태일 경우, 거래 완료일은 필수입니다.")
+    public boolean isCompletedAtRequired() {
+        if (contractStatus == ContractStatus.COMPLETED) {
+            return completedAt != null;
+        }
+        return true; // 거래 완료 상태가 아니면 통과
     }
 
     // 자동 실행
