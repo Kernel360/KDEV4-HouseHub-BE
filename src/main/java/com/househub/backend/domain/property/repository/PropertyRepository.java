@@ -44,7 +44,7 @@ public interface PropertyRepository extends JpaRepository<Property, Long> {
 	@Query("SELECT p FROM Property p WHERE p.agent.id = :agentId ORDER BY p.createdAt DESC")
 	List<Property> findRecentPropertiesByAgentId(@Param("agentId") Long agentId, Pageable pageable);
 
-	@Query("SELECT p.propertyType AS type, COUNT(p) AS count " +
+	@Query("SELECT p.propertyType AS propertyType, COUNT(p) AS count " +
 		"FROM Property p " +
 		"WHERE p.agent.id = :agentId " +
 		"GROUP BY p.propertyType")

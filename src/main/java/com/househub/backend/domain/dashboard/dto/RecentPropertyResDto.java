@@ -18,7 +18,7 @@ public class RecentPropertyResDto {
 		return RecentPropertyResDto.builder()
 			.id(p.getId())
 			.propertyType(p.getPropertyType())
-			.location(p.getRoadAddress() + p.getDetailAddress())
+			.location(p.getRoadAddress() + " " + p.getDetailAddress())
 			.createdAt(String.valueOf(p.getCreatedAt()))
 			.build();
 	}
