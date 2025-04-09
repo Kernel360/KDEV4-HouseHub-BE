@@ -87,8 +87,8 @@ public class DashboardController {
 		@ApiResponse(responseCode = "403", description = "권한 없음", content = @Content)
 	})
 	@GetMapping("/charts/contracts")
-	public ResponseEntity<SuccessResponse<List<MultiDatasetChartResDto>>> getContractChart() {
-		List<MultiDatasetChartResDto> chartData = dashboardService.getContractChartData(getSignInAgentId());
+	public ResponseEntity<SuccessResponse<MultiDatasetChartResDto>> getContractChart() {
+		MultiDatasetChartResDto chartData = dashboardService.getContractChartData(getSignInAgentId());
 		return ResponseEntity.ok(SuccessResponse.success("월별 계약 현황 차트 조회 성공", "CONTRACT_TYPE_CHART_SUCCESS",
 			chartData));
 	}
