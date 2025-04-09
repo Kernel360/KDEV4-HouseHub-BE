@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.househub.backend.domain.dashboard.dto.ChartDataResDto;
 import com.househub.backend.domain.dashboard.dto.DashboardStatsResDto;
+import com.househub.backend.domain.dashboard.dto.MultiDatasetChartResDto;
 import com.househub.backend.domain.dashboard.dto.RecentPropertyResDto;
 
 public interface DashboardService {
@@ -12,4 +13,6 @@ public interface DashboardService {
 	List<RecentPropertyResDto> getRecentProperties(Long agentId, int limit);
 
 	ChartDataResDto getPropertyTypeChartData(Long agentId);
+
+	List<MultiDatasetChartResDto> getContractChartData(Long signInAgentId);
 }
