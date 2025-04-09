@@ -8,6 +8,7 @@ import com.househub.backend.domain.property.service.PropertyService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -33,7 +34,11 @@ public class PropertyController {
 		@ModelAttribute PropertySearchDto searchDto,
 		Pageable pageable
 	) {
-		PropertyListResDto response = propertyService.findProperties(searchDto, pageable);
+		// page를 1-based에서 0-based로 변경
+		int page = Math.max(pageable.getPageNumber() - 1, 0);
+		int size = pageable.getPageSize();
+		Pageable adjustedPageable = PageRequest.of(page, size, pageable.getSort());
+		PropertyListResDto response = propertyService.findProperties(searchDto, adjustedPageable);
 		return ResponseEntity.ok(SuccessResponse.success("매물 조회 성공", "FIND_PROPERTIES_SUCCESS", response));
 	}
 

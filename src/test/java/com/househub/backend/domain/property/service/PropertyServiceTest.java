@@ -154,8 +154,8 @@ public class PropertyServiceTest {
 			.jibunAddress("서울특별시 강남구 삼성동 123-45")
 			.detailAddress("101동 302호")
 			.build();
-		when(propertyRepository.existsByRoadAddressAndDetailAddress(updateDto.getRoadAddress(),
-			updateDto.getDetailAddress())).thenReturn(false);
+		// when(propertyRepository.existsByRoadAddressAndDetailAddress(updateDto.getRoadAddress(),
+		// 	updateDto.getDetailAddress())).thenReturn(false);
 		when(customerRepository.findById(1L)).thenReturn(Optional.of(customer));
 		when(propertyRepository.findById(1L)).thenReturn(Optional.of(property));
 

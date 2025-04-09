@@ -102,7 +102,7 @@ public class ContractServiceTest {
 			.customerId(customerId)
 			.contractType(ContractType.JEONSE)
 			.jeonsePrice(10000000L)
-			.contractStatus(ContractStatus.AVAILABLE)
+			.contractStatus(ContractStatus.IN_PROGRESS)
 			.build();
 		when(propertyRepository.findById(requestDto.getPropertyId())).thenReturn(Optional.of(property));
 		when(customerRepository.findById(requestDto.getCustomerId())).thenReturn(Optional.of(customer));
@@ -182,8 +182,8 @@ public class ContractServiceTest {
 		when(contractRepository.findById(anyLong())).thenReturn(Optional.of(contract));
 		when(propertyRepository.findById(anyLong())).thenReturn(Optional.of(property));
 		when(customerRepository.findById(anyLong())).thenReturn(Optional.of(customer));
-		when(requestDto.getContractStatus()).thenReturn(ContractStatus.AVAILABLE);
-		when(contractRepository.existsByCustomerAndPropertyAndStatusNot(any(), any(), any())).thenReturn(false);
+		// when(requestDto.getContractStatus()).thenReturn(ContractStatus.IN_PROGRESS);
+		// when(contractRepository.existsByCustomerAndPropertyAndStatusNot(any(), any(), any())).thenReturn(false);
 
 		// when
 		contractService.updateContract(1L, requestDto);

@@ -67,11 +67,11 @@ public class ContractServiceImpl implements ContractService {
         // 매물 조회
         Property property = findPropertyById(dto.getPropertyId());
         // 거래 완료 상태 이외의 상태로 변경하는 경우
-        if (dto.getContractStatus() != ContractStatus.COMPLETED) {
-            // 같은 고객과 매물에 대한 완료되지 않은 계약이 있는지 확인
-            // 완료되지 않은 계약이 있으면 예외
-            existsByContractAndProperty(customer, property);
-        }
+        // if (dto.getContractStatus() != ContractStatus.COMPLETED) {
+        //     // 같은 고객과 매물에 대한 완료되지 않은 계약이 있는지 확인
+        //     // 완료되지 않은 계약이 있으면 예외
+        //     existsByContractAndProperty(customer, property);
+        // }
         // 계약 정보 수정
         contract.updateContract(dto);
     }
