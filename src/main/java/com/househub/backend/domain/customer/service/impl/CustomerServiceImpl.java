@@ -103,6 +103,8 @@ public class CustomerServiceImpl implements CustomerService {
 		Page<Customer> customerPage = customerRepository.findAllByAgentAndFiltersAndDeletedAtIsNull(
 			agent.getId(),
 			keyword,
+			keyword,
+			keyword,
 			pageable
 		);
 		Page<CreateCustomerResDto> response = customerPage.map(CreateCustomerResDto::fromEntity);
