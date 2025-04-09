@@ -4,6 +4,8 @@ import java.util.List;
 
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +24,7 @@ import com.househub.backend.common.response.SuccessResponse;
 import com.househub.backend.common.util.SecurityUtil;
 import com.househub.backend.domain.customer.dto.CreateCustomerReqDto;
 import com.househub.backend.domain.customer.dto.CreateCustomerResDto;
+import com.househub.backend.domain.customer.dto.CustomerListResDto;
 import com.househub.backend.domain.customer.service.CustomerService;
 
 import jakarta.validation.Valid;
@@ -46,12 +49,20 @@ public class CustomerController {
 	}
 
 	// 고객 목록 조회
-	// 삭제 처리된 고객은 조회되지 않게 로직 생성
-	// 본인이 등록한 고객만 보도록 함
+	// 페이지네이션 적용
 	@GetMapping("")
-	public ResponseEntity<SuccessResponse<List<CreateCustomerResDto>>> findAllCustomer() {
+	public ResponseEntity<SuccessResponse<CustomerListResDto>> findAllCustomer(
+		// @ModelAttribute CustomerSearchDto searchDto,
+		@RequestParam(name = "keyword", required = false) String keyword,
+		Pageable pageable
+	) {
+		int page = Math.max(pageable.getPageNumber() -1,0);
+		int size = pageable.getPageSize();
+
+		Pageable adjustedPageable = PageRequest.of(page,size, pageable.getSort());
+
 		Long agentId = SecurityUtil.getAuthenticatedAgent().getId();
-		List<CreateCustomerResDto> response = customerService.findAllByDeletedAtIsNull(agentId);
+		CustomerListResDto response = customerService.findAllByDeletedAtIsNull(keyword, agentId, adjustedPageable);
         return ResponseEntity.ok(SuccessResponse.success("고객 목록 조회에 성공했습니다.", "FIND_ALL_CUSTOMER_SUCCESS", response));
     }
 

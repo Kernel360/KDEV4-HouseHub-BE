@@ -45,13 +45,12 @@ public class WebSecurityConfig {
 			.cors(cors -> cors.configurationSource(corsConfigurationSource()))
 			.authorizeHttpRequests((authz) -> authz
 				.requestMatchers(
+					"/api/inquiry-templates/share/**",
+					"/api/inquiries",
 					"/api/auth/session",
 					"/api/auth/email/**",
 					"/api/auth/signup",
 					"/api/auth/signin",
-					"/api/auth/signup",
-					"/api/auth/signin",
-					"/api/auth/email/**",
 					"/v3/api-docs/**",
 					"/swagger-ui/**",
 					"/swagger-ui.html"
@@ -86,8 +85,8 @@ public class WebSecurityConfig {
 				.clearAuthentication(true)
 			)
 			.sessionManagement((sessionManagement) ->
-					sessionManagement.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED).maximumSessions(1)
 				// 세션 기반 인증 사용
+				sessionManagement.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED).maximumSessions(1)
 			);
 		return http.build();
 	}
@@ -101,7 +100,7 @@ public class WebSecurityConfig {
 	public CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration configuration = new CorsConfiguration();
 		configuration.setAllowedOrigins(
-			Arrays.asList("http://api.house-hub.store", "http://localhost:3000")); // 허용할 Origin
+			Arrays.asList("http://localhost:3000", "https://www.house-hub.store")); // 허용할 Origin
 		configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS")); // 허용할 HTTP 메서드
 		configuration.setAllowedHeaders(
 			Arrays.asList("Authorization", "Content-Type", "X-Requested-With")); // 허용할 Header
