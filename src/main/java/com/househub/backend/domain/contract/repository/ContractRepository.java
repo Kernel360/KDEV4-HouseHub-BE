@@ -1,6 +1,7 @@
 package com.househub.backend.domain.contract.repository;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -41,7 +42,17 @@ public interface ContractRepository extends JpaRepository<Contract, Long> {
 	@Query("SELECT COUNT(c) FROM Contract c WHERE c.agent.id = :agentId AND c.status = :status")
 	long countByAgentIdAndStatus(@Param("agentId") Long agentId, @Param("status") ContractStatus status);
 
-	long countByAgentIdAndStatusAndCreatedAtBetween(Long agentId, ContractStatus status, LocalDateTime start,
-		LocalDateTime end);
+	long countByAgentIdAndStatusAndCreatedAtBetween(
+		Long agentId,
+		ContractStatus status,
+		LocalDateTime startDate,
+		LocalDateTime endDate
+	);
+
+	List<Contract> findAllByAgentIdAndCreatedAtBetween(
+		Long agentId,
+		LocalDateTime startDate,
+		LocalDateTime endDate
+	);
 
 }

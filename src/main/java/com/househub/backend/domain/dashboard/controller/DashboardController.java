@@ -12,6 +12,7 @@ import com.househub.backend.common.response.SuccessResponse;
 import com.househub.backend.common.util.SecurityUtil;
 import com.househub.backend.domain.dashboard.dto.ChartDataResDto;
 import com.househub.backend.domain.dashboard.dto.DashboardStatsResDto;
+import com.househub.backend.domain.dashboard.dto.MultiDatasetChartResDto;
 import com.househub.backend.domain.dashboard.dto.RecentPropertyResDto;
 import com.househub.backend.domain.dashboard.service.DashboardService;
 
@@ -61,18 +62,34 @@ public class DashboardController {
 	}
 
 	@Operation(
-		summary = "매물 유형 차트 조회",
-		description = "매물 유형 차트를 조회합니다. 에이전트 ID를 기반으로 매물 유형 차트를 가져옵니다."
+		summary = "매물 유형별 차트 데이터 조회",
+		description = "매물 유형별 차트 데이터를 조회합니다. 에이전트 ID를 기반으로 매물 유형 차트를 가져옵니다."
 	)
 	@ApiResponses(value = {
-		@ApiResponse(responseCode = "200", description = "매물 유형 차트 조회 성공"),
+		@ApiResponse(responseCode = "200", description = "매물 유형별 차트 데이터 조회 성공"),
 		@ApiResponse(responseCode = "401", description = "인증 실패", content = @Content),
 		@ApiResponse(responseCode = "403", description = "권한 없음", content = @Content)
 	})
 	@GetMapping("/charts/properties")
 	public ResponseEntity<SuccessResponse<ChartDataResDto>> getPropertyTypeChart() {
 		ChartDataResDto chartData = dashboardService.getPropertyTypeChartData(getSignInAgentId());
-		return ResponseEntity.ok(SuccessResponse.success("매물 유형 차트 조회 성공", "PROPERTY_TYPE_CHART_SUCCESS",
+		return ResponseEntity.ok(SuccessResponse.success("매물 유형별 차트 데이터 조회 성공", "PROPERTY_TYPE_CHART_SUCCESS",
+			chartData));
+	}
+
+	@Operation(
+		summary = "월별 계약 현황 차트 데이터 조회",
+		description = "월별 계약 현황 차트 데이터를 조회합니다. 에이전트 ID를 기반으로 월별 계약 현황 차트를 가져옵니다."
+	)
+	@ApiResponses(value = {
+		@ApiResponse(responseCode = "200", description = "계약 유형 차트 조회 성공"),
+		@ApiResponse(responseCode = "401", description = "인증 실패", content = @Content),
+		@ApiResponse(responseCode = "403", description = "권한 없음", content = @Content)
+	})
+	@GetMapping("/charts/contracts")
+	public ResponseEntity<SuccessResponse<List<MultiDatasetChartResDto>>> getContractChart() {
+		List<MultiDatasetChartResDto> chartData = dashboardService.getContractChartData(getSignInAgentId());
+		return ResponseEntity.ok(SuccessResponse.success("월별 계약 현황 차트 조회 성공", "CONTRACT_TYPE_CHART_SUCCESS",
 			chartData));
 	}
 
