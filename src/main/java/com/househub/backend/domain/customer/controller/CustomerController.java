@@ -53,10 +53,9 @@ public class CustomerController {
 	@GetMapping("")
 	public ResponseEntity<SuccessResponse<CustomerListResDto>> findAllCustomer(
 		// @ModelAttribute CustomerSearchDto searchDto,
-		@RequestParam(required = false) String keyword,
+		@RequestParam(name = "keyword", required = false) String keyword,
 		Pageable pageable
 	) {
-
 		int page = Math.max(pageable.getPageNumber() -1,0);
 		int size = pageable.getPageSize();
 
