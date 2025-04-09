@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.househub.backend.common.response.SuccessResponse;
 import com.househub.backend.common.util.SecurityUtil;
+import com.househub.backend.domain.dashboard.dto.ChartDataResDto;
 import com.househub.backend.domain.dashboard.dto.DashboardStatsResDto;
 import com.househub.backend.domain.dashboard.dto.RecentPropertyResDto;
 import com.househub.backend.domain.dashboard.service.DashboardService;
@@ -54,9 +55,25 @@ public class DashboardController {
 	public ResponseEntity<SuccessResponse<List<RecentPropertyResDto>>> getRecentProperties(
 		@RequestParam(defaultValue = "5") int limit
 	) {
-		List<RecentPropertyResDto> recentProperties = dashboardService.getRecentProperties(limit);
+		List<RecentPropertyResDto> recentProperties = dashboardService.getRecentProperties(getSignInAgentId(), limit);
 		return ResponseEntity.ok(SuccessResponse.success("최근 등록된 매물 조회 성공", "RECENT_PROPERTIES_SUCCESS",
 			recentProperties));
+	}
+
+	@Operation(
+		summary = "매물 유형 차트 조회",
+		description = "매물 유형 차트를 조회합니다. 에이전트 ID를 기반으로 매물 유형 차트를 가져옵니다."
+	)
+	@ApiResponses(value = {
+		@ApiResponse(responseCode = "200", description = "매물 유형 차트 조회 성공"),
+		@ApiResponse(responseCode = "401", description = "인증 실패", content = @Content),
+		@ApiResponse(responseCode = "403", description = "권한 없음", content = @Content)
+	})
+	@GetMapping("/charts/properties")
+	public ResponseEntity<SuccessResponse<ChartDataResDto>> getPropertyTypeChart() {
+		ChartDataResDto chartData = dashboardService.getPropertyTypeChartData(getSignInAgentId());
+		return ResponseEntity.ok(SuccessResponse.success("매물 유형 차트 조회 성공", "PROPERTY_TYPE_CHART_SUCCESS",
+			chartData));
 	}
 
 	/**
