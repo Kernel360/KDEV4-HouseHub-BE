@@ -101,13 +101,13 @@ public class PropertyServiceImpl implements PropertyService {
 	@Override
 	public void updateProperty(Long propertyId, PropertyReqDto updateDto) {
 		// 주소가 동일한 매물이 있는지 확인
-		existsByAddress(updateDto.getRoadAddress(), updateDto.getDetailAddress());
+		// existsByAddress(updateDto.getRoadAddress(), updateDto.getDetailAddress());
 		// 의뢰인(임대인 또는 매도인) 존재 여부 확인
 		Customer customer = findCustomerById(updateDto.getCustomerId());
 		// 매물 조회
 		Property property = findPropertyById(propertyId);
 		// id로 조회한 매물 정보 수정 및 저장
-		property.updateProperty(updateDto);
+		property.updateProperty(updateDto, customer);
 	}
 
 	/**

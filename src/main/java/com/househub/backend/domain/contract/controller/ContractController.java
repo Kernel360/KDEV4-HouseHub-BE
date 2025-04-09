@@ -12,6 +12,7 @@ import com.househub.backend.domain.contract.service.ContractService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -47,7 +48,11 @@ public class ContractController {
 		@ModelAttribute ContractSearchDto searchDto,
 		Pageable pageable
 	) {
-		ContractListResDto response = contractService.findContracts(searchDto, pageable, getSignInAgentId());
+		// page를 1-based에서 0-based로 변경
+		int page = Math.max(pageable.getPageNumber() - 1, 0);
+		int size = pageable.getPageSize();
+		Pageable adjustedPageable = PageRequest.of(page, size, pageable.getSort());
+		ContractListResDto response = contractService.findContracts(searchDto, adjustedPageable, getSignInAgentId());
 		return ResponseEntity.ok(SuccessResponse.success("계약 조회 성공", "FIND_CONTRACTS_SUCCESS", response));
 	}
 

@@ -1,11 +1,13 @@
 package com.househub.backend.domain.auth.service.impl;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
+import com.househub.backend.common.exception.BusinessException;
+import com.househub.backend.common.exception.ErrorCode;
 import com.househub.backend.domain.auth.service.EmailService;
 
 import lombok.RequiredArgsConstructor;
@@ -31,6 +33,12 @@ public class EmailServiceImpl implements EmailService {
 			+ "감사합니다!\n\n" + "HouseHub 팀 드림";
 
 		message.setText(emailBody);
-		mailSender.send(message);
+
+		try {
+			mailSender.send(message);
+		} catch (MailException e) {
+			throw new BusinessException(ErrorCode.EMAIL_SEND_FAILED);
+		}
+
 	}
 }
