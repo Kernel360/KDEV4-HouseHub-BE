@@ -1,5 +1,6 @@
 package com.househub.backend.domain.customer.repository;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -22,14 +23,23 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
 	Optional<Customer> findByEmailAndContact(String email, String phone);
 
 	@Query(value = "SELECT c FROM Customer c " +
-		"WHERE (c.agent = :agentId AND c.deletedAt IS NULL)" +
-		"AND (:keyword IS NULL OR c.name LIKE %:keyword% " +
-		"OR :keyword IS NULL OR c.contact LIKE %:keyword% " +
-		"OR :keyword IS NULL OR c.email LIKE %:keyword%) " +
+		"WHERE c.deletedAt IS NULL " +
+		"AND c.agent.id = :agentId " +
+		"AND (" +
+		"   (:name IS NULL OR :name = '' OR c.name LIKE CONCAT('%', :name, '%')) OR " +
+		"   (:contact IS NULL OR :contact = '' OR c.contact LIKE CONCAT('%', :contact, '%')) OR " +
+		"   (:email IS NULL OR :email = '' OR c.email LIKE CONCAT('%', :email, '%'))" +
+		") " +
 		"ORDER BY c.createdAt DESC"
 	)
 	Page<Customer> findAllByAgentAndFiltersAndDeletedAtIsNull(
 		@Param("agentId") Long agentId,
-		@Param("keyword") String keyword,
+		@Param("name") String name,
+		@Param("contact") String contact,
+		@Param("email") String email,
 		Pageable pageable);
+
+	@Query("SELECT COUNT(c) FROM Customer c WHERE c.agent.id = :agentId AND c.createdAt >= :sevenDaysAgo")
+	long countNewCustomersInLast7DaysByAgentId(@Param("agentId") Long agentId,
+		@Param("sevenDaysAgo") LocalDateTime sevenDaysAgo);
 }
