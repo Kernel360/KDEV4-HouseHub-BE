@@ -12,7 +12,6 @@ import com.househub.backend.domain.sms.dto.CreateUpdateTemplateReqDto;
 import com.househub.backend.domain.sms.dto.SmsTemplateListResDto;
 import com.househub.backend.domain.sms.dto.TemplateResDto;
 import com.househub.backend.domain.sms.entity.SmsTemplate;
-import com.househub.backend.domain.sms.repository.SmsRepository;
 import com.househub.backend.domain.sms.repository.TemplateRepository;
 import com.househub.backend.domain.sms.service.TemplateService;
 
@@ -24,7 +23,6 @@ public class TemplateServiceImpl implements TemplateService {
 
 	private final TemplateRepository templateRepository;
 	private final AgentRepository agentRepository;
-	private final SmsRepository smsRepository;
 
 	@Transactional
 	@Override
@@ -39,7 +37,7 @@ public class TemplateServiceImpl implements TemplateService {
 	@Override
 	public TemplateResDto updateTemplate(CreateUpdateTemplateReqDto dto, Long id, Long agentId) {
 		Agent agent = validateAgent(agentId);
-		SmsTemplate template = validateTemplate(id, agent);
+		SmsTemplate template = validateTemplate(id, agent.getId());
 
 		template.update(dto);
 
@@ -50,7 +48,7 @@ public class TemplateServiceImpl implements TemplateService {
 	@Override
 	public SmsTemplate deleteTemplate(Long id, Long agentId) {
 		Agent agent = validateAgent(agentId);
-		SmsTemplate template = validateTemplate(id, agent);
+		SmsTemplate template = validateTemplate(id, agent.getId());
 
 		return template.delete();
 	}
@@ -59,11 +57,11 @@ public class TemplateServiceImpl implements TemplateService {
 	public SmsTemplateListResDto findAll(String keyword, Long agentId, Pageable pageable) {
 		Agent agent = validateAgent(agentId);
 
-		Page<SmsTemplate> templatePage = smsRepository.findAllByAgentAndFiltersAndDeletedAtIsNull(
+		Page<SmsTemplate> templatePage = templateRepository.findAllByAgentIdAndFiltersAndDeletedAtIsNull(
 			agent.getId(),
 			keyword,
-		keyword,
-		pageable
+			keyword,
+			pageable
 		);
 
 		Page<TemplateResDto> response = templatePage.map(TemplateResDto::fromEntity);
@@ -73,7 +71,7 @@ public class TemplateServiceImpl implements TemplateService {
 	@Override
 	public TemplateResDto findTemplate(Long id, Long agentId) {
 		Agent agent = validateAgent(agentId);
-		SmsTemplate template = validateTemplate(id, agent);
+		SmsTemplate template = validateTemplate(id, agent.getId());
 
 		return template.toResDto();
 	}
@@ -83,8 +81,8 @@ public class TemplateServiceImpl implements TemplateService {
 			.orElseThrow(() -> new ResourceNotFoundException("공인중개사가 존재하지 않습니다.", "AGENT_NOT_FOUND"));
 	}
 
-	private SmsTemplate validateTemplate(Long id, Agent agent) {
-		return templateRepository.findByIdAndAgentAndDeletedAtIsNull(id, agent)
+	private SmsTemplate validateTemplate(Long id, Long agentId) {
+		return templateRepository.findByIdAndAgentIdAndDeletedAtIsNull(id, agentId)
 			.orElseThrow(() -> new ResourceNotFoundException("템플릿이 존재하지 않습니다.", "TEMPLATE_NOT_FOUND"));
 	}
 }

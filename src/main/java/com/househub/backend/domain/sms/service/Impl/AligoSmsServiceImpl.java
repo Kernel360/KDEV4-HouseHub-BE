@@ -32,8 +32,8 @@ public class AligoSmsServiceImpl implements SmsService {
 	private final SmsRepository smsRepository;
 	private final AgentRepository agentRepository;
 
-	public SendSmsResDto sendSms(SendSmsReqDto request, Long id) {
-		Agent agent = agentRepository.findById(id).orElseThrow(()-> new ResourceNotFoundException("공인중개사가 존재하지 않습니다.", "AGENT_NOT_FOUND"));
+	public SendSmsResDto sendSms(SendSmsReqDto request, Long agentId) {
+		Agent agent = agentRepository.findById(agentId).orElseThrow(()-> new ResourceNotFoundException("공인중개사가 존재하지 않습니다.", "AGENT_NOT_FOUND"));
 
 		String url = "https://apis.aligo.in/send/";
 
@@ -106,7 +106,7 @@ public class AligoSmsServiceImpl implements SmsService {
 		Agent agent = agentRepository.findById(agentId)
 			.orElseThrow(() -> new ResourceNotFoundException("공인중개사가 존재하지 않습니다.", "AGENT_NOT_FOUND"));
 
-		Page<Sms> smsPage = smsRepository.findAllSmsByAgentAndFiltersAndDeletedAtIsNull(
+		Page<Sms> smsPage = smsRepository.findAllSmsByAgentIdAndFiltersAndDeletedAtIsNull(
 			agent.getId(),
 			keyword,
 			keyword,
@@ -119,7 +119,7 @@ public class AligoSmsServiceImpl implements SmsService {
 	@Override
 	public SendSmsResDto findById(Long id, Long agentId) {
 		Agent agent = agentRepository.findById(agentId).orElseThrow(()-> new ResourceNotFoundException("공인중개사가 존재하지 않습니다.", "AGENT_NOT_FOUND"));
-		return smsRepository.findByIdAndAgent(id,agent);
+		return smsRepository.findByIdAndAgentId(id,agent.getId());
 	}
 
 }
