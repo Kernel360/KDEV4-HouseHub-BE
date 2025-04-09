@@ -1,4 +1,4 @@
-package com.househub.backend.domain.inquiryTemplate.dto;
+package com.househub.backend.domain.customer.dto;
 
 import java.util.List;
 
@@ -11,15 +11,14 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class InquiryTemplateListResDto {
-	private List<InquiryTemplateResDto> content;
+public class CustomerListResDto {
+	private List<CreateCustomerResDto> content;
 	private PaginationDto pagination;
 
-	public static InquiryTemplateListResDto fromPage(Page<InquiryTemplateResDto> page) {
-		return InquiryTemplateListResDto.builder()
+	public static CustomerListResDto fromPage(Page<CreateCustomerResDto> page) {
+		return CustomerListResDto.builder()
 			.content(page.getContent())
 			.pagination(PaginationDto.fromPage(page))
 			.build();
 	}
 }
-

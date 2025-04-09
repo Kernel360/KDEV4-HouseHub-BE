@@ -15,6 +15,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import com.househub.backend.common.enums.Gender;
 import com.househub.backend.common.exception.AlreadyExistsException;
@@ -23,6 +27,7 @@ import com.househub.backend.domain.agent.entity.Agent;
 import com.househub.backend.domain.agent.repository.AgentRepository;
 import com.househub.backend.domain.customer.dto.CreateCustomerReqDto;
 import com.househub.backend.domain.customer.dto.CreateCustomerResDto;
+import com.househub.backend.domain.customer.dto.CustomerListResDto;
 import com.househub.backend.domain.customer.entity.Customer;
 import com.househub.backend.domain.customer.repository.CustomerRepository;
 import com.househub.backend.domain.customer.service.impl.CustomerServiceImpl;
@@ -136,27 +141,58 @@ public class CustomerServiceImplTest {
 
 
     @Test
-    @DisplayName("삭제되지 않은 모든 고객 조회 성공")
-    void findAllByDeletedAtIsNull_Success() {
+    @DisplayName("삭제되지 않은 모든 고객 조회 성공 - 페이지네이션 및 검색 조건 적용")
+    void findAllByDeletedAtIsNull_Success_WithPaginationAndSearchDto() {
         // given
         Long agentId = 1L;
-        Agent mockAgent = Agent.builder().id(agentId).name("Test Agent").build();
+        int page = 0;
+        int size = 10;
+        Pageable pageable = PageRequest.of(page, size);
 
+        // searchDto 초기화
+        String keyword = "test@example.com";
+
+        // Mock 데이터 생성
+        Agent mockAgent = Agent.builder()
+            .id(agentId)
+            .name("Test Agent")
+            .build();
+
+        Customer mockCustomer = Customer.builder()
+            .email("test@example.com")
+            .name("Test User")
+            .agent(mockAgent)
+            .build();
+
+        // Mock 페이징 데이터 생성
+        Page<Customer> mockCustomerPage = new PageImpl<>(List.of(mockCustomer), pageable, 1);
+
+        // Mock 리포지토리 동작 정의
         when(agentRepository.findById(agentId)).thenReturn(Optional.of(mockAgent));
-        List<Customer> customers = List.of(customer);
-        when(customerRepository.findAllByAgentAndDeletedAtIsNull(mockAgent)).thenReturn(customers);
+        when(customerRepository.findAllByAgentAndFiltersAndDeletedAtIsNull(
+            eq(mockAgent.getId()),
+            eq(keyword),
+            eq(pageable)))
+            .thenReturn(mockCustomerPage);
 
         // when
-        List<CreateCustomerResDto> result = customerService.findAllByDeletedAtIsNull(agentId);
+        CustomerListResDto result = customerService.findAllByDeletedAtIsNull(keyword, agentId, pageable);
 
         // then
-        assertEquals(1, result.size());
-        CreateCustomerResDto response = result.get(0);
-        assertEquals(expectedResponse.getEmail(), response.getEmail());
-        assertEquals(expectedResponse.getName(), response.getName());
+        assertAll(
+            () -> assertEquals(1, result.getPagination().getTotalElements()), // 전체 요소 개수
+            () -> assertEquals(1, result.getPagination().getTotalPages()),    // 전체 페이지 수
+            () -> assertEquals(1, result.getContent().size()),                // 현재 페이지 요소 개수
+            () -> assertEquals("test@example.com", result.getContent().get(0).getEmail()),
+            () -> assertEquals("Test User", result.getContent().get(0).getName())
+        );
 
+        // 리포지토리 호출 검증
         verify(agentRepository).findById(agentId);
-        verify(customerRepository).findAllByAgentAndDeletedAtIsNull(mockAgent);
+        verify(customerRepository).findAllByAgentAndFiltersAndDeletedAtIsNull(
+            eq(mockAgent.getId()),
+            eq(keyword),
+            eq(pageable));
     }
 
 

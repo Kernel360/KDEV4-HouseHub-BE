@@ -6,10 +6,10 @@ import com.househub.backend.domain.agent.entity.Agent;
 import com.househub.backend.domain.agent.entity.AgentStatus;
 import com.househub.backend.domain.agent.entity.RealEstate;
 import com.househub.backend.domain.agent.repository.AgentRepository;
+import com.househub.backend.domain.contract.dto.ContractListResDto;
 import com.househub.backend.domain.contract.dto.ContractReqDto;
 import com.househub.backend.domain.contract.dto.ContractSearchDto;
 import com.househub.backend.domain.contract.dto.CreateContractResDto;
-import com.househub.backend.domain.contract.dto.FindContractResDto;
 import com.househub.backend.domain.contract.entity.Contract;
 import com.househub.backend.domain.contract.enums.ContractStatus;
 import com.househub.backend.domain.contract.enums.ContractType;
@@ -102,7 +102,7 @@ public class ContractServiceTest {
 			.customerId(customerId)
 			.contractType(ContractType.JEONSE)
 			.jeonsePrice(10000000L)
-			.contractStatus(ContractStatus.AVAILABLE)
+			.contractStatus(ContractStatus.IN_PROGRESS)
 			.build();
 		when(propertyRepository.findById(requestDto.getPropertyId())).thenReturn(Optional.of(property));
 		when(customerRepository.findById(requestDto.getCustomerId())).thenReturn(Optional.of(customer));
@@ -156,10 +156,10 @@ public class ContractServiceTest {
 			any(), any(), any(), any(), any(), any())).thenReturn(page);
 
 		// when
-		List<FindContractResDto> result = contractService.findContracts(searchDto, pageable, agent.getId());
+		ContractListResDto result = contractService.findContracts(searchDto, pageable, agent.getId());
 
 		// then
-		assertThat(result.get(0).getId()).isEqualTo(1L);  // 반환된 계약 ID가 1L인지 확인
+		assertThat(result.getContent().get(0).getId()).isEqualTo(1L);  // 반환된 계약 ID가 1L인지 확인
 		verify(contractRepository, times(1)).findContractsByAgentAndFilters(
 			agent.getRealEstate().getId(),
 			searchDto.getAgentName(),
@@ -182,8 +182,8 @@ public class ContractServiceTest {
 		when(contractRepository.findById(anyLong())).thenReturn(Optional.of(contract));
 		when(propertyRepository.findById(anyLong())).thenReturn(Optional.of(property));
 		when(customerRepository.findById(anyLong())).thenReturn(Optional.of(customer));
-		when(requestDto.getContractStatus()).thenReturn(ContractStatus.AVAILABLE);
-		when(contractRepository.existsByCustomerAndPropertyAndStatusNot(any(), any(), any())).thenReturn(false);
+		// when(requestDto.getContractStatus()).thenReturn(ContractStatus.IN_PROGRESS);
+		// when(contractRepository.existsByCustomerAndPropertyAndStatusNot(any(), any(), any())).thenReturn(false);
 
 		// when
 		contractService.updateContract(1L, requestDto);

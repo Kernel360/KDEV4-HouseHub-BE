@@ -67,11 +67,11 @@ public class ContractServiceImpl implements ContractService {
         // 매물 조회
         Property property = findPropertyById(dto.getPropertyId());
         // 거래 완료 상태 이외의 상태로 변경하는 경우
-        if (dto.getContractStatus() != ContractStatus.COMPLETED) {
-            // 같은 고객과 매물에 대한 완료되지 않은 계약이 있는지 확인
-            // 완료되지 않은 계약이 있으면 예외
-            existsByContractAndProperty(customer, property);
-        }
+        // if (dto.getContractStatus() != ContractStatus.COMPLETED) {
+        //     // 같은 고객과 매물에 대한 완료되지 않은 계약이 있는지 확인
+        //     // 완료되지 않은 계약이 있으면 예외
+        //     existsByContractAndProperty(customer, property);
+        // }
         // 계약 정보 수정
         contract.updateContract(dto);
     }
@@ -85,7 +85,7 @@ public class ContractServiceImpl implements ContractService {
      */
     @Override
     @Transactional(readOnly = true)
-    public List<FindContractResDto> findContracts(ContractSearchDto searchDto, Pageable pageable, Long agentId) {
+    public ContractListResDto findContracts(ContractSearchDto searchDto, Pageable pageable, Long agentId) {
         Agent agent = findAgentById(agentId);
         // 페이지네이션 적용하여 계약 조회
         // 해당 공인중개사가 체결한 계약만 조회
@@ -98,10 +98,8 @@ public class ContractServiceImpl implements ContractService {
             pageable
         );
         // 계약 엔티티를 dto 로 변환하여 리스트로 반환
-        List<FindContractResDto> response = contractPage.stream()
-                .map(FindContractResDto::toDto)
-                .toList();
-        return response;
+        Page<FindContractResDto> response = contractPage.map(FindContractResDto::toDto);
+        return ContractListResDto.fromPage(response);
     }
 
     /**

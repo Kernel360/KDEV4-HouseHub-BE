@@ -40,10 +40,10 @@ public class Customer {
 	@Column(nullable = false, length = 50)
 	private String name;
 
-	@Column(nullable = false)
+	@Column(nullable = true)
 	private Integer ageGroup;
 
-	@Column(nullable = false)
+	@Column(nullable = false, unique = true)
 	private String contact;
 
 	@Column(nullable = false, unique = true)
@@ -53,7 +53,7 @@ public class Customer {
 	private String memo;
 
 	@Enumerated(EnumType.STRING)
-	@Column(nullable = false)
+	@Column(nullable = true)
 	private Gender gender;
 
 	@Column(nullable = false, updatable = false)

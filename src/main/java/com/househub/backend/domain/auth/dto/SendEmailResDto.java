@@ -10,5 +10,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class SendEmailResDto {
-	private String expiresAt; // 서버에서 반환된 만료 시간
+	private Integer expiresIn; // 남은 시간(초 단위)
 }
