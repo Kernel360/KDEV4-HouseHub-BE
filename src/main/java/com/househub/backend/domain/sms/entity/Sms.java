@@ -2,7 +2,7 @@ package com.househub.backend.domain.sms.entity;
 
 import java.time.LocalDateTime;
 
-import com.househub.backend.domain.agent.entity.RealEstate;
+import com.househub.backend.domain.agent.entity.Agent;
 import com.househub.backend.domain.sms.enums.MessageType;
 import com.househub.backend.domain.sms.enums.Status;
 
@@ -60,8 +60,8 @@ public class Sms {
 	private Long templateId;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "real_estate_id", nullable = false)
-	private RealEstate realEstate;
+	@JoinColumn(name = "agent_id", nullable = false)
+	private Agent agent;
 
 	@PrePersist
 	protected void onCreate() {

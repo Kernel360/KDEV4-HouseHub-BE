@@ -5,12 +5,12 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.househub.backend.domain.agent.entity.RealEstate;
+import com.househub.backend.domain.agent.entity.Agent;
 import com.househub.backend.domain.sms.entity.SmsTemplate;
 
 public interface TemplateRepository extends JpaRepository<SmsTemplate, Long> {
 
-	List<SmsTemplate> findAllByRealEstateAndDeletedAtIsNull(RealEstate realEstate);
+	List<SmsTemplate> findAllByAgentAndDeletedAtIsNull(Agent agent);
 
-	Optional<SmsTemplate> findByIdAndRealEstateAndDeletedAtIsNull(Long id, RealEstate realEstate);
+	Optional<SmsTemplate> findByIdAndAgentAndDeletedAtIsNull(Long id, Agent agent);
 }
