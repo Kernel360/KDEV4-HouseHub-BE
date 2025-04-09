@@ -1,7 +1,10 @@
 package com.househub.backend.domain.property.repository;
 
+<<<<<<< HEAD
 import java.util.List;
 
+=======
+>>>>>>> 21bde5a (byungchan, feature: 대시보드 통계 데이터 조회 API 구현 #101)
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -9,7 +12,10 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+<<<<<<< HEAD
 import com.househub.backend.domain.dashboard.dto.PropertyTypeCount;
+=======
+>>>>>>> 21bde5a (byungchan, feature: 대시보드 통계 데이터 조회 API 구현 #101)
 import com.househub.backend.domain.property.entity.Property;
 import com.househub.backend.domain.property.enums.PropertyType;
 
@@ -40,6 +46,7 @@ public interface PropertyRepository extends JpaRepository<Property, Long> {
 
 	@Query("SELECT COUNT(p) FROM Property p WHERE p.agent.id = :agentId")
 	long countByAgentId(@Param("agentId") Long agentId);
+<<<<<<< HEAD
 
 	@Query("SELECT p FROM Property p WHERE p.agent.id = :agentId ORDER BY p.createdAt DESC")
 	List<Property> findRecentPropertiesByAgentId(@Param("agentId") Long agentId, Pageable pageable);
@@ -50,4 +57,6 @@ public interface PropertyRepository extends JpaRepository<Property, Long> {
 		"GROUP BY p.propertyType")
 	List<PropertyTypeCount> countByTypeAndAgentId(@Param("agentId") Long agentId);
 
+=======
+>>>>>>> 21bde5a (byungchan, feature: 대시보드 통계 데이터 조회 API 구현 #101)
 }

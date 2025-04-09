@@ -1,19 +1,29 @@
 package com.househub.backend.domain.dashboard.controller;
 
+<<<<<<< HEAD
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+=======
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+>>>>>>> 21bde5a (byungchan, feature: 대시보드 통계 데이터 조회 API 구현 #101)
 import org.springframework.web.bind.annotation.RestController;
 
 import com.househub.backend.common.response.SuccessResponse;
 import com.househub.backend.common.util.SecurityUtil;
+<<<<<<< HEAD
 import com.househub.backend.domain.dashboard.dto.ChartDataResDto;
 import com.househub.backend.domain.dashboard.dto.DashboardStatsResDto;
 import com.househub.backend.domain.dashboard.dto.MultiDatasetChartResDto;
 import com.househub.backend.domain.dashboard.dto.RecentPropertyResDto;
+=======
+import com.househub.backend.domain.dashboard.dto.DashboardStatsResDto;
+>>>>>>> 21bde5a (byungchan, feature: 대시보드 통계 데이터 조회 API 구현 #101)
 import com.househub.backend.domain.dashboard.service.DashboardService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -43,6 +53,7 @@ public class DashboardController {
 		return ResponseEntity.ok(SuccessResponse.success("대시보드 통계 조회 성공", "DASHBOARD_STATS_SUCCESS", response));
 	}
 
+<<<<<<< HEAD
 	@Operation(
 		summary = "최근 등록된 매물 조회",
 		description = "최근 등록된 매물을 조회합니다. 기본적으로 5개의 매물이 반환됩니다."
@@ -93,6 +104,8 @@ public class DashboardController {
 			chartData));
 	}
 
+=======
+>>>>>>> 21bde5a (byungchan, feature: 대시보드 통계 데이터 조회 API 구현 #101)
 	/**
 	 * 현재 로그인한 에이전트의 ID를 반환합니다.
 	 *

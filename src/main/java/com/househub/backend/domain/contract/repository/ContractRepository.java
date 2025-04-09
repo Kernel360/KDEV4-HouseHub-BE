@@ -1,7 +1,10 @@
 package com.househub.backend.domain.contract.repository;
 
 import java.time.LocalDateTime;
+<<<<<<< HEAD
 import java.util.List;
+=======
+>>>>>>> 21bde5a (byungchan, feature: 대시보드 통계 데이터 조회 API 구현 #101)
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -42,6 +45,7 @@ public interface ContractRepository extends JpaRepository<Contract, Long> {
 	@Query("SELECT COUNT(c) FROM Contract c WHERE c.agent.id = :agentId AND c.status = :status")
 	long countByAgentIdAndStatus(@Param("agentId") Long agentId, @Param("status") ContractStatus status);
 
+<<<<<<< HEAD
 	long countByAgentIdAndStatusAndCreatedAtBetween(
 		Long agentId,
 		ContractStatus status,
@@ -54,5 +58,9 @@ public interface ContractRepository extends JpaRepository<Contract, Long> {
 		LocalDateTime startDate,
 		LocalDateTime endDate
 	);
+=======
+	long countByAgentIdAndStatusAndCreatedAtBetween(Long agentId, ContractStatus status, LocalDateTime start,
+		LocalDateTime end);
+>>>>>>> 21bde5a (byungchan, feature: 대시보드 통계 데이터 조회 API 구현 #101)
 
 }

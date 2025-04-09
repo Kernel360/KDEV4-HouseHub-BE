@@ -2,6 +2,7 @@ package com.househub.backend.domain.dashboard.service.impl;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+<<<<<<< HEAD
 import java.time.Month;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +29,20 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+=======
+
+import org.springframework.stereotype.Service;
+
+import com.househub.backend.domain.contract.enums.ContractStatus;
+import com.househub.backend.domain.contract.repository.ContractRepository;
+import com.househub.backend.domain.customer.repository.CustomerRepository;
+import com.househub.backend.domain.dashboard.dto.DashboardStatsResDto;
+import com.househub.backend.domain.dashboard.service.DashboardService;
+import com.househub.backend.domain.property.repository.PropertyRepository;
+
+import lombok.RequiredArgsConstructor;
+
+>>>>>>> 21bde5a (byungchan, feature: 대시보드 통계 데이터 조회 API 구현 #101)
 @Service
 @RequiredArgsConstructor
 public class DashboardServiceImpl implements DashboardService {
@@ -54,6 +69,7 @@ public class DashboardServiceImpl implements DashboardService {
 			.totalProperties(totalProperties)
 			.activeContracts(activeContracts)
 			.newCustomers(newCustomers)
+<<<<<<< HEAD
 			.completedContracts(completedContracts)
 			.build();
 	}
@@ -108,4 +124,9 @@ public class DashboardServiceImpl implements DashboardService {
 
 		return MultiDatasetChartResDto.from(activeMap, completedMap);
 	}
+=======
+			.completedContracts(0)
+			.build();
+	}
+>>>>>>> 21bde5a (byungchan, feature: 대시보드 통계 데이터 조회 API 구현 #101)
 }

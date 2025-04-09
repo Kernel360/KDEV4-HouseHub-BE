@@ -1,5 +1,6 @@
 package com.househub.backend.domain.dashboard.service;
 
+<<<<<<< HEAD
 import java.util.List;
 
 import com.househub.backend.domain.dashboard.dto.ChartDataResDto;
@@ -15,4 +16,10 @@ public interface DashboardService {
 	ChartDataResDto getPropertyTypeChartData(Long agentId);
 
 	MultiDatasetChartResDto getContractChartData(Long signInAgentId);
+=======
+import com.househub.backend.domain.dashboard.dto.DashboardStatsResDto;
+
+public interface DashboardService {
+	DashboardStatsResDto getDashboardStats(Long agentId);
+>>>>>>> 21bde5a (byungchan, feature: 대시보드 통계 데이터 조회 API 구현 #101)
 }
