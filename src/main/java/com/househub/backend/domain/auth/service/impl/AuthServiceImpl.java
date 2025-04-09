@@ -14,6 +14,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import com.househub.backend.common.exception.AlreadyExistsException;
+import com.househub.backend.common.exception.BusinessException;
+import com.househub.backend.common.exception.ErrorCode;
 import com.househub.backend.common.exception.ResourceNotFoundException;
 import com.househub.backend.common.util.SessionManager;
 import com.househub.backend.domain.agent.entity.Agent;
@@ -23,9 +25,7 @@ import com.househub.backend.domain.agent.repository.AgentRepository;
 import com.househub.backend.domain.auth.dto.SignInReqDto;
 import com.househub.backend.domain.auth.dto.SignInResDto;
 import com.househub.backend.domain.auth.dto.SignUpReqDto;
-import com.househub.backend.domain.auth.exception.BusinessException;
 import com.househub.backend.domain.auth.exception.EmailVerifiedException;
-import com.househub.backend.domain.auth.exception.ErrorCode;
 import com.househub.backend.domain.auth.exception.InvalidPasswordException;
 import com.househub.backend.domain.auth.service.AuthCode;
 import com.househub.backend.domain.auth.service.AuthService;
