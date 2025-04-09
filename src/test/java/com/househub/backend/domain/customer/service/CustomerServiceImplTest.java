@@ -172,6 +172,8 @@ public class CustomerServiceImplTest {
         when(customerRepository.findAllByAgentAndFiltersAndDeletedAtIsNull(
             eq(mockAgent.getId()),
             eq(keyword),
+            eq(keyword),
+            eq(keyword),
             eq(pageable)))
             .thenReturn(mockCustomerPage);
 
@@ -191,6 +193,8 @@ public class CustomerServiceImplTest {
         verify(agentRepository).findById(agentId);
         verify(customerRepository).findAllByAgentAndFiltersAndDeletedAtIsNull(
             eq(mockAgent.getId()),
+            eq(keyword),
+            eq(keyword),
             eq(keyword),
             eq(pageable));
     }
