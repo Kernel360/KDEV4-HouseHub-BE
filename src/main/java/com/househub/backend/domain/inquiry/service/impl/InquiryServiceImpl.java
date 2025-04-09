@@ -13,6 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.househub.backend.common.exception.BusinessException;
+import com.househub.backend.common.exception.ErrorCode;
 import com.househub.backend.common.exception.ResourceNotFoundException;
 import com.househub.backend.domain.agent.entity.Agent;
 import com.househub.backend.domain.agent.entity.AgentStatus;
@@ -23,6 +25,7 @@ import com.househub.backend.domain.customer.repository.CustomerCandidateReposito
 import com.househub.backend.domain.customer.repository.CustomerRepository;
 import com.househub.backend.domain.inquiry.dto.CreateInquiryReqDto;
 import com.househub.backend.domain.inquiry.dto.CreateInquiryResDto;
+import com.househub.backend.domain.inquiry.dto.InquiryDetailResDto;
 import com.househub.backend.domain.inquiry.dto.InquiryListItemResDto;
 import com.househub.backend.domain.inquiry.dto.InquiryListResDto;
 import com.househub.backend.domain.inquiry.entity.Inquiry;
@@ -168,6 +171,14 @@ public class InquiryServiceImpl implements InquiryService {
 		});
 
 		return InquiryListResDto.fromPage(dtoPage);
+	}
+
+	@Override
+	public InquiryDetailResDto getInquiryDetail(Long inquiryId) {
+		Inquiry inquiry = inquiryRepository.findWithDetailsById(inquiryId)
+			.orElseThrow(() -> new BusinessException(ErrorCode.RESOURCE_NOT_FOUND));
+
+		return InquiryDetailResDto.fromEntity(inquiry);
 	}
 
 	/**

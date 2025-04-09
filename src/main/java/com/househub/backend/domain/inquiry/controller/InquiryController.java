@@ -2,10 +2,12 @@ package com.househub.backend.domain.inquiry.controller;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,6 +18,7 @@ import com.househub.backend.common.response.SuccessResponse;
 import com.househub.backend.common.util.SecurityUtil;
 import com.househub.backend.domain.inquiry.dto.CreateInquiryReqDto;
 import com.househub.backend.domain.inquiry.dto.CreateInquiryResDto;
+import com.househub.backend.domain.inquiry.dto.InquiryDetailResDto;
 import com.househub.backend.domain.inquiry.dto.InquiryListResDto;
 import com.househub.backend.domain.inquiry.service.InquiryService;
 
@@ -70,19 +73,34 @@ public class InquiryController {
 	public ResponseEntity<SuccessResponse<InquiryListResDto>> getInquiries(
 		@RequestParam(required = false, defaultValue = "")
 		String keyword,
+		@RequestParam(required = false, defaultValue = "createdAt") String sortBy,
+		@RequestParam(required = false, defaultValue = "desc") String sortDirection,
 		@PageableDefault(size = 10) Pageable pageable
 	) {
 		// 💡 page를 1-based에서 0-based로 변경
 		int page = Math.max(pageable.getPageNumber() - 1, 0);
 		int size = pageable.getPageSize();
 
-		Pageable adjustedPageable = PageRequest.of(page, size, pageable.getSort());
+		Pageable adjustedPageable = PageRequest.of(page, size,
+			Sort.by(Sort.Direction.fromString(sortDirection), sortBy));
 
 		InquiryListResDto response = inquiryService.getInquiries(getSignInAgentId(), keyword, adjustedPageable);
 		return ResponseEntity.ok(SuccessResponse.success(
 			"문의 목록 조회 성공",
 			"INQUIRY_LIST_SUCCESS",
 			response));
+	}
+
+	@GetMapping("/{inquiryId}")
+	public ResponseEntity<SuccessResponse<InquiryDetailResDto>> getInquiryDetail(
+		@PathVariable Long inquiryId
+	) {
+		InquiryDetailResDto response = inquiryService.getInquiryDetail(inquiryId);
+		return ResponseEntity.ok(SuccessResponse.success(
+			"문의 상세 조회 성공",
+			"INQUIRY_DETAIL_SUCCESS",
+			response
+		));
 	}
 
 	/**

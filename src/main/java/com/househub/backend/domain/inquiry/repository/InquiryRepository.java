@@ -1,5 +1,7 @@
 package com.househub.backend.domain.inquiry.repository;
 
+import java.util.Optional;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -34,5 +36,13 @@ public interface InquiryRepository extends JpaRepository<Inquiry, Long> {
 		@Param("keyword") String keyword,
 		Pageable pageable
 	);
+	
+	@Query("SELECT i FROM Inquiry i " +
+		"LEFT JOIN FETCH i.customer c " +
+		"LEFT JOIN FETCH i.candidate cc " +
+		"LEFT JOIN FETCH i.answers a " +
+		"LEFT JOIN FETCH a.question q " +
+		"WHERE i.id = :inquiryId")
+	Optional<Inquiry> findWithDetailsById(@Param("inquiryId") Long inquiryId);
 
 }
