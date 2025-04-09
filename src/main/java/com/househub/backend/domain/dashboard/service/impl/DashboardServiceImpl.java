@@ -2,17 +2,23 @@ package com.househub.backend.domain.dashboard.service.impl;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Month;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import com.househub.backend.domain.contract.entity.Contract;
 import com.househub.backend.domain.contract.enums.ContractStatus;
 import com.househub.backend.domain.contract.repository.ContractRepository;
 import com.househub.backend.domain.customer.repository.CustomerRepository;
 import com.househub.backend.domain.dashboard.dto.ChartDataResDto;
 import com.househub.backend.domain.dashboard.dto.DashboardStatsResDto;
+import com.househub.backend.domain.dashboard.dto.MultiDatasetChartResDto;
 import com.househub.backend.domain.dashboard.dto.PropertyTypeCount;
 import com.househub.backend.domain.dashboard.dto.RecentPropertyResDto;
 import com.househub.backend.domain.dashboard.service.DashboardService;
@@ -71,5 +77,40 @@ public class DashboardServiceImpl implements DashboardService {
 		}
 
 		return ChartDataResDto.from(labels, data, "매물 유형별 분포");
+	}
+
+	@Override
+	public List<MultiDatasetChartResDto> getContractChartData(Long agentId) {
+		LocalDate now = LocalDate.now();
+		LocalDateTime startOfYear = now.withDayOfYear(1).atStartOfDay();
+		LocalDateTime endOfNow = now.atTime(23, 59, 59);
+
+		List<Contract> contracts = contractRepository.findAllByAgentIdAndCreatedAtBetween(
+			agentId, startOfYear, endOfNow
+		);
+
+		// 월별 ACTIVE
+		Map<Month, Long> activeMap = contracts.stream()
+			.filter(c -> c.getStatus() == ContractStatus.IN_PROGRESS)
+			.collect(Collectors.groupingBy(
+				c -> c.getCreatedAt().getMonth(),
+				Collectors.counting()
+			));
+
+		// 월별 COMPLETED
+		Map<Month, Long> completedMap = contracts.stream()
+			.filter(c -> c.getStatus() == ContractStatus.COMPLETED && c.getCompletedAt() != null)
+			.collect(Collectors.groupingBy(
+				c -> c.getCompletedAt().getMonth(),
+				Collectors.counting()
+			));
+
+		return IntStream.rangeClosed(1, now.getMonthValue())
+			.mapToObj(i -> MultiDatasetChartResDto.from(
+				Month.of(i),
+				activeMap,
+				completedMap
+			))
+			.collect(Collectors.toList());
 	}
 }
