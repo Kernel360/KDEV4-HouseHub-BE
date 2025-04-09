@@ -10,8 +10,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.househub.backend.common.response.ErrorResponse;
-import com.househub.backend.domain.auth.exception.BusinessException;
-import com.househub.backend.domain.auth.exception.ErrorCode;
 import com.househub.backend.domain.inquiry.exception.InvalidAnswerFormatException;
 import com.househub.backend.domain.inquiry.exception.QuestionNotFoundException;
 

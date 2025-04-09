@@ -1,4 +1,4 @@
-package com.househub.backend.domain.auth.exception;
+package com.househub.backend.common.exception;
 
 public class BusinessException extends RuntimeException {
 	private final ErrorCode errorCode;

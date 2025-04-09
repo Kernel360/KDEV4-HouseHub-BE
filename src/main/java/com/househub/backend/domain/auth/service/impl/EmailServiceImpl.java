@@ -6,8 +6,8 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
-import com.househub.backend.domain.auth.exception.BusinessException;
-import com.househub.backend.domain.auth.exception.ErrorCode;
+import com.househub.backend.common.exception.BusinessException;
+import com.househub.backend.common.exception.ErrorCode;
 import com.househub.backend.domain.auth.service.EmailService;
 
 import lombok.RequiredArgsConstructor;

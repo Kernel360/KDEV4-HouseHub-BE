@@ -1,15 +1,25 @@
 package com.househub.backend.domain.inquiry.controller;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.househub.backend.common.response.SuccessResponse;
+import com.househub.backend.common.util.SecurityUtil;
 import com.househub.backend.domain.inquiry.dto.CreateInquiryReqDto;
 import com.househub.backend.domain.inquiry.dto.CreateInquiryResDto;
+import com.househub.backend.domain.inquiry.dto.InquiryDetailResDto;
+import com.househub.backend.domain.inquiry.dto.InquiryListResDto;
 import com.househub.backend.domain.inquiry.service.InquiryService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -44,5 +54,61 @@ public class InquiryController {
 		CreateInquiryResDto response = inquiryService.createInquiry(reqDto);
 		return ResponseEntity.status(HttpStatus.CREATED)
 			.body(SuccessResponse.success("문의가 성공적으로 등록되었습니다", "INQUIRY_CREATE_SUCCESS", response));
+	}
+
+	/**
+	 * 에이전트가 등록한 문의 목록을 조회합니다.
+	 *
+	 * @param keyword 검색어
+	 * @param pageable 페이지 정보
+	 * @return 문의 목록 응답
+	 */
+	@Operation(summary = "문의 목록 조회", description = "에이전트가 등록한 문의 목록을 조회합니다.")
+	@ApiResponses(value = {
+		@ApiResponse(responseCode = "200", description = "문의 목록 조회 성공"),
+		@ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
+		@ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
+	})
+	@GetMapping
+	public ResponseEntity<SuccessResponse<InquiryListResDto>> getInquiries(
+		@RequestParam(required = false, defaultValue = "")
+		String keyword,
+		@RequestParam(required = false, defaultValue = "createdAt") String sortBy,
+		@RequestParam(required = false, defaultValue = "desc") String sortDirection,
+		@PageableDefault(size = 10) Pageable pageable
+	) {
+		// 💡 page를 1-based에서 0-based로 변경
+		int page = Math.max(pageable.getPageNumber() - 1, 0);
+		int size = pageable.getPageSize();
+
+		Pageable adjustedPageable = PageRequest.of(page, size,
+			Sort.by(Sort.Direction.fromString(sortDirection), sortBy));
+
+		InquiryListResDto response = inquiryService.getInquiries(getSignInAgentId(), keyword, adjustedPageable);
+		return ResponseEntity.ok(SuccessResponse.success(
+			"문의 목록 조회 성공",
+			"INQUIRY_LIST_SUCCESS",
+			response));
+	}
+
+	@GetMapping("/{inquiryId}")
+	public ResponseEntity<SuccessResponse<InquiryDetailResDto>> getInquiryDetail(
+		@PathVariable Long inquiryId
+	) {
+		InquiryDetailResDto response = inquiryService.getInquiryDetail(inquiryId);
+		return ResponseEntity.ok(SuccessResponse.success(
+			"문의 상세 조회 성공",
+			"INQUIRY_DETAIL_SUCCESS",
+			response
+		));
+	}
+
+	/**
+	 * 현재 로그인한 에이전트의 ID를 반환합니다.
+	 *
+	 * @return 현재 로그인한 에이전트의 ID
+	 */
+	private Long getSignInAgentId() {
+		return SecurityUtil.getAuthenticatedAgent().getId();
 	}
 }
