@@ -1,8 +1,9 @@
 package com.househub.backend.domain.sms.service;
 
-import java.util.List;
+import org.springframework.data.domain.Pageable;
 
 import com.househub.backend.domain.sms.dto.CreateUpdateTemplateReqDto;
+import com.househub.backend.domain.sms.dto.SmsTemplateListResDto;
 import com.househub.backend.domain.sms.dto.TemplateResDto;
 import com.househub.backend.domain.sms.entity.SmsTemplate;
 
@@ -18,7 +19,7 @@ public interface TemplateService {
 	SmsTemplate deleteTemplate(Long id, Long agentId);
 
 	// 문자 발송 템플릿 목록 조회
-	List<TemplateResDto> findAll(Long agentId);
+	SmsTemplateListResDto findAll(String keyword, Long agentId, Pageable adjustedPageable);
 
 	// 문자 발송 템플릿 상세 조회
 	TemplateResDto findTemplate(Long id, Long agentId);

@@ -2,6 +2,8 @@ package com.househub.backend.domain.sms.controller;
 
 import java.util.List;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.househub.backend.common.response.SuccessResponse;
@@ -21,6 +24,8 @@ import com.househub.backend.domain.sms.dto.AligoHistoryResDto;
 import com.househub.backend.domain.sms.dto.CreateUpdateTemplateReqDto;
 import com.househub.backend.domain.sms.dto.SendSmsReqDto;
 import com.househub.backend.domain.sms.dto.SendSmsResDto;
+import com.househub.backend.domain.sms.dto.SmsListResDto;
+import com.househub.backend.domain.sms.dto.SmsTemplateListResDto;
 import com.househub.backend.domain.sms.dto.TemplateResDto;
 import com.househub.backend.domain.sms.entity.SmsTemplate;
 import com.househub.backend.domain.sms.service.SmsService;
@@ -69,10 +74,18 @@ public class SmsController {
 	}
 
 	// 문자 전체 조회
-	@GetMapping("/")
-	public ResponseEntity<SuccessResponse<List<SendSmsResDto>>> getAll(){
-		AgentResDto agent = SecurityUtil.getAuthenticatedAgent();
-		List<SendSmsResDto> response = smsService.getAll(agent.getId());
+	@GetMapping("")
+	public ResponseEntity<SuccessResponse<SmsListResDto>> getAll(
+		@RequestParam(required = false) String keyword,
+		Pageable pageable
+	){
+		int page = Math.max(pageable.getPageNumber()-1,0);
+		int size = pageable.getPageSize();
+
+		Pageable adjustedPageable = PageRequest.of(page,size, pageable.getSort());
+
+		Long agentId = SecurityUtil.getAuthenticatedAgent().getId();
+		SmsListResDto response = smsService.getAllByKeywordAndDeletedAtIsNull(keyword, agentId, adjustedPageable);
 		return ResponseEntity.ok(SuccessResponse.success("문자 전체 조회에 성공했습니다.", "ALL_SMS_READ_SUCCESS",response));
 	}
 
@@ -111,9 +124,17 @@ public class SmsController {
     // 문자 발송 템플릿 목록 조회
 	// 같은 부동산에서 만든 템플릿을 전체 조회
 	@GetMapping("/templates")
-	public ResponseEntity<SuccessResponse<List<TemplateResDto>>> findAllTemplates(){
+	public ResponseEntity<SuccessResponse<SmsTemplateListResDto>> findAllTemplates(
+		@RequestParam(required = false) String keyword,
+		Pageable pageable
+	){
+		int page = Math.max(pageable.getPageNumber() -1, 0);
+		int size = pageable.getPageSize();
+
+		Pageable adjustedPageable = PageRequest.of(page,size, pageable.getSort());
+
 		Long agentId = SecurityUtil.getAuthenticatedAgent().getId();
-		List<TemplateResDto> response = templateService.findAll(agentId);
+		SmsTemplateListResDto response = templateService.findAll(keyword, agentId, adjustedPageable);
 		return ResponseEntity.ok(SuccessResponse.success("문자 템플릿 전체 조회에 성공했습니다.","SMS_TEMPLATE_FIND_ALL_SUCCESS",response));
 	}
 }
