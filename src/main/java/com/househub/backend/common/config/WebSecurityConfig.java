@@ -52,7 +52,7 @@ public class WebSecurityConfig {
 					"/api/auth/signup",
 					"/api/auth/signin",
 					"/v3/api-docs/**",
-					"/swagger-ui/index.html",
+					"/swagger-ui/**",
 					"/swagger-ui.html"
 				).permitAll() // 공개 API
 				.requestMatchers("/api/**").authenticated() // 인증 필요한 경로
@@ -100,8 +100,7 @@ public class WebSecurityConfig {
 	public CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration configuration = new CorsConfiguration();
 		configuration.setAllowedOrigins(
-			Arrays.asList("http://api.house-hub.store", "http://house-hub.store",
-				"http://www.house-hub.store")); // 허용할 Origin
+			Arrays.asList("http://localhost:3000", "https://www.house-hub.store")); // 허용할 Origin
 		configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS")); // 허용할 HTTP 메서드
 		configuration.setAllowedHeaders(
 			Arrays.asList("Authorization", "Content-Type", "X-Requested-With")); // 허용할 Header
