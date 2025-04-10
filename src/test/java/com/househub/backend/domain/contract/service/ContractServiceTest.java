@@ -197,18 +197,40 @@ public class ContractServiceTest {
 	@Test
 	@DisplayName("계약 삭제 테스트 - 성공")
 	void deleteContract() {
-		// given
-		Contract contract = mock(Contract.class); // 가상의 contract 객체 생성
-		// findById()가 호출되면 생성한 mock Contract 객체를 반환하도록 설정
-		// anyLong()은 어떤 Long 값이 와도 동일하게 동작
-		when(contractRepository.findById(anyLong())).thenReturn(Optional.of(contract));
+		// given - 테스트에 필요한 mock 객체들과 상황 설정
+		Long contractId = 1L;
 
-		// when
-		contractService.deleteContract(1L);
+		// 계약과 관련된 mock 객체 생성
+		Contract mockContract = mock(Contract.class);
+		Property mockProperty = mock(Property.class);
 
-		// then
-		// 메서드가 호출되었는지 검증
-		verify(contract).deleteContract();
+		// 진행 중인 다른 계약 mock
+		Contract inProgressContract = mock(Contract.class);
+
+		// 계약 ID로 계약을 찾으면 mockContract를 반환
+		when(contractRepository.findById(contractId)).thenReturn(Optional.of(mockContract));
+
+		// 해당 계약에 연결된 매물을 반환
+		when(mockContract.getProperty()).thenReturn(mockProperty);
+
+		// 매물이 가지고 있는 계약 목록에는 완료된 계약(mockContract)와 진행 중 계약(inProgressContract)이 있음
+		when(mockProperty.getContracts()).thenReturn(List.of(mockContract, inProgressContract));
+
+		// mockContract는 완료 상태
+		when(mockContract.getStatus()).thenReturn(ContractStatus.COMPLETED);
+
+		// 진행 중 계약은 실제로 진행 중
+		when(inProgressContract.getStatus()).thenReturn(ContractStatus.IN_PROGRESS);
+
+		// when - 실제로 삭제 메서드 실행
+		contractService.deleteContract(contractId);
+
+		// then - 기대하는 동작이 실제로 발생했는지 검증
+		// 계약의 deleteContract() 메서드가 호출되었는지 확인
+		verify(mockContract).deleteContract();
+
+		// 진행 중 계약이 있으므로, 매물의 활성 상태는 false
+		verify(mockProperty).changeActiveStatus(false);
 	}
 
 	@Test
