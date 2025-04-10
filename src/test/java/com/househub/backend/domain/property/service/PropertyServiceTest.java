@@ -138,7 +138,7 @@ public class PropertyServiceTest {
 		Pageable pageable = PageRequest.of(0, 10);
 		Page<Property> page = new PageImpl<>(List.of(property), pageable, 1);
 
-		when(propertyRepository.searchProperties(any(), any(), any(), any(), any(), any(), any())).thenReturn(page);
+		when(propertyRepository.searchProperties(any(), any(), any(), any(), any(), any(), any(), any())).thenReturn(page);
 
 		PropertyListResDto response = propertyService.findProperties(searchDto, pageable);
 

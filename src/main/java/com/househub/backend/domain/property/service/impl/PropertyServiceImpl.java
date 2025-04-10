@@ -86,6 +86,7 @@ public class PropertyServiceImpl implements PropertyService {
 			searchDto.getPropertyType(),
 			searchDto.getAgentName(),
 			searchDto.getCustomerName(),
+			searchDto.getActive(),
 			pageable
 		);
 		// 매물 엔티티를 dto 로 변환하여 리스트로 반환
