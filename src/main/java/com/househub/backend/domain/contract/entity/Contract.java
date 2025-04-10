@@ -37,74 +37,86 @@ import lombok.NoArgsConstructor;
 @Builder
 @SQLRestriction("deleted_at IS NULL") // 조회 시 자동으로 deletedAt == null 조건
 public class Contract {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "agentId", nullable = false)
-    private Agent agent; // 담당 공인중개사
+	@ManyToOne
+	@JoinColumn(name = "agentId", nullable = false)
+	private Agent agent; // 담당 공인중개사
 
-    @ManyToOne
-    @JoinColumn(name = "customerId", nullable = false)
-    private Customer customer; // 임차인 또는 매수인
+	@ManyToOne
+	@JoinColumn(name = "customerId", nullable = false)
+	private Customer customer; // 임차인 또는 매수인
 
-    @ManyToOne
-    @JoinColumn(name = "propertyId", nullable = false)
-    private Property property;
+	@ManyToOne
+	@JoinColumn(name = "propertyId", nullable = false)
+	private Property property;
 
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
+	private ContractType contractType; // 거래 유형 (매매, 전세, 월세)
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private ContractType contractType; // 거래 유형 (매매, 전세, 월세)
+	private Long salePrice; // 매매가
+	private Long jeonsePrice; // 전세가
+	private Integer monthlyRentFee; // 월세 금액
+	private Integer monthlyRentDeposit; // 월세 보증금
 
-    private Long salePrice; // 매매가
-    private Long jeonsePrice; // 전세가
-    private Integer monthlyRentFee; // 월세 금액
-    private Integer monthlyRentDeposit; // 월세 보증금
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
+	private ContractStatus status; // 상태 (판매 중, 판매 완료)
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private ContractStatus status; // 상태 (판매 중, 판매 완료)
+	private String memo; // 참고 설명
 
-    private String memo; // 참고 설명
+	private LocalDate startedAt; // 계약 시작일
+	private LocalDate expiredAt; // 계약 만료일
 
-    private LocalDate startedAt; // 계약 시작일
-    private LocalDate expiredAt; // 계약 만료일
+	@Column(nullable = false, updatable = false)
+	private LocalDateTime createdAt; // 등록일시
 
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt; // 등록일시
+	@Column(nullable = false)
+	private LocalDateTime updatedAt; // 수정일시
 
-    @Column(nullable = false)
-    private LocalDateTime updatedAt; // 수정일시
+	private LocalDateTime deletedAt; // 삭제일시 (소프트 삭제)
 
-    private LocalDateTime deletedAt; // 삭제일시 (소프트 삭제)
+	@Column(nullable = true)
+	private LocalDate completedAt; // 계약 완료일시
 
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
-    }
+	@PrePersist
+	protected void onCreate() {
+		createdAt = LocalDateTime.now();
+		updatedAt = LocalDateTime.now();
+	}
 
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
-    }
+	@PreUpdate
+	protected void onUpdate() {
+		updatedAt = LocalDateTime.now();
+	}
 
-    // 수정 메서드 (setter 대신 사용)
-    public void updateContract(ContractReqDto updateDto) {
-        if (updateDto.getContractType() != null) this.contractType = updateDto.getContractType();
-        if (updateDto.getContractStatus() != null) this.status = updateDto.getContractStatus();
-        if (updateDto.getMemo() != null) this.memo = updateDto.getMemo();
-        if (updateDto.getSalePrice() != null) this.salePrice = updateDto.getSalePrice();
-        if (updateDto.getJeonsePrice() != null) this.jeonsePrice = updateDto.getJeonsePrice();
-        if (updateDto.getMonthlyRentDeposit() != null) this.monthlyRentDeposit = updateDto.getMonthlyRentDeposit();
-        if (updateDto.getMonthlyRentFee() != null) this.monthlyRentFee = updateDto.getMonthlyRentFee();
-        this.updatedAt = LocalDateTime.now();
-    }
+	// 수정 메서드 (setter 대신 사용)
+	public void updateContract(ContractReqDto updateDto) {
+		if (updateDto.getContractStatus() == ContractStatus.COMPLETED)
+			this.completedAt = updateDto.getCompletedAt();
+		else this.completedAt = null; // 거래 완료 상태가 아닌 경우에는 null 로 설정
+		if (updateDto.getContractType() != null)
+			this.contractType = updateDto.getContractType();
+		if (updateDto.getContractStatus() != null)
+			this.status = updateDto.getContractStatus();
+		if (updateDto.getMemo() != null)
+			this.memo = updateDto.getMemo();
+		if (updateDto.getSalePrice() != null)
+			this.salePrice = updateDto.getSalePrice();
+		if (updateDto.getJeonsePrice() != null)
+			this.jeonsePrice = updateDto.getJeonsePrice();
+		if (updateDto.getMonthlyRentDeposit() != null)
+			this.monthlyRentDeposit = updateDto.getMonthlyRentDeposit();
+		if (updateDto.getMonthlyRentFee() != null)
+			this.monthlyRentFee = updateDto.getMonthlyRentFee();
+		this.updatedAt = LocalDateTime.now();
+	}
 
-    // 삭제 메서드
-    public void deleteContract() {
-        this.deletedAt = LocalDateTime.now();
-    }
+	// 삭제 메서드
+	public void deleteContract() {
+		this.deletedAt = LocalDateTime.now();
+	}
 }

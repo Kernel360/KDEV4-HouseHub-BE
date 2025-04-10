@@ -1,6 +1,6 @@
 package com.househub.backend.domain.sms.dto;
 
-import com.househub.backend.domain.agent.entity.RealEstate;
+import com.househub.backend.domain.agent.entity.Agent;
 import com.househub.backend.domain.sms.entity.Sms;
 import com.househub.backend.domain.sms.enums.MessageType;
 import com.househub.backend.domain.sms.enums.Status;
@@ -43,7 +43,7 @@ public class SendSmsReqDto {
 
 	private Long templateId;
 
-	public Sms toEntity(Status status, RealEstate realEstate) {
+	public Sms toEntity(Status status, Agent agent) {
 		return Sms.builder()
 			.sender(this.sender)
 			.receiver(this.receiver)
@@ -53,7 +53,7 @@ public class SendSmsReqDto {
 			.status(status)
 			.rdate(this.rdate)
 			.rtime(this.rtime)
-			.realEstate(realEstate)
+			.agent(agent)
 			.templateId(this.templateId)
 			.build();
 	}
