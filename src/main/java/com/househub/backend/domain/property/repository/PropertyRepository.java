@@ -10,8 +10,6 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.househub.backend.domain.dashboard.dto.PropertyTypeCount;
-import com.househub.backend.domain.dashboard.dto.PropertyTypeCount;
-import com.househub.backend.domain.dashboard.dto.PropertyTypeCount;
 import com.househub.backend.domain.property.entity.Property;
 import com.househub.backend.domain.property.enums.PropertyType;
 
@@ -32,7 +30,7 @@ public interface PropertyRepository extends JpaRepository<Property, Long> {
 		"AND (:agentName IS NULL OR a.name LIKE CONCAT('%', :agentName, '%')) " +
 		"AND (:customerName IS NULL OR c.name LIKE CONCAT('%', :customerName, '%'))" +
 		"AND (:active IS NULL OR p.active = :active) ")
-		// "AND (:customerName IS NULL OR c.name LIKE CONCAT('%', :customerName, '%'))")
+	// "AND (:customerName IS NULL OR c.name LIKE CONCAT('%', :customerName, '%'))")
 	Page<Property> searchProperties(
 		@Param("agentId") Long agentId,
 		@Param("province") String province,
@@ -47,15 +45,6 @@ public interface PropertyRepository extends JpaRepository<Property, Long> {
 
 	@Query("SELECT COUNT(p) FROM Property p WHERE p.agent.id = :agentId")
 	long countByAgentId(@Param("agentId") Long agentId);
-
-	@Query("SELECT p FROM Property p WHERE p.agent.id = :agentId ORDER BY p.createdAt DESC")
-	List<Property> findRecentPropertiesByAgentId(@Param("agentId") Long agentId, Pageable pageable);
-
-	@Query("SELECT p.propertyType AS propertyType, COUNT(p) AS count " +
-		"FROM Property p " +
-		"WHERE p.agent.id = :agentId " +
-		"GROUP BY p.propertyType")
-	List<PropertyTypeCount> countByTypeAndAgentId(@Param("agentId") Long agentId);
 
 	@Query("SELECT p FROM Property p WHERE p.agent.id = :agentId ORDER BY p.createdAt DESC")
 	List<Property> findRecentPropertiesByAgentId(@Param("agentId") Long agentId, Pageable pageable);
