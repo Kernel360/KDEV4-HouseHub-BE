@@ -1,6 +1,8 @@
 package com.househub.backend.domain.contract.service.impl;
 
 import com.househub.backend.common.exception.AlreadyExistsException;
+import com.househub.backend.common.exception.BusinessException;
+import com.househub.backend.common.exception.ErrorCode;
 import com.househub.backend.common.exception.ResourceNotFoundException;
 import com.househub.backend.domain.agent.entity.Agent;
 import com.househub.backend.domain.agent.entity.AgentStatus;
@@ -40,6 +42,10 @@ public class ContractServiceImpl implements ContractService {
         Property property = findPropertyById(dto.getPropertyId());
         // 계약할 고객 조회
         Customer customer = findCustomerById(dto.getCustomerId());
+        // 매물을 등록한 고객과 계약할 고객이 동일한 경우 예외 처리
+        if (property.getCustomer().getId().equals(customer.getId())) {
+            throw new BusinessException(ErrorCode.CONTRACT_PROPERTY_CUSTOMER_SAME);
+        }
         // 같은 고객과 매물에 대한 완료되지 않은 계약이 있는지 확인
         // 완료되지 않은 계약이 있으면 예외
         existsByContractAndProperty(customer, property);
