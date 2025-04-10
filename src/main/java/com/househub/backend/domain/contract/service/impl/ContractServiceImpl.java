@@ -43,9 +43,7 @@ public class ContractServiceImpl implements ContractService {
         // 계약할 고객 조회
         Customer customer = findCustomerById(dto.getCustomerId());
         // 매물을 등록한 고객과 계약할 고객이 동일한 경우 예외 처리
-        if (property.getCustomer().getId().equals(customer.getId())) {
-            throw new BusinessException(ErrorCode.CONTRACT_PROPERTY_CUSTOMER_SAME);
-        }
+        isSameCustomerAndProperty(customer, property);
         // 같은 고객과 매물에 대한 완료되지 않은 계약이 있는지 확인
         // 완료되지 않은 계약이 있으면 예외
         existsByContractAndProperty(customer, property);
@@ -70,6 +68,8 @@ public class ContractServiceImpl implements ContractService {
         Customer customer = findCustomerById(dto.getCustomerId());
         // 매물 조회
         Property property = findPropertyById(dto.getPropertyId());
+        // 매물을 등록한 고객과 계약할 고객이 동일한 경우 예외 처리
+        isSameCustomerAndProperty(customer, property);
         // 거래 완료 상태 이외의 상태로 변경하는 경우
         // if (dto.getContractStatus() != ContractStatus.COMPLETED) {
         //     // 같은 고객과 매물에 대한 완료되지 않은 계약이 있는지 확인
@@ -178,6 +178,17 @@ public class ContractServiceImpl implements ContractService {
         if(isExist) {
             throw new AlreadyExistsException("해당 고객은 본 매물에 대해 진행중인 계약이 존재합니다.",
                     "CONTRACT_ALREADY_EXISTS");
+        }
+    }
+
+    /**
+     * 매물을 의뢰한 고객과 계약할 고객이 동일한 경우 예외 처리
+     * @param customer 계약할 고객
+     * @param property 계약할 매물
+     */
+    public void isSameCustomerAndProperty(Customer customer, Property property) {
+        if (property.getCustomer().getId().equals(customer.getId())) {
+            throw new BusinessException(ErrorCode.CONTRACT_PROPERTY_CUSTOMER_SAME);
         }
     }
 
