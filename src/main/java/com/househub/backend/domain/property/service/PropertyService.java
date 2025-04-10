@@ -12,7 +12,7 @@ public interface PropertyService {
     public FindPropertyDetailResDto findProperty(Long propertyId);
 
     // 매물 전체 조회
-    public PropertyListResDto findProperties(PropertySearchDto searchDto, Pageable pageable);
+    public PropertyListResDto findProperties(PropertySearchDto searchDto, Pageable pageable, Long agentId);
 
     // 매물 정보 수정
     public void updateProperty(Long propertyId, PropertyReqDto updatePropertyReqDto);

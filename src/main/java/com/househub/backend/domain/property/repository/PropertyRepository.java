@@ -37,7 +37,8 @@ public interface PropertyRepository extends JpaRepository<Property, Long> {
 	@Query("SELECT p FROM Property p " +
 		"JOIN p.agent a " +
 		"JOIN p.customer c " +
-		"WHERE (:province IS NULL OR p.province = :province) " +
+		"WHERE a.id = :agentId " +
+		"AND (:province IS NULL OR p.province = :province) " +
 		"AND (:city IS NULL OR p.city = :city) " +
 		"AND (:dong IS NULL OR p.dong = :dong) " +
 		"AND (:propertyType IS NULL OR p.propertyType = :propertyType) " +
@@ -46,6 +47,7 @@ public interface PropertyRepository extends JpaRepository<Property, Long> {
 		"AND (:active IS NULL OR p.active = :active) ")
 		// "AND (:customerName IS NULL OR c.name LIKE CONCAT('%', :customerName, '%'))")
 	Page<Property> searchProperties(
+		@Param("agentId") Long agentId,
 		@Param("province") String province,
 		@Param("city") String city,
 		@Param("dong") String dong,
