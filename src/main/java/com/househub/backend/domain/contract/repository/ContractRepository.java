@@ -54,5 +54,4 @@ public interface ContractRepository extends JpaRepository<Contract, Long> {
 		LocalDateTime startDate,
 		LocalDateTime endDate
 	);
-
 }

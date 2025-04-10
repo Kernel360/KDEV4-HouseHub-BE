@@ -3,6 +3,7 @@ package com.househub.backend.domain.inquiryTemplate.service.impl;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
@@ -101,7 +102,14 @@ public class InquiryTemplateServiceImpl implements InquiryTemplateService {
 				active,
 				keyword,
 				pageable)
-			.map(InquiryTemplateResDto::fromEntity);
+			.map(template -> {
+				// 가장 최근의 활성화된 공유 토큰 조회
+				Optional<InquiryTemplateSharedToken> tokenOpt =
+					sharedTokenRepository.findTopByTemplateAndActiveIsTrueOrderByCreatedAtDesc(template);
+
+				String shareToken = tokenOpt.map(InquiryTemplateSharedToken::getShareToken).orElse(null);
+				return InquiryTemplateResDto.fromEntity(template, shareToken);
+			});
 
 		return InquiryTemplateListResDto.fromPage(page);
 	}
@@ -112,6 +120,7 @@ public class InquiryTemplateServiceImpl implements InquiryTemplateService {
 	 * @param pageable 페이지네이션 정보
 	 * @return 문의 템플릿 목록을 포함한 응답
 	 */
+	@Transactional(readOnly = true)
 	@Override
 	public InquiryTemplateListResDto searchInquiryTemplates(String keyword, Pageable pageable, Long agentId) {
 		// 1. 중개사 ID로 중개사 존재 여부 확인
@@ -121,7 +130,14 @@ public class InquiryTemplateServiceImpl implements InquiryTemplateService {
 		Page<InquiryTemplateResDto> page = inquiryTemplateRepository.findAllByAgentIdAndKeyword(agent.getId(),
 				keyword,
 				pageable)
-			.map(InquiryTemplateResDto::fromEntity);
+			.map(template -> {
+				// 가장 최근의 활성화된 공유 토큰 조회
+				Optional<InquiryTemplateSharedToken> tokenOpt =
+					sharedTokenRepository.findTopByTemplateAndActiveIsTrueOrderByCreatedAtDesc(template);
+
+				String shareToken = tokenOpt.map(InquiryTemplateSharedToken::getShareToken).orElse(null);
+				return InquiryTemplateResDto.fromEntity(template, shareToken);
+			});
 
 		return InquiryTemplateListResDto.fromPage(page);
 	}

@@ -59,6 +59,10 @@ public class ContractReqDto {
         return true; // 거래 완료 상태가 아니면 통과
     }
 
+    @AssertTrue(message = "계약 시작일은 계약 만료일보다 이후일 수 없습니다.")
+    public boolean isValidContractPeriod() {
+        return !startedAt.isAfter(expiredAt);
+    }
     // 자동 실행
     // @AssertTrue(message = "거래 가능 상태일 경우, 거래 시작일과 만료일은 입력할 수 없습니다.")
     // public boolean isValidContractStatus() {

@@ -3,7 +3,7 @@ package com.househub.backend.domain.sms.entity;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-import com.househub.backend.domain.agent.entity.RealEstate;
+import com.househub.backend.domain.agent.entity.Agent;
 import com.househub.backend.domain.sms.dto.CreateUpdateTemplateReqDto;
 import com.househub.backend.domain.sms.dto.TemplateResDto;
 
@@ -47,8 +47,8 @@ public class SmsTemplate {
 	private LocalDateTime deletedAt;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "real_estate_id", nullable = false)
-	private RealEstate realEstate;
+	@JoinColumn(name = "agent_id", nullable = false)
+	private Agent agent;
 
 	@PrePersist
 	protected void onCreate() {

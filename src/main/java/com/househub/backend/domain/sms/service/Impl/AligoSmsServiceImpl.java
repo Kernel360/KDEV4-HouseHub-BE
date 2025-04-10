@@ -2,6 +2,8 @@ package com.househub.backend.domain.sms.service.Impl;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -13,6 +15,7 @@ import com.househub.backend.domain.sms.dto.AligoHistoryResDto;
 import com.househub.backend.domain.sms.dto.AligoSmsResDto;
 import com.househub.backend.domain.sms.dto.SendSmsReqDto;
 import com.househub.backend.domain.sms.dto.SendSmsResDto;
+import com.househub.backend.domain.sms.dto.SmsListResDto;
 import com.househub.backend.domain.sms.entity.Sms;
 import com.househub.backend.domain.sms.enums.Status;
 import com.househub.backend.domain.sms.repository.SmsRepository;
@@ -29,8 +32,8 @@ public class AligoSmsServiceImpl implements SmsService {
 	private final SmsRepository smsRepository;
 	private final AgentRepository agentRepository;
 
-	public SendSmsResDto sendSms(SendSmsReqDto request, Long id) {
-		Agent agent = agentRepository.findById(id).orElseThrow(()-> new ResourceNotFoundException("공인중개사가 존재하지 않습니다.", "AGENT_NOT_FOUND"));
+	public SendSmsResDto sendSms(SendSmsReqDto request, Long agentId) {
+		Agent agent = agentRepository.findById(agentId).orElseThrow(()-> new ResourceNotFoundException("공인중개사가 존재하지 않습니다.", "AGENT_NOT_FOUND"));
 
 		String url = "https://apis.aligo.in/send/";
 
@@ -52,9 +55,9 @@ public class AligoSmsServiceImpl implements SmsService {
 		AligoSmsResDto aligoResponse = aligoApiClient.sendRequestForObject(url, params, AligoSmsResDto.class);
 		Sms sms;
 		if(aligoResponse.getResultCode() == 1){
-			sms = smsRepository.save(request.toEntity(Status.SUCCESS,agent.getRealEstate()));
+			sms = smsRepository.save(request.toEntity(Status.SUCCESS,agent));
 		} else {
-			sms = smsRepository.save(request.toEntity(Status.FAIL,agent.getRealEstate()));
+			sms = smsRepository.save(request.toEntity(Status.FAIL,agent));
 		}
 		return SendSmsResDto.fromEntity(sms);
 	}
@@ -99,16 +102,24 @@ public class AligoSmsServiceImpl implements SmsService {
 	}
 
 	@Override
-	public List<SendSmsResDto> getAll(Long id) {
-		Agent agent = agentRepository.findById(id).orElseThrow(()-> new ResourceNotFoundException("공인중개사가 존재하지 않습니다.", "AGENT_NOT_FOUND"));
-		return smsRepository.getAllSmsByRealEstate(agent.getRealEstate()).stream().map(
-			SendSmsResDto::fromEntity).toList();
+	public SmsListResDto getAllByKeywordAndDeletedAtIsNull(String keyword, Long agentId, Pageable pageable) {
+		Agent agent = agentRepository.findById(agentId)
+			.orElseThrow(() -> new ResourceNotFoundException("공인중개사가 존재하지 않습니다.", "AGENT_NOT_FOUND"));
+
+		Page<Sms> smsPage = smsRepository.findAllSmsByAgentIdAndFiltersAndDeletedAtIsNull(
+			agent.getId(),
+			keyword,
+			keyword,
+			pageable
+		);
+		Page<SendSmsResDto> response = smsPage.map(SendSmsResDto::fromEntity);
+		return SmsListResDto.fromPage(response);
 	}
 
 	@Override
 	public SendSmsResDto findById(Long id, Long agentId) {
 		Agent agent = agentRepository.findById(agentId).orElseThrow(()-> new ResourceNotFoundException("공인중개사가 존재하지 않습니다.", "AGENT_NOT_FOUND"));
-		return smsRepository.findByIdAndRealEstate(id,agent.getRealEstate());
+		return smsRepository.findByIdAndAgentId(id,agent.getId());
 	}
 
 }

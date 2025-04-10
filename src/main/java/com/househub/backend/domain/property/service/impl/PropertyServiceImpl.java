@@ -77,15 +77,17 @@ public class PropertyServiceImpl implements PropertyService {
 	 */
 	@Transactional(readOnly = true)
 	@Override
-	public PropertyListResDto findProperties(PropertySearchDto searchDto, Pageable pageable) {
+	public PropertyListResDto findProperties(PropertySearchDto searchDto, Pageable pageable, Long agentId) {
 		// 페이지네이션, 검색 필터링 적용하여 매물 조회
 		Page<Property> propertyList = propertyRepository.searchProperties(
+			agentId,
 			searchDto.getProvince(),
 			searchDto.getCity(),
 			searchDto.getDong(),
 			searchDto.getPropertyType(),
 			searchDto.getAgentName(),
 			searchDto.getCustomerName(),
+			searchDto.getActive(),
 			pageable
 		);
 		// 매물 엔티티를 dto 로 변환하여 리스트로 반환
