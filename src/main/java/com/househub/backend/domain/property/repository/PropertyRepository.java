@@ -30,7 +30,7 @@ public interface PropertyRepository extends JpaRepository<Property, Long> {
 		"AND (:agentName IS NULL OR a.name LIKE CONCAT('%', :agentName, '%')) " +
 		"AND (:customerName IS NULL OR c.name LIKE CONCAT('%', :customerName, '%'))" +
 		"AND (:active IS NULL OR p.active = :active) ")
-		// "AND (:customerName IS NULL OR c.name LIKE CONCAT('%', :customerName, '%'))")
+	// "AND (:customerName IS NULL OR c.name LIKE CONCAT('%', :customerName, '%'))")
 	Page<Property> searchProperties(
 		@Param("agentId") Long agentId,
 		@Param("province") String province,
@@ -54,5 +54,4 @@ public interface PropertyRepository extends JpaRepository<Property, Long> {
 		"WHERE p.agent.id = :agentId " +
 		"GROUP BY p.propertyType")
 	List<PropertyTypeCount> countByTypeAndAgentId(@Param("agentId") Long agentId);
-
 }
