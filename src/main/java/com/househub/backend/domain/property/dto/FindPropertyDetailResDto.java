@@ -30,6 +30,7 @@ public class FindPropertyDetailResDto {
     private BigDecimal latitude; // 위도
     private BigDecimal longitude; // 경도
     private List<FindContractResDto> contractList;
+    private Boolean active; // 매물이 계약 가능한지 여부 default : true (계약이 없는 경우 true)
 
     // Entity -> DTO 변환
     public static FindPropertyDetailResDto toDto(Property property) {
@@ -50,6 +51,7 @@ public class FindPropertyDetailResDto {
                 // dto 로 변환 후 반환
                 .contractList(property.getContracts() != null ?
                         property.getContracts().stream().map(FindContractResDto::toDto).toList() : null)
+                .active(property.getActive())
                 .build();
     }
 }
