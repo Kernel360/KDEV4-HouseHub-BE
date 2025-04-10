@@ -81,10 +81,10 @@ public class Customer {
 	public void update(CreateCustomerReqDto reqDto) {
 		Optional.ofNullable(reqDto.getName()).ifPresent(name -> this.name = name);
 		Optional.ofNullable(reqDto.getEmail()).ifPresent(email -> this.email = email);
-		Optional.ofNullable(reqDto.getAgeGroup()).ifPresent(ageGroup -> this.ageGroup = ageGroup);
-		Optional.ofNullable(reqDto.getMemo()).ifPresent(memo -> this.memo = memo);
 		Optional.ofNullable(reqDto.getContact()).ifPresent(contact -> this.contact = contact);
-		Optional.ofNullable(reqDto.getGender()).ifPresent(gender -> this.gender = gender);
+		this.ageGroup = reqDto.getAgeGroup(); // null 허용
+		this.gender = reqDto.getGender(); // null 허용
+		this.memo = reqDto.getMemo(); // null 허용
 	}
 
 	public void delete() {
