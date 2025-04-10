@@ -41,6 +41,7 @@ public class PropertyReqDto {
 			.memo(this.memo)
 			.roadAddress(this.roadAddress)
 			.detailAddress(this.detailAddress)
+			.jibunAddress(this.jibunAddress)
 			.latitude(this.latitude)
 			.longitude(this.longitude)
 			.build();
