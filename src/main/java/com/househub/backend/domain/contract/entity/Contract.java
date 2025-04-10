@@ -99,10 +99,7 @@ public class Contract {
 			this.completedAt = updateDto.getCompletedAt();
 		else
 			this.completedAt = null; // 거래 완료 상태가 아닌 경우에는 null 로 설정
-		if (updateDto.getContractStatus() == ContractStatus.COMPLETED)
-			this.completedAt = updateDto.getCompletedAt();
-		else
-			this.completedAt = null; // 거래 완료 상태가 아닌 경우에는 null 로 설정
+
 		if (updateDto.getContractType() != null)
 			this.contractType = updateDto.getContractType();
 		if (updateDto.getContractStatus() != null)

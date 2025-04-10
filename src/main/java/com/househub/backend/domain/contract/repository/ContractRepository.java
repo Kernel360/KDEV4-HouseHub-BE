@@ -1,14 +1,7 @@
 package com.househub.backend.domain.contract.repository;
 
 import java.time.LocalDateTime;
-<<<<<<< HEAD
-<<<<<<< HEAD
 import java.util.List;
-=======
->>>>>>> 21bde5a (byungchan, feature: 대시보드 통계 데이터 조회 API 구현 #101)
-=======
-import java.util.List;
->>>>>>> ab352c4 (byungchan, feature: 월별 계약 현황 차트 데이터 조회 API 구현 #101)
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -49,10 +42,6 @@ public interface ContractRepository extends JpaRepository<Contract, Long> {
 	@Query("SELECT COUNT(c) FROM Contract c WHERE c.agent.id = :agentId AND c.status = :status")
 	long countByAgentIdAndStatus(@Param("agentId") Long agentId, @Param("status") ContractStatus status);
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> ab352c4 (byungchan, feature: 월별 계약 현황 차트 데이터 조회 API 구현 #101)
 	long countByAgentIdAndStatusAndCreatedAtBetween(
 		Long agentId,
 		ContractStatus status,
@@ -65,12 +54,7 @@ public interface ContractRepository extends JpaRepository<Contract, Long> {
 		LocalDateTime startDate,
 		LocalDateTime endDate
 	);
-<<<<<<< HEAD
-=======
+
 	long countByAgentIdAndStatusAndCreatedAtBetween(Long agentId, ContractStatus status, LocalDateTime start,
 		LocalDateTime end);
->>>>>>> 21bde5a (byungchan, feature: 대시보드 통계 데이터 조회 API 구현 #101)
-=======
->>>>>>> ab352c4 (byungchan, feature: 월별 계약 현황 차트 데이터 조회 API 구현 #101)
-
 }

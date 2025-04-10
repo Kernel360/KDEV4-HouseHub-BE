@@ -101,5 +101,4 @@ public class DashboardController {
 	private Long getSignInAgentId() {
 		return SecurityUtil.getAuthenticatedAgent().getId();
 	}
-
 }

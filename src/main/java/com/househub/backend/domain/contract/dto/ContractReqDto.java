@@ -63,7 +63,6 @@ public class ContractReqDto {
     public boolean isValidContractPeriod() {
         return !startedAt.isAfter(expiredAt);
     }
-
     // 자동 실행
     // @AssertTrue(message = "거래 가능 상태일 경우, 거래 시작일과 만료일은 입력할 수 없습니다.")
     // public boolean isValidContractStatus() {
