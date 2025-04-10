@@ -1,5 +1,6 @@
 package com.househub.backend.domain.property.service;
 
+import static org.assertj.core.api.AssertionsForClassTypes.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -134,15 +135,56 @@ public class PropertyServiceTest {
 	@Test
 	@DisplayName("전체 매물 조회 성공")
 	void findProperties_Success() {
-		PropertySearchDto searchDto = PropertySearchDto.builder().build();
+		Long agentId = 1L;
+
+		PropertySearchDto searchDto = PropertySearchDto.builder()
+			.province("서울")
+			.city("강남구")
+			.dong("역삼동")
+			.propertyType(PropertyType.APARTMENT)
+			.agentName("홍길동")
+			.customerName("김철수")
+			.active(true)
+			.build();
+
 		Pageable pageable = PageRequest.of(0, 10);
-		Page<Property> page = new PageImpl<>(List.of(property), pageable, 1);
 
-		when(propertyRepository.searchProperties(any(), any(), any(), any(), any(), any(), any(), any())).thenReturn(page);
+		Property mockProperty = Property.builder()
+			.id(1L)
+			.propertyType(PropertyType.APARTMENT)
+			.build();
 
-		PropertyListResDto response = propertyService.findProperties(searchDto, pageable);
+		Page<Property> propertyPage = new PageImpl<>(List.of(mockProperty), pageable, 1);
 
-		assertFalse(response.getContent().isEmpty());
+		when(propertyRepository.searchProperties(
+			eq(agentId),
+			eq("서울"),
+			eq("강남구"),
+			eq("역삼동"),
+			eq(PropertyType.APARTMENT),
+			eq("홍길동"),
+			eq("김철수"),
+			eq(true),
+			eq(pageable)
+		)).thenReturn(propertyPage);
+
+		// when
+		PropertyListResDto result = propertyService.findProperties(searchDto, pageable, agentId);
+
+		// then
+		assertThat(result).isNotNull();
+
+		verify(propertyRepository, times(1)).searchProperties(
+			eq(agentId),
+			eq("서울"),
+			eq("강남구"),
+			eq("역삼동"),
+			eq(PropertyType.APARTMENT),
+			eq("홍길동"),
+			eq("김철수"),
+			eq(true),
+			eq(pageable)
+		);
 	}
 
 	@Test

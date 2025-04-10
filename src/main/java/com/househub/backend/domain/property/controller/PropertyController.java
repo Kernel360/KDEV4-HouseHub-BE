@@ -38,7 +38,7 @@ public class PropertyController {
 		int page = Math.max(pageable.getPageNumber() - 1, 0);
 		int size = pageable.getPageSize();
 		Pageable adjustedPageable = PageRequest.of(page, size, pageable.getSort());
-		PropertyListResDto response = propertyService.findProperties(searchDto, adjustedPageable);
+		PropertyListResDto response = propertyService.findProperties(searchDto, adjustedPageable, getSignInAgentId());
 		return ResponseEntity.ok(SuccessResponse.success("매물 조회 성공", "FIND_PROPERTIES_SUCCESS", response));
 	}
 
