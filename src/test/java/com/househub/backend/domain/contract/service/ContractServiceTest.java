@@ -104,8 +104,9 @@ public class ContractServiceTest {
 			.jeonsePrice(10000000L)
 			.contractStatus(ContractStatus.IN_PROGRESS)
 			.build();
+		Customer buyer = Customer.builder().id(2L).build();
 		when(propertyRepository.findById(requestDto.getPropertyId())).thenReturn(Optional.of(property));
-		when(customerRepository.findById(requestDto.getCustomerId())).thenReturn(Optional.of(customer));
+		when(customerRepository.findById(requestDto.getCustomerId())).thenReturn(Optional.of(buyer));
 		when(contractRepository.existsByCustomerAndPropertyAndStatusNot(any(), any(), any())).thenReturn(false);
 		when(agentRepository.findByIdAndStatus(agentId, AgentStatus.ACTIVE)).thenReturn(Optional.of(agent));
 		when(contractRepository.save(any(Contract.class))).thenReturn(contract);
@@ -123,21 +124,23 @@ public class ContractServiceTest {
 	void createContract_Failure_ContractAlreadyExists() {
 		// given
 		Long propertyId = 1L;
-		Long customerId = 1L;
+		Long customerId = 2L; // 기존 고객과 다른 ID 사용
+		Long agentId = 1L;
+
+		Customer buyer = Customer.builder().id(customerId).build(); // 계약 고객
+
 		ContractReqDto requestDto = ContractReqDto.builder()
 			.propertyId(propertyId)
 			.customerId(customerId)
 			.build();
 
-		Property property = mock(Property.class);
-		Customer customer = mock(Customer.class);
 		when(propertyRepository.findById(propertyId)).thenReturn(Optional.of(property));
-		when(customerRepository.findById(customerId)).thenReturn(Optional.of(customer));
-		when(contractRepository.existsByCustomerAndPropertyAndStatusNot(customer, property,
-			ContractStatus.COMPLETED)).thenReturn(true);  // 이미 완료되지 않은 계약이 있음
+		when(customerRepository.findById(customerId)).thenReturn(Optional.of(buyer));
+		when(contractRepository.existsByCustomerAndPropertyAndStatusNot(
+			any(), any(), eq(ContractStatus.COMPLETED))).thenReturn(true);
 
 		// when & then
-		assertThatThrownBy(() -> contractService.createContract(requestDto, 1L))
+		assertThatThrownBy(() -> contractService.createContract(requestDto, agentId))
 			.isInstanceOf(AlreadyExistsException.class)
 			.hasMessageContaining("해당 고객은 본 매물에 대해 진행중인 계약이 존재합니다.");
 	}
@@ -176,12 +179,11 @@ public class ContractServiceTest {
 		// given
 		ContractReqDto requestDto = mock(ContractReqDto.class);
 		Contract contract = mock(Contract.class);
-		Property property = mock(Property.class);
-		Customer customer = mock(Customer.class);
-
+		Customer buyer = Customer.builder().id(2L).build();
 		when(contractRepository.findById(anyLong())).thenReturn(Optional.of(contract));
 		when(propertyRepository.findById(anyLong())).thenReturn(Optional.of(property));
-		when(customerRepository.findById(anyLong())).thenReturn(Optional.of(customer));
+		when(customerRepository.findById(anyLong())).thenReturn(Optional.of(buyer));
+
 		// when(requestDto.getContractStatus()).thenReturn(ContractStatus.IN_PROGRESS);
 		// when(contractRepository.existsByCustomerAndPropertyAndStatusNot(any(), any(), any())).thenReturn(false);
 
@@ -195,18 +197,40 @@ public class ContractServiceTest {
 	@Test
 	@DisplayName("계약 삭제 테스트 - 성공")
 	void deleteContract() {
-		// given
-		Contract contract = mock(Contract.class); // 가상의 contract 객체 생성
-		// findById()가 호출되면 생성한 mock Contract 객체를 반환하도록 설정
-		// anyLong()은 어떤 Long 값이 와도 동일하게 동작
-		when(contractRepository.findById(anyLong())).thenReturn(Optional.of(contract));
+		// given - 테스트에 필요한 mock 객체들과 상황 설정
+		Long contractId = 1L;
 
-		// when
-		contractService.deleteContract(1L);
+		// 계약과 관련된 mock 객체 생성
+		Contract mockContract = mock(Contract.class);
+		Property mockProperty = mock(Property.class);
 
-		// then
-		// 메서드가 호출되었는지 검증
-		verify(contract).deleteContract();
+		// 진행 중인 다른 계약 mock
+		Contract inProgressContract = mock(Contract.class);
+
+		// 계약 ID로 계약을 찾으면 mockContract를 반환
+		when(contractRepository.findById(contractId)).thenReturn(Optional.of(mockContract));
+
+		// 해당 계약에 연결된 매물을 반환
+		when(mockContract.getProperty()).thenReturn(mockProperty);
+
+		// 매물이 가지고 있는 계약 목록에는 완료된 계약(mockContract)와 진행 중 계약(inProgressContract)이 있음
+		when(mockProperty.getContracts()).thenReturn(List.of(mockContract, inProgressContract));
+
+		// mockContract는 완료 상태
+		when(mockContract.getStatus()).thenReturn(ContractStatus.COMPLETED);
+
+		// 진행 중 계약은 실제로 진행 중
+		when(inProgressContract.getStatus()).thenReturn(ContractStatus.IN_PROGRESS);
+
+		// when - 실제로 삭제 메서드 실행
+		contractService.deleteContract(contractId);
+
+		// then - 기대하는 동작이 실제로 발생했는지 검증
+		// 계약의 deleteContract() 메서드가 호출되었는지 확인
+		verify(mockContract).deleteContract();
+
+		// 진행 중 계약이 있으므로, 매물의 활성 상태는 false
+		verify(mockProperty).changeActiveStatus(false);
 	}
 
 	@Test

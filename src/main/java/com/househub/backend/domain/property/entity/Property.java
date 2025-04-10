@@ -66,6 +66,9 @@ public class Property {
     private String detailAddress; // 상세 주소
     private String roadAddress; // 전체 도로명 주소
 
+    @Column(nullable = false)
+    private Boolean active; // 매물이 계약 가능한지 여부 default : true (계약이 없는 경우 true)
+
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt; // 등록일시
 
@@ -90,6 +93,7 @@ public class Property {
 
     @PrePersist
     protected void onCreate() {
+        active = true;
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
     }
@@ -97,6 +101,11 @@ public class Property {
     @PreUpdate
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
+    }
+
+    // active 상태 변경 메서드
+    public void changeActiveStatus(boolean active) {
+        this.active = active;
     }
 
     // 수정 메서드 (setter 대신 사용)

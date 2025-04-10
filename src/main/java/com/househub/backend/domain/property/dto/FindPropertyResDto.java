@@ -14,6 +14,7 @@ public class FindPropertyResDto {
 	private PropertyType propertyType; // 매물 유형
 	private String detailAddress; // 상세 주소
 	private String roadAddress; // 전체 도로명 주소
+	private Boolean active; // 매물이 계약 가능한지 여부 default : true (계약이 없는 경우 true)
 
 	// Entity -> DTO 변환
 	public static FindPropertyResDto toDto(Property property) {
@@ -22,6 +23,7 @@ public class FindPropertyResDto {
 			.propertyType(property.getPropertyType())
 			.detailAddress(property.getDetailAddress())
 			.roadAddress(property.getRoadAddress())
+			.active(property.getActive())
 			.build();
 	}
 }
