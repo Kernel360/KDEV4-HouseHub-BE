@@ -7,7 +7,6 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -103,10 +102,10 @@ public class AuthServiceImpl implements AuthService {
 				.build();
 		} catch (InternalAuthenticationServiceException ex) {
 			log.warn("로그인 실패 - 사용자를 찾을 수 없음: {}", request.getEmail());
-			throw new UsernameNotFoundException("해당 이메일과 일치하는 중개사가 존재하지 않습니다.");
+			throw new BusinessException(ErrorCode.EMAIL_MISMATCH);
 		} catch (BadCredentialsException ex) {
 			log.warn("로그인 실패 - 잘못된 자격 증명: {}", request.getEmail());
-			throw new BadCredentialsException("비밀번호가 일치하지 않습니다.");
+			throw new BusinessException(ErrorCode.PASSWORD_MISMATCH);
 		} catch (Exception ex) {
 			log.error("로그인 중 예외 발생: {}", ex.getMessage(), ex);
 			throw ex;
