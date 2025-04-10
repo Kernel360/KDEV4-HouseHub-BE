@@ -1,6 +1,5 @@
 package com.househub.backend.domain.sms.dto;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -42,6 +41,7 @@ public class AligoHistoryResDto {
 		@JsonProperty("type")
 		private String msgType; // type -> msgType으로 의미있는 이름 변경
 
+		@JsonProperty("sender")
 		private String sender;
 
 		@JsonProperty("sms_count")
@@ -50,6 +50,7 @@ public class AligoHistoryResDto {
 		@JsonProperty("reserve_state")
 		private String reserveState;
 
+		@JsonProperty("msg")
 		private String msg;
 
 		@JsonProperty("fail_count")
@@ -57,10 +58,10 @@ public class AligoHistoryResDto {
 
 		@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") // 실제 API 응답 형식에 맞춤
 		@JsonProperty("reg_date")
-		private LocalDateTime regDate;
+		private String regDate;
 
 		@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 		@JsonProperty("reserve") // API 필드명 확인 필요(예: reserve_date?)
-		private LocalDateTime reserve;
+		private String reserve;
 	}
 }

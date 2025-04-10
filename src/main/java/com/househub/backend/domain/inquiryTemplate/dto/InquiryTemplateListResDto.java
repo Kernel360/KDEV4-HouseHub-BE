@@ -4,6 +4,8 @@ import java.util.List;
 
 import org.springframework.data.domain.Page;
 
+import com.househub.backend.common.dto.PaginationDto;
+
 import lombok.Builder;
 import lombok.Getter;
 

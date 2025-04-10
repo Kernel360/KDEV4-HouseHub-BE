@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable;
 import com.househub.backend.domain.inquiryTemplate.dto.CreateInquiryTemplateReqDto;
 import com.househub.backend.domain.inquiryTemplate.dto.InquiryTemplateListResDto;
 import com.househub.backend.domain.inquiryTemplate.dto.InquiryTemplatePreviewResDto;
+import com.househub.backend.domain.inquiryTemplate.dto.InquiryTemplateSharedResDto;
 import com.househub.backend.domain.inquiryTemplate.dto.UpdateInquiryTemplateReqDto;
 
 public interface InquiryTemplateService {
@@ -19,4 +20,6 @@ public interface InquiryTemplateService {
 	void updateInquiryTemplate(Long templateId, UpdateInquiryTemplateReqDto reqDto, Long agentId);
 
 	void deleteInquiryTemplate(Long templateId, Long agentId);
+
+	InquiryTemplateSharedResDto getInquiryTemplateByShareToken(String shareToken);
 }

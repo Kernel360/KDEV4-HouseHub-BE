@@ -12,6 +12,7 @@ import lombok.*;
 
 import java.time.LocalDate;
 
+@Setter
 @Getter
 @Builder
 @NoArgsConstructor
@@ -24,7 +25,7 @@ public class ContractReqDto {
     @NotNull(message = "거래 유형은 필수입니다.")
     private ContractType contractType; // 거래 유형 (매매, 전세, 월세)
     @NotNull(message = "거래 상태는 필수입니다.")
-    private ContractStatus contractStatus; // 거래 상태 ( 판매중, 판매 완료 )
+    private ContractStatus contractStatus; // 거래 상태 ( 거래 가능, 진행중, 완료 )
 
     private Long salePrice; // 매매가 (매매 계약일 경우 필요)
     private Long jeonsePrice; // 전세가 (전세 계약일 경우 필요)
@@ -34,6 +35,8 @@ public class ContractReqDto {
     private String memo; // 참고 설명 (예: 계약 기간 등)
     private LocalDate startedAt; // 계약 시작일 (매매일 경우 만료일과 동일)
     private LocalDate expiredAt; // 계약 만료일 (매매일 경우 시작일과 동일)
+
+    private LocalDate completedAt; // 거래 완료일
 
     // 자동 실행
     @AssertTrue(message = "거래 유형에 따라 적절한 가격 정보가 필요합니다.")
@@ -48,14 +51,22 @@ public class ContractReqDto {
         return false;
     }
 
-    // 자동 실행
-    @AssertTrue(message = "거래 가능 상태일 경우, 거래 시작일과 만료일은 입력할 수 없습니다.")
-    public boolean isValidContractStatus() {
-        if (contractStatus == ContractStatus.AVAILABLE) { // 거래가능일 경우
-            return startedAt == null && expiredAt == null;
+    @AssertTrue(message = "거래 완료 상태일 경우, 거래 완료일은 필수입니다.")
+    public boolean isCompletedAtRequired() {
+        if (contractStatus == ContractStatus.COMPLETED) {
+            return completedAt != null;
         }
-        return true;
+        return true; // 거래 완료 상태가 아니면 통과
     }
+
+    // 자동 실행
+    // @AssertTrue(message = "거래 가능 상태일 경우, 거래 시작일과 만료일은 입력할 수 없습니다.")
+    // public boolean isValidContractStatus() {
+    //     if (contractStatus == ContractStatus.AVAILABLE) { // 거래가능일 경우
+    //         return startedAt == null && expiredAt == null;
+    //     }
+    //     return true;
+    // }
 
     public Contract toEntity(Property property, Customer customer, Agent agent) {
         return Contract.builder()

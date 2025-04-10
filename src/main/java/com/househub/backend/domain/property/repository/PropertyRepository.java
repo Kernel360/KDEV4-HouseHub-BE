@@ -1,7 +1,6 @@
 package com.househub.backend.domain.property.repository;
 
-import com.househub.backend.domain.property.entity.Property;
-import com.househub.backend.domain.property.enums.PropertyType;
+import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -9,6 +8,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
+import com.househub.backend.domain.dashboard.dto.PropertyTypeCount;
+import com.househub.backend.domain.property.entity.Property;
+import com.househub.backend.domain.property.enums.PropertyType;
 
 @Repository
 public interface PropertyRepository extends JpaRepository<Property, Long> {
@@ -23,8 +26,8 @@ public interface PropertyRepository extends JpaRepository<Property, Long> {
 		"AND (:city IS NULL OR p.city = :city) " +
 		"AND (:dong IS NULL OR p.dong = :dong) " +
 		"AND (:propertyType IS NULL OR p.propertyType = :propertyType) " +
-		"AND (:agentName IS NULL OR a.name LIKE %:agentName%) " +
-		"AND (:customerName IS NULL OR c.name LIKE %:customerName%)")
+		"AND (:agentName IS NULL OR a.name LIKE CONCAT('%', :agentName, '%')) " +
+		"AND (:customerName IS NULL OR c.name LIKE CONCAT('%', :customerName, '%'))")
 	Page<Property> searchProperties(
 		@Param("province") String province,
 		@Param("city") String city,
@@ -34,4 +37,17 @@ public interface PropertyRepository extends JpaRepository<Property, Long> {
 		@Param("customerName") String customerName,
 		Pageable pageable
 	);
+
+	@Query("SELECT COUNT(p) FROM Property p WHERE p.agent.id = :agentId")
+	long countByAgentId(@Param("agentId") Long agentId);
+
+	@Query("SELECT p FROM Property p WHERE p.agent.id = :agentId ORDER BY p.createdAt DESC")
+	List<Property> findRecentPropertiesByAgentId(@Param("agentId") Long agentId, Pageable pageable);
+
+	@Query("SELECT p.propertyType AS propertyType, COUNT(p) AS count " +
+		"FROM Property p " +
+		"WHERE p.agent.id = :agentId " +
+		"GROUP BY p.propertyType")
+	List<PropertyTypeCount> countByTypeAndAgentId(@Param("agentId") Long agentId);
+
 }

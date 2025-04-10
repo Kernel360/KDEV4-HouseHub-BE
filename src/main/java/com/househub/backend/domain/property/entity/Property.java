@@ -100,7 +100,8 @@ public class Property {
     }
 
     // 수정 메서드 (setter 대신 사용)
-    public void updateProperty(PropertyReqDto updateDto) {
+    public void updateProperty(PropertyReqDto updateDto, Customer customer) {
+        if (updateDto.getCustomerId() != null) this.customer = customer;
         if (updateDto.getPropertyType() != null) this.propertyType = updateDto.getPropertyType();
         if (updateDto.getMemo() != null) this.memo = updateDto.getMemo();
         if (updateDto.getRoadAddress() != null) this.roadAddress = updateDto.getRoadAddress();

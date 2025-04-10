@@ -15,38 +15,34 @@ import io.lettuce.core.dynamic.annotation.Param;
 @Repository
 public interface InquiryTemplateRepository extends JpaRepository<InquiryTemplate, Long> {
 
-	// 🔄 findByIdAndRealEstateId
 	@Query("SELECT it FROM InquiryTemplate it " +
 		"WHERE it.deletedAt IS NULL " +
 		"AND it.id = :id " +
-		"AND it.realEstate.id = :realEstateId")
-	Optional<InquiryTemplate> findByIdAndRealEstateId(@Param("id") Long id, @Param("realEstateId") Long realEstateId);
+		"AND it.agent.id = :agentId")
+	Optional<InquiryTemplate> findByIdAndAgentId(@Param("id") Long id, @Param("agentId") Long agentId);
 
-	// 🔄 findAllByRealEstateIdAndFilters
 	@Query("SELECT it FROM InquiryTemplate it " +
 		"WHERE it.deletedAt IS NULL " +
-		"AND it.realEstate.id = :realEstateId " +
+		"AND it.agent.id = :agentId " +
 		"AND (:#{#active == null} = true OR it.active = :active) " +
 		"AND (:#{#keyword == null or #keyword.isEmpty()} = true OR LOWER(it.name) LIKE %:keyword%)")
-	Page<InquiryTemplate> findAllByRealEstateIdAndFilters(@Param("realEstateId") Long realEstateId,
+	Page<InquiryTemplate> findAllByAgentIdAndFilters(@Param("agentId") Long agentId,
 		@Param("active") Boolean active,
 		@Param("keyword") String keyword,
 		Pageable pageable);
 
-	// 🔄 findAllByRealEstateIdAndKeyword
 	@Query("SELECT it FROM InquiryTemplate it " +
 		"WHERE it.deletedAt IS NULL " +
-		"AND it.realEstate.id = :realEstateId " +
+		"AND it.agent.id = :agentId " +
 		"AND (it.name LIKE %:keyword% OR it.description LIKE %:keyword%)")
-	Page<InquiryTemplate> findAllByRealEstateIdAndKeyword(@Param("realEstateId") Long realEstateId,
+	Page<InquiryTemplate> findAllByAgentIdAndKeyword(@Param("agentId") Long agentId,
 		@Param("keyword") String keyword,
 		Pageable pageable);
 
-	// 🔄 existsByRealEstateIdAndName
 	@Query("SELECT CASE WHEN COUNT(it) > 0 THEN true ELSE false END " +
 		"FROM InquiryTemplate it " +
-		"WHERE it.realEstate.id = :realEstateId " +
+		"WHERE it.agent.id = :agentId " +
 		"AND it.name = :name " +
 		"AND it.deletedAt IS NULL")
-	boolean existsByRealEstateIdAndName(@Param("realEstateId") Long realEstateId, @Param("name") String name);
+	boolean existsByAgentIdAndName(@Param("agentId") Long agentId, @Param("name") String name);
 }

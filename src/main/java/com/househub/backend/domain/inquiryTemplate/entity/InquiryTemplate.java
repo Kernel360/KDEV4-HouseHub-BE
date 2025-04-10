@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.househub.backend.domain.agent.entity.RealEstate;
+import com.househub.backend.domain.agent.entity.Agent;
 import com.househub.backend.domain.inquiryTemplate.dto.CreateInquiryTemplateReqDto;
 import com.househub.backend.domain.inquiryTemplate.dto.UpdateInquiryTemplateReqDto;
 
@@ -31,7 +31,7 @@ import lombok.NoArgsConstructor;
 @Table(
 	name = "inquiry_templates",
 	uniqueConstraints = {
-		@UniqueConstraint(columnNames = {"real_estate_id", "name"})
+		@UniqueConstraint(columnNames = {"agent_id", "name"})
 	}
 )
 @Getter
@@ -44,8 +44,8 @@ public class InquiryTemplate {
 	private Long id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "real_estate_id", nullable = false)
-	private RealEstate realEstate;
+	@JoinColumn(name = "agent_id", nullable = false)
+	private Agent agent;
 
 	@Column(nullable = false)
 	private String name;
@@ -86,9 +86,9 @@ public class InquiryTemplate {
 		this.active = active;
 	}
 
-	public static InquiryTemplate fromDto(CreateInquiryTemplateReqDto reqDto, RealEstate realEstate) {
+	public static InquiryTemplate fromDto(CreateInquiryTemplateReqDto reqDto, Agent agent) {
 		return InquiryTemplate.builder()
-			.realEstate(realEstate)
+			.agent(agent)
 			.name(reqDto.getName())
 			.description(reqDto.getDescription())
 			.active(reqDto.getActive())

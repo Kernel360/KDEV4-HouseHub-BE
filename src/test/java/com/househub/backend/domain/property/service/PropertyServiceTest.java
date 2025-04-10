@@ -29,7 +29,7 @@ import com.househub.backend.domain.customer.entity.Customer;
 import com.househub.backend.domain.customer.repository.CustomerRepository;
 import com.househub.backend.domain.property.dto.CreatePropertyResDto;
 import com.househub.backend.domain.property.dto.FindPropertyDetailResDto;
-import com.househub.backend.domain.property.dto.FindPropertyResDto;
+import com.househub.backend.domain.property.dto.PropertyListResDto;
 import com.househub.backend.domain.property.dto.PropertyReqDto;
 import com.househub.backend.domain.property.dto.PropertySearchDto;
 import com.househub.backend.domain.property.entity.Property;
@@ -140,9 +140,9 @@ public class PropertyServiceTest {
 
 		when(propertyRepository.searchProperties(any(), any(), any(), any(), any(), any(), any())).thenReturn(page);
 
-		List<FindPropertyResDto> response = propertyService.findProperties(searchDto, pageable);
+		PropertyListResDto response = propertyService.findProperties(searchDto, pageable);
 
-		assertFalse(response.isEmpty());
+		assertFalse(response.getContent().isEmpty());
 	}
 
 	@Test
@@ -154,8 +154,8 @@ public class PropertyServiceTest {
 			.jibunAddress("서울특별시 강남구 삼성동 123-45")
 			.detailAddress("101동 302호")
 			.build();
-		when(propertyRepository.existsByRoadAddressAndDetailAddress(updateDto.getRoadAddress(),
-			updateDto.getDetailAddress())).thenReturn(false);
+		// when(propertyRepository.existsByRoadAddressAndDetailAddress(updateDto.getRoadAddress(),
+		// 	updateDto.getDetailAddress())).thenReturn(false);
 		when(customerRepository.findById(1L)).thenReturn(Optional.of(customer));
 		when(propertyRepository.findById(1L)).thenReturn(Optional.of(property));
 
