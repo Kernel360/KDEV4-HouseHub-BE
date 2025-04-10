@@ -6,6 +6,8 @@ import lombok.Getter;
 
 @Getter
 public enum ErrorCode {
+	CONTRACT_PROPERTY_CUSTOMER_SAME(HttpStatus.BAD_REQUEST, "CONTRACT_PROPERTY_CUSTOMER_SAME", "매물 등록자와 계약 고객이 동일합니다."),
+
 	AUTH_CODE_MISMATCH(HttpStatus.BAD_REQUEST, "AUTH_CODE_MISMATCH", "인증번호가 일치하지 않습니다."),
 	AUTH_CODE_EXPIRED(HttpStatus.BAD_REQUEST, "AUTH_CODE_EXPIRED", "인증번호가 만료되었습니다."),
 
