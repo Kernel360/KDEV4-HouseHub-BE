@@ -18,16 +18,18 @@ public class InquiryTemplateResDto {
 	private List<InquiryQuestionResDto> questions;
 	@JsonProperty("isActive")
 	private Boolean active;
+	private String shareToken;
 	private LocalDateTime createdAt;
 	private LocalDateTime updatedAt;
 
-	public static InquiryTemplateResDto fromEntity(InquiryTemplate entity) {
+	public static InquiryTemplateResDto fromEntity(InquiryTemplate entity, String shareToken) {
 		return InquiryTemplateResDto.builder()
 			.id(entity.getId())
 			.name(entity.getName())
 			.description(entity.getDescription())
 			.questions(InquiryQuestionResDto.fromEntities(entity.getQuestions()))
 			.active(entity.getActive())
+			.shareToken(shareToken)
 			.createdAt(entity.getCreatedAt())
 			.updatedAt(entity.getUpdatedAt())
 			.build();
