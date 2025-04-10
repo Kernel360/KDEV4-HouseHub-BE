@@ -20,4 +20,5 @@ public class PropertySearchDto {
     private PropertyType propertyType;  // 매물 유형 (아파트, 오피스텔 등)
     private String agentName;     // 공인중개사 이름
     private String customerName;  // 고객 이름
+    private Boolean active;         // 매물 활성화 여부
 }

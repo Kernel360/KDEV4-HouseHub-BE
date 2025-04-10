@@ -33,7 +33,7 @@ public interface PropertyRepository extends JpaRepository<Property, Long> {
 	// 주소와 상세주소를 결합한 값으로 중복 체크
 	boolean existsByRoadAddressAndDetailAddress(String roadAddress, String detailAddress);
 
-	// 검색 필터링 (주소, 유형, 고객 이름, 공인중개사 이름)
+	// 검색 필터링 (주소, 유형, 고객 이름, 공인중개사 이름, 활성화 여부)
 	@Query("SELECT p FROM Property p " +
 		"JOIN p.agent a " +
 		"JOIN p.customer c " +
@@ -42,7 +42,9 @@ public interface PropertyRepository extends JpaRepository<Property, Long> {
 		"AND (:dong IS NULL OR p.dong = :dong) " +
 		"AND (:propertyType IS NULL OR p.propertyType = :propertyType) " +
 		"AND (:agentName IS NULL OR a.name LIKE CONCAT('%', :agentName, '%')) " +
-		"AND (:customerName IS NULL OR c.name LIKE CONCAT('%', :customerName, '%'))")
+		"AND (:customerName IS NULL OR c.name LIKE CONCAT('%', :customerName, '%'))" +
+		"AND (:active IS NULL OR p.active = :active) ")
+		// "AND (:customerName IS NULL OR c.name LIKE CONCAT('%', :customerName, '%'))")
 	Page<Property> searchProperties(
 		@Param("province") String province,
 		@Param("city") String city,
@@ -50,6 +52,7 @@ public interface PropertyRepository extends JpaRepository<Property, Long> {
 		@Param("propertyType") PropertyType propertyType,
 		@Param("agentName") String agentName,
 		@Param("customerName") String customerName,
+		@Param("active") Boolean active,
 		Pageable pageable
 	);
 
