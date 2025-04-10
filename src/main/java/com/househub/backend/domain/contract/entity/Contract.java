@@ -80,11 +80,7 @@ public class Contract {
 	private LocalDateTime deletedAt; // 삭제일시 (소프트 삭제)
 
 	@Column(nullable = true)
-<<<<<<< HEAD
 	private LocalDate completedAt; // 계약 완료일시
-=======
-	private LocalDateTime completedAt; // 계약 완료일시
->>>>>>> ab352c4 (byungchan, feature: 월별 계약 현황 차트 데이터 조회 API 구현 #101)
 
 	@PrePersist
 	protected void onCreate() {
@@ -99,12 +95,14 @@ public class Contract {
 
 	// 수정 메서드 (setter 대신 사용)
 	public void updateContract(ContractReqDto updateDto) {
-<<<<<<< HEAD
 		if (updateDto.getContractStatus() == ContractStatus.COMPLETED)
 			this.completedAt = updateDto.getCompletedAt();
-		else this.completedAt = null; // 거래 완료 상태가 아닌 경우에는 null 로 설정
-=======
->>>>>>> ab352c4 (byungchan, feature: 월별 계약 현황 차트 데이터 조회 API 구현 #101)
+		else
+			this.completedAt = null; // 거래 완료 상태가 아닌 경우에는 null 로 설정
+		if (updateDto.getContractStatus() == ContractStatus.COMPLETED)
+			this.completedAt = updateDto.getCompletedAt();
+		else
+			this.completedAt = null; // 거래 완료 상태가 아닌 경우에는 null 로 설정
 		if (updateDto.getContractType() != null)
 			this.contractType = updateDto.getContractType();
 		if (updateDto.getContractStatus() != null)
@@ -120,11 +118,6 @@ public class Contract {
 		if (updateDto.getMonthlyRentFee() != null)
 			this.monthlyRentFee = updateDto.getMonthlyRentFee();
 		this.updatedAt = LocalDateTime.now();
-<<<<<<< HEAD
-=======
-		if (updateDto.getContractStatus() == ContractStatus.COMPLETED)
-			this.completedAt = LocalDateTime.now();
->>>>>>> ab352c4 (byungchan, feature: 월별 계약 현황 차트 데이터 조회 API 구현 #101)
 	}
 
 	// 삭제 메서드
