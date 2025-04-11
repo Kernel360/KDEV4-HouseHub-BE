@@ -51,12 +51,12 @@ public class ContractServiceImpl implements ContractService {
 		isSameCustomerAndProperty(customer, property);
 		// 같은 고객과 매물에 대한 완료되지 않은 계약이 있는지 확인
 		// 완료되지 않은 계약이 있으면 예외
-		existsByContractAndProperty(customer, property);
+		existsByContractAndProperty(customer, property, dto.getContractStatus());
 		// dto → entity 변환 후 저장
 		Agent agent = findAgentById(agentId);
 		Contract contract = dto.toEntity(property, customer, agent);
-		updatePropertyActiveStatus(property);
 		contract = contractRepository.save(contract);
+		updatePropertyActiveStatus(property); // db 저장 후 호출
 		// 응답 객체 리턴
 		return CreateContractResDto.toDto(contract.getId());
 	}
@@ -133,8 +133,8 @@ public class ContractServiceImpl implements ContractService {
 	@Override
 	public void deleteContract(Long id) {
 		Contract contract = findContractById(id);
-		updatePropertyActiveStatus(contract.getProperty());
 		contract.deleteContract();
+		updatePropertyActiveStatus(contract.getProperty());
 	}
 
 	/**
@@ -181,12 +181,16 @@ public class ContractServiceImpl implements ContractService {
 	 * @param customer 계약을 하는 고객
 	 * @param property 계약하는 매물
 	 */
-	public void existsByContractAndProperty(Customer customer, Property property) {
-		boolean isExist = contractRepository.existsByCustomerAndPropertyAndStatusNot(customer, property,
-			ContractStatus.COMPLETED);
-		if (isExist) {
-			throw new AlreadyExistsException("해당 고객은 본 매물에 대해 진행중인 계약이 존재합니다.",
-				"CONTRACT_ALREADY_EXISTS");
+	public void existsByContractAndProperty(Customer customer, Property property, ContractStatus status) {
+		// 등록하려는 계약 상태가 완료나 취소인 경우, 계약 가능
+		// 등록하려는 계약 상태가 진행중인 경우, 다른 진행중인 계약이 있는지 확인
+		if(status == ContractStatus.IN_PROGRESS) {
+			boolean isExist = contractRepository.existsByCustomerAndPropertyAndStatusNot(customer, property,
+				ContractStatus.COMPLETED);
+			if (isExist) {
+				throw new AlreadyExistsException("해당 고객은 본 매물에 대해 진행중인 계약이 존재합니다.",
+					"CONTRACT_ALREADY_EXISTS");
+			}
 		}
 	}
 
@@ -217,9 +221,11 @@ public class ContractServiceImpl implements ContractService {
 	 * @param property 매물 엔티티
 	 */
 	public void updatePropertyActiveStatus(Property property) {
-		List<Contract> contracts = property.getContracts();
+		List<Contract> contracts = property.getContracts().stream()
+			.filter(contract -> contract.getDeletedAt() == null) // 삭제되지 않은 계약만 필터링
+			.toList();
 
-		// 1. 진행중인 계약이 하나라도 있으면 비활성화
+		// 1. 삭제되지 않은 계약 중에서 진행중인 계약이 하나라도 있으면 비활성화
 		boolean hasInProgress = contracts.stream()
 			.anyMatch(contract -> contract.getStatus() != ContractStatus.COMPLETED);
 
