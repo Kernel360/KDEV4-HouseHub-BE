@@ -65,6 +65,7 @@ public class Property {
     private String dong; // 읍/면/동
     private String detailAddress; // 상세 주소
     private String roadAddress; // 전체 도로명 주소
+    private String jibunAddress; // 지번 주소
 
     @Column(nullable = false)
     private Boolean active; // 매물이 계약 가능한지 여부 default : true (계약이 없는 경우 true)
