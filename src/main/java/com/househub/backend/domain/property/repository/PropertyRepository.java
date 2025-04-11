@@ -29,7 +29,8 @@ public interface PropertyRepository extends JpaRepository<Property, Long> {
 		"AND (:propertyType IS NULL OR p.propertyType = :propertyType) " +
 		"AND (:agentName IS NULL OR a.name LIKE CONCAT('%', :agentName, '%')) " +
 		"AND (:customerName IS NULL OR c.name LIKE CONCAT('%', :customerName, '%'))" +
-		"AND (:active IS NULL OR p.active = :active) ")
+		"AND (:active IS NULL OR p.active = :active) " +
+		"ORDER BY c.createdAt DESC")
 	// "AND (:customerName IS NULL OR c.name LIKE CONCAT('%', :customerName, '%'))")
 	Page<Property> searchProperties(
 		@Param("agentId") Long agentId,
