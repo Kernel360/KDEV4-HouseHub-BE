@@ -85,8 +85,10 @@ public class WebSecurityConfig {
 				.clearAuthentication(true)
 			)
 			.sessionManagement((sessionManagement) ->
-				// 세션 기반 인증 사용
-				sessionManagement.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED).maximumSessions(1)
+					// 세션 기반 인증 사용
+					sessionManagement
+						.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+				// .maximumSessions(1)
 			);
 		return http.build();
 	}
