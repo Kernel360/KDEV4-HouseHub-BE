@@ -1,4 +1,4 @@
-package com.househub.backend.domain.customer.infrastructure.impl;
+package com.househub.backend.domain.customer.service.Impl;
 
 import java.util.List;
 
@@ -10,13 +10,13 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.househub.backend.domain.agent.dto.AgentResDto;
 import com.househub.backend.domain.agent.entity.Agent;
-import com.househub.backend.domain.customer.domain.entity.Customer;
-import com.househub.backend.domain.customer.domain.service.CustomerReader;
-import com.househub.backend.domain.customer.domain.service.CustomerService;
-import com.househub.backend.domain.customer.domain.service.CustomerStore;
-import com.househub.backend.domain.customer.interfaces.dto.CreateCustomerReqDto;
-import com.househub.backend.domain.customer.interfaces.dto.CreateCustomerResDto;
-import com.househub.backend.domain.customer.interfaces.dto.CustomerListResDto;
+import com.househub.backend.domain.customer.dto.CreateCustomerReqDto;
+import com.househub.backend.domain.customer.dto.CreateCustomerResDto;
+import com.househub.backend.domain.customer.dto.CustomerListResDto;
+import com.househub.backend.domain.customer.entity.Customer;
+import com.househub.backend.domain.customer.service.CustomerReader;
+import com.househub.backend.domain.customer.service.CustomerService;
+import com.househub.backend.domain.customer.service.CustomerStore;
 
 import lombok.RequiredArgsConstructor;
 

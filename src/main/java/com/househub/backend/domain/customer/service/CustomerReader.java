@@ -1,9 +1,9 @@
-package com.househub.backend.domain.customer.domain.service;
+package com.househub.backend.domain.customer.service;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import com.househub.backend.domain.customer.domain.entity.Customer;
+import com.househub.backend.domain.customer.entity.Customer;
 
 public interface CustomerReader {
 	public Customer getCustomerById(Long id, Long agentId);

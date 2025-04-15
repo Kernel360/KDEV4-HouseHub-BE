@@ -22,13 +22,11 @@ import org.springframework.web.multipart.MultipartFile;
 import com.househub.backend.common.enums.Gender;
 import com.househub.backend.domain.agent.dto.AgentResDto;
 import com.househub.backend.domain.agent.entity.Agent;
-import com.househub.backend.domain.customer.domain.entity.Customer;
-import com.househub.backend.domain.customer.domain.service.CustomerReader;
-import com.househub.backend.domain.customer.domain.service.CustomerStore;
-import com.househub.backend.domain.customer.infrastructure.impl.CustomerServiceImpl;
-import com.househub.backend.domain.customer.interfaces.dto.CreateCustomerReqDto;
-import com.househub.backend.domain.customer.interfaces.dto.CreateCustomerResDto;
-import com.househub.backend.domain.customer.interfaces.dto.CustomerListResDto;
+import com.househub.backend.domain.customer.dto.CreateCustomerReqDto;
+import com.househub.backend.domain.customer.dto.CreateCustomerResDto;
+import com.househub.backend.domain.customer.dto.CustomerListResDto;
+import com.househub.backend.domain.customer.entity.Customer;
+import com.househub.backend.domain.customer.service.Impl.CustomerServiceImpl;
 
 @ExtendWith(MockitoExtension.class)
 class CustomerServiceImplTest {

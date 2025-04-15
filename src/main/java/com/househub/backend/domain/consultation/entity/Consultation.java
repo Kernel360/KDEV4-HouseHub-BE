@@ -6,7 +6,7 @@ import com.househub.backend.domain.agent.entity.Agent;
 import com.househub.backend.domain.consultation.dto.ConsultationReqDto;
 import com.househub.backend.domain.consultation.enums.ConsultationStatus;
 import com.househub.backend.domain.consultation.enums.ConsultationType;
-import com.househub.backend.domain.customer.domain.entity.Customer;
+import com.househub.backend.domain.customer.entity.Customer;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

@@ -1,4 +1,4 @@
-package com.househub.backend.domain.customer.domain.repository;
+package com.househub.backend.domain.customer.repository;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -10,7 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import com.househub.backend.domain.customer.domain.entity.Customer;
+import com.househub.backend.domain.customer.entity.Customer;
 
 @Repository
 public interface CustomerRepository extends JpaRepository<Customer, Long> {

@@ -1,4 +1,4 @@
-package com.househub.backend.domain.customer.interfaces.dto;
+package com.househub.backend.domain.customer.dto;
 
 import java.util.List;
 

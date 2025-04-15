@@ -1,11 +1,11 @@
-package com.househub.backend.domain.customer.domain.entity;
+package com.househub.backend.domain.customer.entity;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
 
 import com.househub.backend.common.enums.Gender;
 import com.househub.backend.domain.agent.entity.Agent;
-import com.househub.backend.domain.customer.interfaces.dto.CreateCustomerReqDto;
+import com.househub.backend.domain.customer.dto.CreateCustomerReqDto;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -77,8 +77,8 @@ public class Customer {
 	}
 
 	public void update(CreateCustomerReqDto reqDto) {
-		Optional.ofNullable(reqDto.getName()).ifPresent(name -> this.name = name);
-		Optional.ofNullable(reqDto.getEmail()).ifPresent(email -> this.email = email);
+		this.name = reqDto.getName();
+		this.email = reqDto.getEmail();
 		Optional.ofNullable(reqDto.getContact()).ifPresent(contact -> this.contact = contact);
 		this.ageGroup = reqDto.getAgeGroup(); // null 허용
 		this.gender = reqDto.getGender(); // null 허용

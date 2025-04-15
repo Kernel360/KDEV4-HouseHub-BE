@@ -1,8 +1,8 @@
-package com.househub.backend.domain.customer.interfaces.dto;
+package com.househub.backend.domain.customer.dto;
 
 import com.househub.backend.common.enums.Gender;
 import com.househub.backend.domain.agent.entity.Agent;
-import com.househub.backend.domain.customer.domain.entity.Customer;
+import com.househub.backend.domain.customer.entity.Customer;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;

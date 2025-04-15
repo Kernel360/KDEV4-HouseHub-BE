@@ -1,4 +1,4 @@
-package com.househub.backend.domain.customer.interfaces.controller;
+package com.househub.backend.domain.customer.controller;
 
 import java.util.List;
 
@@ -23,10 +23,10 @@ import org.springframework.web.multipart.MultipartFile;
 import com.househub.backend.common.response.SuccessResponse;
 import com.househub.backend.common.util.SecurityUtil;
 import com.househub.backend.domain.agent.dto.AgentResDto;
-import com.househub.backend.domain.customer.domain.service.CustomerService;
-import com.househub.backend.domain.customer.interfaces.dto.CreateCustomerReqDto;
-import com.househub.backend.domain.customer.interfaces.dto.CreateCustomerResDto;
-import com.househub.backend.domain.customer.interfaces.dto.CustomerListResDto;
+import com.househub.backend.domain.customer.dto.CreateCustomerReqDto;
+import com.househub.backend.domain.customer.dto.CreateCustomerResDto;
+import com.househub.backend.domain.customer.dto.CustomerListResDto;
+import com.househub.backend.domain.customer.service.CustomerService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

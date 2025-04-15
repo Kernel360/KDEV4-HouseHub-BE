@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.househub.backend.domain.customer.domain.entity.Customer;
+import com.househub.backend.domain.customer.entity.Customer;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;

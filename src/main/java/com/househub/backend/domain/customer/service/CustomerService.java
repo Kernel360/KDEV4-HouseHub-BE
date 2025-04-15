@@ -1,4 +1,4 @@
-package com.househub.backend.domain.customer.domain.service;
+package com.househub.backend.domain.customer.service;
 
 import java.util.List;
 
@@ -6,9 +6,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.househub.backend.domain.agent.dto.AgentResDto;
-import com.househub.backend.domain.customer.interfaces.dto.CreateCustomerReqDto;
-import com.househub.backend.domain.customer.interfaces.dto.CreateCustomerResDto;
-import com.househub.backend.domain.customer.interfaces.dto.CustomerListResDto;
+import com.househub.backend.domain.customer.dto.CreateCustomerReqDto;
+import com.househub.backend.domain.customer.dto.CreateCustomerResDto;
+import com.househub.backend.domain.customer.dto.CustomerListResDto;
 
 public interface CustomerService {
     // Command : 명령 요청

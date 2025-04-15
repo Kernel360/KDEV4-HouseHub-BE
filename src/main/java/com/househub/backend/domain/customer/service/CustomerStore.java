@@ -1,12 +1,12 @@
-package com.househub.backend.domain.customer.domain.service;
+package com.househub.backend.domain.customer.service;
 
 import java.util.List;
 
 import org.springframework.web.multipart.MultipartFile;
 
 import com.househub.backend.domain.agent.entity.Agent;
-import com.househub.backend.domain.customer.domain.entity.Customer;
-import com.househub.backend.domain.customer.interfaces.dto.CreateCustomerReqDto;
+import com.househub.backend.domain.customer.dto.CreateCustomerReqDto;
+import com.househub.backend.domain.customer.entity.Customer;
 
 public interface CustomerStore {
 	Customer createCustomer(CreateCustomerReqDto initCustomer, Agent agent);

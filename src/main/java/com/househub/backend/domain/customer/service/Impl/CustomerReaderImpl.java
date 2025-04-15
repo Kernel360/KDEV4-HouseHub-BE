@@ -1,4 +1,4 @@
-package com.househub.backend.domain.customer.infrastructure.impl;
+package com.househub.backend.domain.customer.service.Impl;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -6,9 +6,9 @@ import org.springframework.stereotype.Component;
 
 import com.househub.backend.common.exception.AlreadyExistsException;
 import com.househub.backend.common.exception.ResourceNotFoundException;
-import com.househub.backend.domain.customer.domain.entity.Customer;
-import com.househub.backend.domain.customer.domain.repository.CustomerRepository;
-import com.househub.backend.domain.customer.domain.service.CustomerReader;
+import com.househub.backend.domain.customer.entity.Customer;
+import com.househub.backend.domain.customer.repository.CustomerRepository;
+import com.househub.backend.domain.customer.service.CustomerReader;
 
 import lombok.RequiredArgsConstructor;
 

@@ -1,4 +1,4 @@
-package com.househub.backend.domain.customer.infrastructure.impl;
+package com.househub.backend.domain.customer.service.Impl;
 
 import java.util.List;
 
@@ -12,11 +12,11 @@ import com.househub.backend.common.exception.ResourceNotFoundException;
 import com.househub.backend.common.response.ErrorResponse;
 import com.househub.backend.common.validation.ExcelValidator;
 import com.househub.backend.domain.agent.entity.Agent;
-import com.househub.backend.domain.customer.domain.entity.Customer;
-import com.househub.backend.domain.customer.domain.repository.CustomerRepository;
-import com.househub.backend.domain.customer.domain.service.CustomerReader;
-import com.househub.backend.domain.customer.domain.service.CustomerStore;
-import com.househub.backend.domain.customer.interfaces.dto.CreateCustomerReqDto;
+import com.househub.backend.domain.customer.dto.CreateCustomerReqDto;
+import com.househub.backend.domain.customer.entity.Customer;
+import com.househub.backend.domain.customer.repository.CustomerRepository;
+import com.househub.backend.domain.customer.service.CustomerReader;
+import com.househub.backend.domain.customer.service.CustomerStore;
 import com.househub.backend.domain.customer.util.ExcelParserUtils;
 
 import lombok.RequiredArgsConstructor;

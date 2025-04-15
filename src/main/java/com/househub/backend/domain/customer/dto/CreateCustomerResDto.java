@@ -1,9 +1,9 @@
-package com.househub.backend.domain.customer.interfaces.dto;
+package com.househub.backend.domain.customer.dto;
 
 import java.time.LocalDateTime;
 
 import com.househub.backend.common.enums.Gender;
-import com.househub.backend.domain.customer.domain.entity.Customer;
+import com.househub.backend.domain.customer.entity.Customer;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

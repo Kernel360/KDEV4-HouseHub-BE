@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 import com.househub.backend.domain.contract.entity.Contract;
 import com.househub.backend.domain.contract.enums.ContractStatus;
 import com.househub.backend.domain.contract.repository.ContractRepository;
-import com.househub.backend.domain.customer.domain.repository.CustomerRepository;
+import com.househub.backend.domain.customer.repository.CustomerRepository;
 import com.househub.backend.domain.dashboard.dto.ChartDataResDto;
 import com.househub.backend.domain.dashboard.dto.DashboardStatsResDto;
 import com.househub.backend.domain.dashboard.dto.MultiDatasetChartResDto;

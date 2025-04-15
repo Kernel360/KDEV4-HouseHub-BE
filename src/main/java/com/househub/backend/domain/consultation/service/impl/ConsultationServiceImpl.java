@@ -19,8 +19,8 @@ import com.househub.backend.domain.consultation.enums.ConsultationStatus;
 import com.househub.backend.domain.consultation.enums.ConsultationType;
 import com.househub.backend.domain.consultation.repository.ConsultationRepository;
 import com.househub.backend.domain.consultation.service.ConsultationService;
-import com.househub.backend.domain.customer.domain.entity.Customer;
-import com.househub.backend.domain.customer.domain.repository.CustomerRepository;
+import com.househub.backend.domain.customer.entity.Customer;
+import com.househub.backend.domain.customer.repository.CustomerRepository;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;

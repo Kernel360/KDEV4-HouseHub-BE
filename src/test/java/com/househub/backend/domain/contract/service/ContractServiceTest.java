@@ -36,8 +36,8 @@ import com.househub.backend.domain.contract.enums.ContractStatus;
 import com.househub.backend.domain.contract.enums.ContractType;
 import com.househub.backend.domain.contract.repository.ContractRepository;
 import com.househub.backend.domain.contract.service.impl.ContractServiceImpl;
-import com.househub.backend.domain.customer.domain.entity.Customer;
-import com.househub.backend.domain.customer.domain.repository.CustomerRepository;
+import com.househub.backend.domain.customer.entity.Customer;
+import com.househub.backend.domain.customer.repository.CustomerRepository;
 import com.househub.backend.domain.property.entity.Property;
 import com.househub.backend.domain.property.repository.PropertyRepository;
 
