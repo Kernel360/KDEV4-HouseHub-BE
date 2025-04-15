@@ -6,6 +6,7 @@ import java.util.Optional;
 import com.househub.backend.common.enums.Gender;
 import com.househub.backend.domain.agent.entity.Agent;
 import com.househub.backend.domain.customer.dto.CreateCustomerReqDto;
+import com.househub.backend.domain.customer.enums.CustomerStatus;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -37,7 +38,7 @@ public class Customer {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@Column(nullable = false, length = 50)
+	@Column(nullable = true, length = 50)
 	private String name;
 
 	@Column(nullable = true)
@@ -46,7 +47,7 @@ public class Customer {
 	@Column(nullable = false, unique = true)
 	private String contact;
 
-	@Column(nullable = false, unique = true)
+	@Column(nullable = true, unique = true)
 	private String email;
 
 	@Column(columnDefinition = "TEXT")
@@ -62,6 +63,8 @@ public class Customer {
 	private LocalDateTime updatedAt;
 
 	private LocalDateTime deletedAt;
+
+	private CustomerStatus status;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "agent_id", nullable = false)
