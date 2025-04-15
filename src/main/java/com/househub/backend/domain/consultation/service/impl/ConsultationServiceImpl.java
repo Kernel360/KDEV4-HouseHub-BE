@@ -1,16 +1,22 @@
 package com.househub.backend.domain.consultation.service.impl;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.househub.backend.common.exception.ResourceNotFoundException;
 import com.househub.backend.domain.agent.entity.Agent;
 import com.househub.backend.domain.agent.repository.AgentRepository;
+import com.househub.backend.domain.consultation.dto.ConsultationListResDto;
 import com.househub.backend.domain.consultation.dto.ConsultationReqDto;
 import com.househub.backend.domain.consultation.dto.ConsultationResDto;
 import com.househub.backend.domain.consultation.entity.Consultation;
+import com.househub.backend.domain.consultation.enums.ConsultationStatus;
+import com.househub.backend.domain.consultation.enums.ConsultationType;
 import com.househub.backend.domain.consultation.repository.ConsultationRepository;
 import com.househub.backend.domain.consultation.service.ConsultationService;
 import com.househub.backend.domain.customer.entity.Customer;
@@ -51,16 +57,33 @@ public class ConsultationServiceImpl implements ConsultationService {
 		return ConsultationResDto.fromEntity(consultation);
 	}
 
-	public List<ConsultationResDto> findAll(Long agentId) {
+	@Transactional
+	@Override
+	public ConsultationListResDto findAll(
+		Long agentId,
+		String keyword,
+		LocalDate startDate,
+		LocalDate endDate,
+		ConsultationType type,
+		ConsultationStatus status,
+		Pageable pageable
+	) {
 		Agent agent = validateAgent(agentId);
 
-		List<Consultation> consultations = consultationRepository.findAllByAgentAndDeletedAtIsNull(agent);
+		LocalDateTime startDateTime = startDate != null ? startDate.atStartOfDay() : null;
+		LocalDateTime endDateTime = endDate != null ? endDate.atTime(LocalTime.MAX) : null;
 
-		if (consultations.isEmpty()) {
-			throw new ResourceNotFoundException("상담 내역이 존재하지 않습니다:", "CONSULTATION_NOT_FOUND");
-		}
+		Page<ConsultationResDto> consultations = consultationRepository.searchConsultations(
+			agentId,
+			keyword,
+			startDateTime,
+			endDateTime,
+			type,
+			status,
+			pageable
+		).map(ConsultationResDto::fromEntity);
 
-		return consultations.stream().map(ConsultationResDto::fromEntity).collect(Collectors.toList());
+		return ConsultationListResDto.fromPage(consultations);
 	}
 
 	@Transactional
