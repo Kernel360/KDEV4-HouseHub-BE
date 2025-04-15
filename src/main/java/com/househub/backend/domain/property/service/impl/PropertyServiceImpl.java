@@ -1,26 +1,29 @@
 package com.househub.backend.domain.property.service.impl;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.househub.backend.common.exception.AlreadyExistsException;
 import com.househub.backend.common.exception.ResourceNotFoundException;
 import com.househub.backend.domain.agent.entity.Agent;
 import com.househub.backend.domain.agent.entity.AgentStatus;
 import com.househub.backend.domain.agent.repository.AgentRepository;
 import com.househub.backend.domain.contract.entity.Contract;
-import com.househub.backend.domain.customer.entity.Customer;
-import com.househub.backend.domain.customer.repository.CustomerRepository;
-import com.househub.backend.domain.property.dto.*;
+import com.househub.backend.domain.customer.domain.entity.Customer;
+import com.househub.backend.domain.customer.domain.repository.CustomerRepository;
+import com.househub.backend.domain.property.dto.CreatePropertyResDto;
+import com.househub.backend.domain.property.dto.FindPropertyDetailResDto;
+import com.househub.backend.domain.property.dto.FindPropertyResDto;
+import com.househub.backend.domain.property.dto.PropertyListResDto;
+import com.househub.backend.domain.property.dto.PropertyReqDto;
+import com.househub.backend.domain.property.dto.PropertySearchDto;
 import com.househub.backend.domain.property.entity.Property;
 import com.househub.backend.domain.property.repository.PropertyRepository;
 import com.househub.backend.domain.property.service.PropertyService;
 
 import lombok.RequiredArgsConstructor;
-
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor

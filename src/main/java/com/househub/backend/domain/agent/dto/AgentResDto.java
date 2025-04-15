@@ -1,13 +1,14 @@
 package com.househub.backend.domain.agent.dto;
 
+import java.io.Serializable;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.househub.backend.domain.agent.entity.Agent;
 import com.househub.backend.domain.agent.entity.AgentStatus;
 import com.househub.backend.domain.agent.entity.Role;
+
 import lombok.Builder;
 import lombok.Getter;
-
-import java.io.Serializable;
 
 @Getter
 @Builder
@@ -29,5 +30,16 @@ public class AgentResDto implements Serializable {
                 .role(agent.getRole())
                 .status(agent.getStatus())
                 .build();
+    }
+
+    public Agent toEntity() {
+        return Agent.builder()
+            .id(this.getId())
+            .email(this.getEmail())
+            .password(this.getPassword())
+            .name(this.getName())
+            .role(this.getRole())
+            .status(this.getStatus())
+            .build();
     }
 }

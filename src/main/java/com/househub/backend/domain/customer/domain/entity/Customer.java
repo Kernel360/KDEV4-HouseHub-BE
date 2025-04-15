@@ -1,11 +1,11 @@
-package com.househub.backend.domain.customer.entity;
+package com.househub.backend.domain.customer.domain.entity;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
 
 import com.househub.backend.common.enums.Gender;
 import com.househub.backend.domain.agent.entity.Agent;
-import com.househub.backend.domain.customer.dto.CreateCustomerReqDto;
+import com.househub.backend.domain.customer.interfaces.dto.CreateCustomerReqDto;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -37,23 +37,21 @@ public class Customer {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@Column(nullable = false, length = 50)
+	@Column(length = 50)
 	private String name;
 
-	@Column(nullable = true)
 	private Integer ageGroup;
 
 	@Column(nullable = false, unique = true)
 	private String contact;
 
-	@Column(nullable = false, unique = true)
+	@Column(unique = true)
 	private String email;
 
 	@Column(columnDefinition = "TEXT")
 	private String memo;
 
 	@Enumerated(EnumType.STRING)
-	@Column(nullable = true)
 	private Gender gender;
 
 	@Column(nullable = false, updatable = false)

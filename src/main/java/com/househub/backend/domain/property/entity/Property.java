@@ -8,7 +8,7 @@ import org.hibernate.annotations.SQLRestriction;
 
 import com.househub.backend.domain.agent.entity.Agent;
 import com.househub.backend.domain.contract.entity.Contract;
-import com.househub.backend.domain.customer.entity.Customer;
+import com.househub.backend.domain.customer.domain.entity.Customer;
 import com.househub.backend.domain.property.dto.PropertyReqDto;
 import com.househub.backend.domain.property.enums.PropertyType;
 

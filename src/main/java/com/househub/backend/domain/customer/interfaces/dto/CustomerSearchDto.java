@@ -1,4 +1,4 @@
-package com.househub.backend.domain.customer.dto;
+package com.househub.backend.domain.customer.interfaces.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

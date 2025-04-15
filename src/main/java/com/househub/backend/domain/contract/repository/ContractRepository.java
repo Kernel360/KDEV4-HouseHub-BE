@@ -13,7 +13,7 @@ import org.springframework.stereotype.Repository;
 import com.househub.backend.domain.contract.entity.Contract;
 import com.househub.backend.domain.contract.enums.ContractStatus;
 import com.househub.backend.domain.contract.enums.ContractType;
-import com.househub.backend.domain.customer.entity.Customer;
+import com.househub.backend.domain.customer.domain.entity.Customer;
 import com.househub.backend.domain.property.entity.Property;
 
 @Repository

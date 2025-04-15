@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 import com.househub.backend.domain.consultation.entity.Consultation;
 import com.househub.backend.domain.consultation.enums.ConsultationStatus;
 import com.househub.backend.domain.consultation.enums.ConsultationType;
-import com.househub.backend.domain.customer.entity.Customer;
+import com.househub.backend.domain.customer.domain.entity.Customer;
 
 import lombok.Builder;
 import lombok.Getter;

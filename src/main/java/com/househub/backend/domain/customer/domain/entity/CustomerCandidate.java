@@ -1,4 +1,4 @@
-package com.househub.backend.domain.customer.entity;
+package com.househub.backend.domain.customer.domain.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

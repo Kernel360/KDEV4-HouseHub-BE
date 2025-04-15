@@ -1,16 +1,21 @@
 package com.househub.backend.domain.contract.dto;
 
+import java.time.LocalDate;
+
 import com.househub.backend.domain.agent.entity.Agent;
 import com.househub.backend.domain.contract.entity.Contract;
 import com.househub.backend.domain.contract.enums.ContractStatus;
 import com.househub.backend.domain.contract.enums.ContractType;
-import com.househub.backend.domain.customer.entity.Customer;
+import com.househub.backend.domain.customer.domain.entity.Customer;
 import com.househub.backend.domain.property.entity.Property;
+
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotNull;
-import lombok.*;
-
-import java.time.LocalDate;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Setter
 @Getter

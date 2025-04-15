@@ -19,8 +19,8 @@ import com.househub.backend.domain.consultation.enums.ConsultationStatus;
 import com.househub.backend.domain.consultation.enums.ConsultationType;
 import com.househub.backend.domain.consultation.repository.ConsultationRepository;
 import com.househub.backend.domain.consultation.service.ConsultationService;
-import com.househub.backend.domain.customer.entity.Customer;
-import com.househub.backend.domain.customer.repository.CustomerRepository;
+import com.househub.backend.domain.customer.domain.entity.Customer;
+import com.househub.backend.domain.customer.domain.repository.CustomerRepository;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -42,7 +42,7 @@ public class ConsultationServiceImpl implements ConsultationService {
 	) {
 		Agent agent = validateAgent(agentId);
 		Long customerId = consultationReqDto.getCustomerId();
-		Customer customer = customerRepository.findByIdAndAgentAndDeletedAtIsNull(customerId, agent)
+		Customer customer = customerRepository.findByIdAndAgentIdAndDeletedAtIsNull(customerId, agent.getId())
 			.orElseThrow(() -> new ResourceNotFoundException("해당하는 고객이 없습니다.", "CUSTOMER_NOT_FOUND"));
 		Consultation consultation = consultationReqDto.toEntity(agent, customer);
 		return ConsultationResDto.fromEntity(consultationRepository.save(consultation));
