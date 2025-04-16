@@ -1,15 +1,13 @@
 package com.househub.backend.domain.property.entity;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
 import org.hibernate.annotations.SQLRestriction;
 
 import com.househub.backend.domain.agent.entity.Agent;
-import com.househub.backend.domain.contract.entity.Contract;
 import com.househub.backend.domain.customer.entity.Customer;
-import com.househub.backend.domain.property.dto.PropertyReqDto;
+import com.househub.backend.domain.property.dto.PropertyUpdateReqDto;
 import com.househub.backend.domain.property.enums.PropertyType;
 
 import jakarta.persistence.CascadeType;
@@ -43,8 +41,11 @@ public class Property {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id; // 매물 고유 식별자 (PK)
 
+    // @OneToMany(mappedBy = "property", cascade = CascadeType.ALL)
+    // private List<Contract> contracts;
+
     @OneToMany(mappedBy = "property", cascade = CascadeType.ALL)
-    private List<Contract> contracts;
+    private List<PropertyCondition> conditions; // 매물 조건 (거래중, 계약완료, 계약취소 등)
 
     @ManyToOne
     @JoinColumn(name = "customerId", nullable = false)
@@ -78,11 +79,11 @@ public class Property {
 
     private LocalDateTime deletedAt; // 삭제일시 (소프트 삭제)
 
-    @Column(precision = 10, scale = 7)
-    private BigDecimal latitude; // 위도
-
-    @Column(precision = 10, scale = 7)
-    private BigDecimal longitude; // 경도
+    // @Column(precision = 10, scale = 7)
+    // private BigDecimal latitude; // 위도
+    //
+    // @Column(precision = 10, scale = 7)
+    // private BigDecimal longitude; // 경도
 
     // 지번주소 -> 도, 시, 동 으로 파싱
     public void parseJibunAddress(String jibun) {
@@ -94,7 +95,6 @@ public class Property {
 
     @PrePersist
     protected void onCreate() {
-        active = true;
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
     }
@@ -109,21 +109,31 @@ public class Property {
         this.active = active;
     }
 
+    public void changeCustomer(Customer customer) {
+        this.customer = customer;
+    }
+
     // 수정 메서드 (setter 대신 사용)
-    public void updateProperty(PropertyReqDto updateDto, Customer customer) {
-        if (updateDto.getCustomerId() != null) this.customer = customer;
+    public void updateProperty(PropertyUpdateReqDto updateDto) {
         if (updateDto.getPropertyType() != null) this.propertyType = updateDto.getPropertyType();
         if (updateDto.getMemo() != null) this.memo = updateDto.getMemo();
         if (updateDto.getRoadAddress() != null) this.roadAddress = updateDto.getRoadAddress();
+        if (updateDto.getJibunAddress() != null) {
+            this.jibunAddress = updateDto.getJibunAddress();
+            parseJibunAddress(updateDto.getJibunAddress());
+        }
         if (updateDto.getDetailAddress() != null) this.detailAddress = updateDto.getDetailAddress();
-        if (updateDto.getLatitude() != null) this.latitude = updateDto.getLatitude();
-        if (updateDto.getLongitude() != null) this.longitude = updateDto.getLongitude();
+        if (updateDto.getActive() != null) this.active = updateDto.getActive();
         this.updatedAt = LocalDateTime.now();
-        parseJibunAddress(updateDto.getJibunAddress());
     }
 
     // 삭제 메서드
     public void deleteProperty() {
         this.deletedAt = LocalDateTime.now();
+        this.active = false; // 매물 삭제 시, 매물 상태를 false 로 변경
+        // 해당 매물에 대한 매물 조건 모두 소프트 딜리트
+        for(PropertyCondition condition: this.conditions) {
+            condition.delete();
+        }
     }
 }

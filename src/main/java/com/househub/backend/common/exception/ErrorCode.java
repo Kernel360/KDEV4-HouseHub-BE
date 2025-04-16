@@ -6,6 +6,9 @@ import lombok.Getter;
 
 @Getter
 public enum ErrorCode {
+	DUPLICATE_PROPERTY_BY_SAME_CUSTOMER(HttpStatus.BAD_REQUEST, "DUPLICATE_PROPERTY_BY_SAME_CUSTOMER", "이미 동일 고객이 동일 주소로 매물을 등록했습니다."),
+	DUPLICATE_ACTIVE_PROPERTY_BY_OTHER_CUSTOMER(HttpStatus.BAD_REQUEST, "DUPLICATE_ACTIVE_PROPERTY_BY_OTHER_CUSTOMER", "해당 주소에 다른 고객의 활성 매물이 존재합니다."),
+
 	CONTRACT_PROPERTY_CUSTOMER_SAME(HttpStatus.BAD_REQUEST, "CONTRACT_PROPERTY_CUSTOMER_SAME", "매물 등록자와 계약 고객이 동일합니다."),
 
 	AUTH_CODE_MISMATCH(HttpStatus.BAD_REQUEST, "AUTH_CODE_MISMATCH", "인증번호가 일치하지 않습니다."),

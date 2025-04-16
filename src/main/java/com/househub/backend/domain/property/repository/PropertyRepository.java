@@ -1,6 +1,7 @@
 package com.househub.backend.domain.property.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -15,8 +16,14 @@ import com.househub.backend.domain.property.enums.PropertyType;
 
 @Repository
 public interface PropertyRepository extends JpaRepository<Property, Long> {
+	// 같은 주소와 같은 고객의 매물이 있는지 확인
+	Optional<Property> findByRoadAddressAndDetailAddressAndCustomerId(String roadAddress, String detailAddress, Long customerId);
+
+	// 매물 등록 시 같은 주소에 다른 고객이 등록한 매물이 있는지 확인
+	List<Property> findByRoadAddressAndDetailAddressAndCustomerIdNotAndActive(String roadAddress, String detailAddress, Long customerId, Boolean active);
+
 	// 주소와 상세주소를 결합한 값으로 중복 체크
-	boolean existsByRoadAddressAndDetailAddress(String roadAddress, String detailAddress);
+	// boolean existsByRoadAddressAndDetailAddress(String roadAddress, String detailAddress);
 
 	// 검색 필터링 (주소, 유형, 고객 이름, 공인중개사 이름, 활성화 여부)
 	@Query("SELECT p FROM Property p " +

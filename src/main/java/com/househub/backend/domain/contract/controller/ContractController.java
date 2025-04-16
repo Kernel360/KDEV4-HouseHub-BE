@@ -72,7 +72,6 @@ public class ContractController {
 
 	/**
 	 * 현재 로그인한 에이전트의 ID를 반환합니다.
-	 *
 	 * @return 현재 로그인한 에이전트의 ID
 	 */
 	private Long getSignInAgentId() {

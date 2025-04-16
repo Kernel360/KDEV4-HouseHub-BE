@@ -20,7 +20,7 @@ import com.househub.backend.domain.property.entity.Property;
 public interface ContractRepository extends JpaRepository<Contract, Long> {
 	// 고객, 매물이 동일한 계약 중 판매중인 계약이 존재하는지 여부 확인
 	// true -> 중복 존재, false -> 중복되는 계약 없음
-	boolean existsByCustomerAndPropertyAndStatusNot(Customer customer, Property property, ContractStatus status);
+	// boolean existsByCustomerAndPropertyAndStatus(Customer customer, Property property, ContractStatus status);
 
 	@Query("SELECT c FROM Contract c " +
 		"JOIN c.agent a " +

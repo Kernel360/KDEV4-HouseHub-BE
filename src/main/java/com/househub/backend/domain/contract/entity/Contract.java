@@ -10,7 +10,7 @@ import com.househub.backend.domain.contract.dto.ContractReqDto;
 import com.househub.backend.domain.contract.enums.ContractStatus;
 import com.househub.backend.domain.contract.enums.ContractType;
 import com.househub.backend.domain.customer.entity.Customer;
-import com.househub.backend.domain.property.entity.Property;
+import com.househub.backend.domain.property.entity.PropertyCondition;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -50,8 +50,12 @@ public class Contract {
 	private Customer customer; // 임차인 또는 매수인
 
 	@ManyToOne
-	@JoinColumn(name = "propertyId", nullable = false)
-	private Property property;
+	@JoinColumn(name = "propertyConditionId", nullable = false)
+	private PropertyCondition propertyCondition;
+
+	// @ManyToOne
+	// @JoinColumn(name = "propertyId", nullable = false)
+	// private Property property;
 
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
@@ -64,7 +68,7 @@ public class Contract {
 
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
-	private ContractStatus status; // 상태 (판매 중, 판매 완료)
+	private ContractStatus status; // 상태 (판매 중, 판매 완료, 취소)
 
 	private String memo; // 참고 설명
 

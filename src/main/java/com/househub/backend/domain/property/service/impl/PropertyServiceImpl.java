@@ -1,16 +1,18 @@
 package com.househub.backend.domain.property.service.impl;
 
-import com.househub.backend.common.exception.AlreadyExistsException;
+import com.househub.backend.common.exception.BusinessException;
+import com.househub.backend.common.exception.ErrorCode;
 import com.househub.backend.common.exception.ResourceNotFoundException;
 import com.househub.backend.domain.agent.entity.Agent;
 import com.househub.backend.domain.agent.entity.AgentStatus;
 import com.househub.backend.domain.agent.repository.AgentRepository;
-import com.househub.backend.domain.contract.entity.Contract;
 import com.househub.backend.domain.customer.entity.Customer;
 import com.househub.backend.domain.customer.repository.CustomerRepository;
 import com.househub.backend.domain.property.dto.*;
+import com.househub.backend.domain.property.dto.propertyCondition.PropertyConditionReqDto;
 import com.househub.backend.domain.property.entity.Property;
 import com.househub.backend.domain.property.repository.PropertyRepository;
+import com.househub.backend.domain.property.service.PropertyConditionService;
 import com.househub.backend.domain.property.service.PropertyService;
 
 import lombok.RequiredArgsConstructor;
@@ -21,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -29,28 +32,32 @@ public class PropertyServiceImpl implements PropertyService {
 	private final PropertyRepository propertyRepository;
 	private final CustomerRepository customerRepository;
 	private final AgentRepository agentRepository;
+	private final PropertyConditionService propertyConditionService;
 
 	/**
 	 * 매물 등록
 	 * @param dto 매물 등록 정보 DTO
 	 * @param agentId 공인중개사 ID
-	 * @return 등록된 매물 id 를 반환하는 DTO
 	 */
 	@Transactional
 	@Override
-	public CreatePropertyResDto createProperty(PropertyReqDto dto, Long agentId) {
+	public void createProperty(PropertyReqDto dto, Long agentId) {
 		// 로그인한 공인중개사 조회
 		Agent agent = findAgentById(agentId);
-		// 동일한 주소를 가진 매물 있는지 확인
-		existsByAddress(dto.getRoadAddress(), dto.getDetailAddress());
 		// 의뢰인(임대인 또는 매도인) 존재 여부 확인
 		Customer customer = findCustomerById(dto.getCustomerId());
+		// 매물을 등록할 수 있는 조건인지 확인
+		validateRegisterProperty(dto.getRoadAddress(), dto.getDetailAddress(), dto.getCustomerId());
 		// dto -> entity
 		Property property = dto.toEntity(customer, agent);
-		// db에 저장
+		// db에 매물 저장
 		propertyRepository.save(property);
-		// 응답 객체 리턴
-		return new CreatePropertyResDto(property.getId());
+		// db에 매물 조건 저장
+		if(dto.getConditions() != null) {
+			for (PropertyConditionReqDto conditionReqDto : dto.getConditions()) {
+				propertyConditionService.createPropertyCondition(property.getId(), conditionReqDto);
+			}
+		}
 	}
 
 	/**
@@ -64,8 +71,8 @@ public class PropertyServiceImpl implements PropertyService {
 		// 매물 조회
 		Property property = findPropertyById(id);
 		// entity -> dto
-		// 해당 매물의 계약 리스트도 response 에 포함
-		FindPropertyDetailResDto response = FindPropertyDetailResDto.toDto(property);
+		// 해당 매물의 조건, 계약 리스트도 response 에 포함
+		FindPropertyDetailResDto response = FindPropertyDetailResDto.fromEntity(property);
 		return response;
 	}
 
@@ -101,15 +108,25 @@ public class PropertyServiceImpl implements PropertyService {
 	 */
 	@Transactional
 	@Override
-	public void updateProperty(Long propertyId, PropertyReqDto updateDto) {
-		// 주소가 동일한 매물이 있는지 확인
-		// existsByAddress(updateDto.getRoadAddress(), updateDto.getDetailAddress());
-		// 의뢰인(임대인 또는 매도인) 존재 여부 확인
-		Customer customer = findCustomerById(updateDto.getCustomerId());
+	public void updateProperty(Long propertyId, PropertyUpdateReqDto updateDto) {
 		// 매물 조회
 		Property property = findPropertyById(propertyId);
+
+		// 주소 관련 필드 미리 계산
+		String roadAddress = updateDto.getRoadAddress() != null ? updateDto.getRoadAddress() : property.getRoadAddress();
+		String detailAddress = updateDto.getDetailAddress() != null ? updateDto.getDetailAddress() : property.getDetailAddress();
+		Long customerId = updateDto.getCustomerId() != null ? updateDto.getCustomerId() : property.getCustomer().getId();
+
+		// 주소 유효성 검사
+		validateRegisterProperty(roadAddress, detailAddress, customerId);
+
+		// 의뢰인(임대인 또는 매도인) 변경 여부 확인 후, 있으면 변경
+		if(updateDto.getCustomerId() != null) {
+			Customer customer = findCustomerById(updateDto.getCustomerId());
+			property.changeCustomer(customer);
+		}
 		// id로 조회한 매물 정보 수정 및 저장
-		property.updateProperty(updateDto, customer);
+		property.updateProperty(updateDto);
 	}
 
 	/**
@@ -122,9 +139,8 @@ public class PropertyServiceImpl implements PropertyService {
 		// 매물 조회
 		Property property = findPropertyById(propertyId);
 		// 매물 소프트 삭제
+		// 매물 삭제 시, 해당 매물 조건 및 계약 리스트도 모두 소프트 딜리트 해야함
 		property.deleteProperty();
-		// 매물 삭제 시, 해당 계약도 모두 소프트 딜리트 해야함
-		property.getContracts().forEach(Contract::deleteContract);
 	}
 
 	/**
@@ -139,15 +155,30 @@ public class PropertyServiceImpl implements PropertyService {
 	}
 
 	/**
-	 * 전체 주소(도로명 주소 + 상세 주소)로 해당 매물이 이미 존재하는지 확인
+	 * 매물 등록 가능 여부 확인
 	 * @param roadAddress 도로명 주소
 	 * @param detailAddress 상세 주소
+	 * @param customerId 고객 ID
 	 */
-	public void existsByAddress(String roadAddress, String detailAddress) {
-		boolean isExist = propertyRepository.existsByRoadAddressAndDetailAddress(roadAddress, detailAddress);
-		if (isExist) {
-			throw new AlreadyExistsException("이미 존재하는 매물 입니다.", "PROPERTY_ALREADY_EXISTS");
+	public void validateRegisterProperty(String roadAddress, String detailAddress, Long customerId) {
+		// 1. 같은 주소 + 다른 고객 + 기존 매물 active = true -> 등록 불가
+		List<Property> othersActive = propertyRepository
+			.findByRoadAddressAndDetailAddressAndCustomerIdNotAndActive(roadAddress, detailAddress, customerId, true);
+		// 2. 같은 주소 + 다른 고객 + 기존 매물 active = false -> 등록 가능
+		if (!othersActive.isEmpty()) {
+			// 다른 고객이 동일 주소 매물을 등록한 적이 있음
+			throw new BusinessException(ErrorCode.DUPLICATE_ACTIVE_PROPERTY_BY_OTHER_CUSTOMER);
 		}
+
+
+		// 3. 같은 주소 + 같은 고객 -> 등록 불가
+		Optional<Property> sameCustomerProperty = propertyRepository
+			.findByRoadAddressAndDetailAddressAndCustomerId(roadAddress, detailAddress, customerId);
+		if (sameCustomerProperty.isPresent()) {
+			// 같은 고객이 동일 주소 매물을 등록한 적이 있음
+			throw new BusinessException(ErrorCode.DUPLICATE_PROPERTY_BY_SAME_CUSTOMER);
+		}
+		// 동일 주소, 다른 고객의 활성 매물이 있을 경우 활성화 여부 true로 변경 불가하도록 순서를 이렇게 함
 	}
 
 	/**
