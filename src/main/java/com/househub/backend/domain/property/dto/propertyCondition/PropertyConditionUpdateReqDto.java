@@ -18,7 +18,7 @@ public class PropertyConditionUpdateReqDto {
 	@AssertTrue(message = "거래 유형에 따라 적절한 가격 정보가 필요합니다.")
 	public boolean isValidContractType() {
 		if(contractType == null) {
-			return false; // 수정 시에는 contractType이 null이어도 허용
+			return true; // 수정 시에는 contractType이 null이어도 허용
 		}
 
 		if (contractType == ContractType.SALE) { // 매매

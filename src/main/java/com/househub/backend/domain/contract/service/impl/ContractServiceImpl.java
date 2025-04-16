@@ -8,12 +8,16 @@ import com.househub.backend.domain.agent.entity.AgentStatus;
 import com.househub.backend.domain.agent.repository.AgentRepository;
 import com.househub.backend.domain.contract.dto.*;
 import com.househub.backend.domain.contract.entity.Contract;
+import com.househub.backend.domain.contract.enums.ContractStatus;
 import com.househub.backend.domain.contract.repository.ContractRepository;
 import com.househub.backend.domain.contract.service.ContractService;
 import com.househub.backend.domain.customer.entity.Customer;
 import com.househub.backend.domain.customer.repository.CustomerRepository;
 import com.househub.backend.domain.property.entity.Property;
+import com.househub.backend.domain.property.entity.PropertyCondition;
+import com.househub.backend.domain.property.repository.PropertyConditionRepository;
 import com.househub.backend.domain.property.repository.PropertyRepository;
+import com.househub.backend.domain.property.service.PropertyConditionReader;
 
 import lombok.RequiredArgsConstructor;
 
@@ -30,6 +34,27 @@ public class ContractServiceImpl implements ContractService {
 	private final CustomerRepository customerRepository;
 	private final AgentRepository agentRepository;
 
+	private final PropertyConditionReader propertyConditionReader;
+
+	/**
+	 * 계약 등록 시, 동일 매물에 대해 계약중인 계약이 있는 경우 예외 처리
+	 * @param customer 계약을 하는 고객
+	 * @param property 계약하는 매물
+	 * @param status 등록하려는 계약 상태
+	 */
+	public void existsByContractAndProperty(Customer customer, Property property, ContractStatus status) {
+		// 등록하려는 계약 상태가 완료나 취소인 경우, 계약 가능
+		// 등록하려는 계약 상태가 진행중인 경우, 다른 진행중인 계약이 있는지 확인
+		if (status == ContractStatus.IN_PROGRESS) {
+			boolean isExist = contractRepository.existsByPropertyCondition_PropertyAndCustomerAndStatus(property, customer,
+				ContractStatus.IN_PROGRESS);
+			if (isExist) {
+				throw new BusinessException(ErrorCode.DUPLICATE_PROPERTY_BY_SAME_CUSTOMER);
+			}
+		}
+	}
+
+
 	/**
 	 * 계약 등록
 	 * @param dto 해당 매물에 계약 등록하는 DTO
@@ -38,21 +63,32 @@ public class ContractServiceImpl implements ContractService {
 	@Override
 	@Transactional
 	public CreateContractResDto createContract(ContractReqDto dto, Long agentId) {
+		// 계약할 매물 조건 조회
+		PropertyCondition propertyCondition = propertyConditionReader.findPropertyConditionById(dto.getPropertyConditionId());
 		// 계약할 매물 조회
-		Property property = findPropertyById(dto.getPropertyId());
+		Property property = findPropertyById(propertyCondition.getProperty().getId());
 		// 계약할 고객 조회
 		Customer customer = findCustomerById(dto.getCustomerId());
 		// 매물을 등록한 고객과 계약할 고객이 동일한 경우 예외 처리
 		isSameCustomerAndProperty(customer, property);
-		// 같은 고객과 매물에 대한 완료되지 않은 계약이 있는지 확인
-		// 완료되지 않은 계약이 있으면 예외
-		// existsByContractAndProperty(customer, property, dto.getContractStatus());
+
+		// 지금 계약하는 고객이
+		// 같은 매물의 다른 조건에 계약이 되어있는 경우 /예외 처리 해야되는데!
+		// 그 다른 조건의 계약이 진행중인 계약이면 안됨
+		// 해당 고객이 동일 매물에 대해 진행중인 계약이 있는지 확인
+		existsByContractAndProperty(customer, property, dto.getContractStatus());
+
 		// dto → entity 변환 후 저장
 		Agent agent = findAgentById(agentId);
 		Contract contract = dto.toEntity(property, customer, agent);
 		contract = contractRepository.save(contract);
-		// updatePropertyActiveStatus(property); // db 저장 후 호출
-		// 응답 객체 리턴
+		// 계약 완료 상태로 등록 시
+		// 기존에 해당 매물 조건에 대한 계약 리스트가 없다면
+		// 매물 조건의 활성화 상태를 false로 변경
+		if (dto.getContractStatus() == ContractStatus.COMPLETED && propertyCondition.getContracts().isEmpty()) {
+			// 매물 조건 active false
+			propertyCondition.updateActiveStatus(false);
+		}
 		return CreateContractResDto.toDto(contract.getId());
 	}
 
@@ -65,10 +101,12 @@ public class ContractServiceImpl implements ContractService {
 	@Override
 	public void updateContract(Long id, ContractReqDto dto) {
 		Contract contract = findContractById(id);
+		// 계약할 매물 조건 조회
+		PropertyCondition propertyCondition = propertyConditionReader.findPropertyConditionById(dto.getPropertyConditionId());
 		// 고객 조회
 		Customer customer = findCustomerById(dto.getCustomerId());
 		// 매물 조회
-		Property property = findPropertyById(dto.getPropertyId());
+		Property property = findPropertyById(propertyCondition.getProperty().getId());
 		// 매물을 등록한 고객과 계약할 고객이 동일한 경우 예외 처리
 		isSameCustomerAndProperty(customer, property);
 		// 거래 완료 상태 이외의 상태로 변경하는 경우

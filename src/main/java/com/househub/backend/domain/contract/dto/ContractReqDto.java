@@ -18,8 +18,10 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ContractReqDto {
-    @NotNull(message = "매물 id를 입력해 주세요.")
-    private Long propertyId; // 매물 ID
+    // @NotNull(message = "매물 id를 입력해 주세요.")
+    // private Long propertyId; // 매물 ID
+    @NotNull(message = "매물 조건 id를 입력해 주세요.")
+    private Long propertyConditionId; // 매물 조건 ID
     @NotNull(message = "고객 id를 입력해 주세요.")
     private Long customerId; // 고객 ID
     @NotNull(message = "거래 유형은 필수입니다.")

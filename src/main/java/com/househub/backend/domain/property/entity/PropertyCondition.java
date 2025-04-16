@@ -111,4 +111,8 @@ public class PropertyCondition {
 			this.active = updateReqDto.getActive();
 		}
 	}
+
+	public void updateActiveStatus(Boolean active) {
+		this.active = active;
+	}
 }

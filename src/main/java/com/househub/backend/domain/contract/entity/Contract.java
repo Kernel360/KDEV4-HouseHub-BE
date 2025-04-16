@@ -68,7 +68,7 @@ public class Contract {
 
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
-	private ContractStatus status; // 상태 (판매 중, 판매 완료, 취소)
+	private ContractStatus status; // 상태 (계약 중, 계약 완료, 취소)
 
 	private String memo; // 참고 설명
 
@@ -83,7 +83,6 @@ public class Contract {
 
 	private LocalDateTime deletedAt; // 삭제일시 (소프트 삭제)
 
-	@Column(nullable = true)
 	private LocalDate completedAt; // 계약 완료일시
 
 	@PrePersist
