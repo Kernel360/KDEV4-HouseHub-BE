@@ -15,7 +15,6 @@ import com.househub.backend.domain.customer.entity.Customer;
 import com.househub.backend.domain.customer.repository.CustomerRepository;
 import com.househub.backend.domain.property.entity.Property;
 import com.househub.backend.domain.property.entity.PropertyCondition;
-import com.househub.backend.domain.property.repository.PropertyConditionRepository;
 import com.househub.backend.domain.property.repository.PropertyRepository;
 import com.househub.backend.domain.property.service.PropertyConditionReader;
 
@@ -37,25 +36,6 @@ public class ContractServiceImpl implements ContractService {
 	private final PropertyConditionReader propertyConditionReader;
 
 	/**
-	 * 계약 등록 시, 동일 매물에 대해 계약중인 계약이 있는 경우 예외 처리
-	 * @param customer 계약을 하는 고객
-	 * @param property 계약하는 매물
-	 * @param status 등록하려는 계약 상태
-	 */
-	public void existsByContractAndProperty(Customer customer, Property property, ContractStatus status) {
-		// 등록하려는 계약 상태가 완료나 취소인 경우, 계약 가능
-		// 등록하려는 계약 상태가 진행중인 경우, 다른 진행중인 계약이 있는지 확인
-		if (status == ContractStatus.IN_PROGRESS) {
-			boolean isExist = contractRepository.existsByPropertyCondition_PropertyAndCustomerAndStatus(property, customer,
-				ContractStatus.IN_PROGRESS);
-			if (isExist) {
-				throw new BusinessException(ErrorCode.DUPLICATE_PROPERTY_BY_SAME_CUSTOMER);
-			}
-		}
-	}
-
-
-	/**
 	 * 계약 등록
 	 * @param dto 해당 매물에 계약 등록하는 DTO
 	 * @return 등록한 계약 id 를 반환하는 DTO
@@ -73,7 +53,7 @@ public class ContractServiceImpl implements ContractService {
 		isSameCustomerAndProperty(customer, property);
 
 		// 지금 계약하는 고객이
-		// 같은 매물의 다른 조건에 계약이 되어있는 경우 /예외 처리 해야되는데!
+		// 같은 매물의 다른 조건에 계약이 되어있는 경우,
 		// 그 다른 조건의 계약이 진행중인 계약이면 안됨
 		// 해당 고객이 동일 매물에 대해 진행중인 계약이 있는지 확인
 		existsByContractAndProperty(customer, property, dto.getContractStatus());
@@ -109,15 +89,20 @@ public class ContractServiceImpl implements ContractService {
 		Property property = findPropertyById(propertyCondition.getProperty().getId());
 		// 매물을 등록한 고객과 계약할 고객이 동일한 경우 예외 처리
 		isSameCustomerAndProperty(customer, property);
-		// 거래 완료 상태 이외의 상태로 변경하는 경우
-		// if (dto.getContractStatus() != ContractStatus.COMPLETED) {
-		//     // 같은 고객과 매물에 대한 완료되지 않은 계약이 있는지 확인
-		//     // 완료되지 않은 계약이 있으면 예외
-		//     existsByContractAndProperty(customer, property);
-		// }
+		// 거래 진행중 상태 이외의 상태로 변경하는 경우
+		if (dto.getContractStatus() == ContractStatus.IN_PROGRESS) {
+		    // 같은 고객과 매물에 대한 완료되지 않은 계약이 있는지 확인
+		    // 완료되지 않은 계약이 있으면 예외
+		    existsByContractAndProperty(customer, property, dto.getContractStatus());
+		}
+
+		// 계약 완료로 바꿀 경우 해당 계약 조건 활성화 false
+		if (dto.getContractStatus() == ContractStatus.COMPLETED) {
+			// 매물 조건 active false
+			propertyCondition.updateActiveStatus(false);
+		}
 		// 계약 정보 수정
 		contract.updateContract(dto);
-		// updatePropertyActiveStatus(property);
 	}
 
 	/**
@@ -206,25 +191,22 @@ public class ContractServiceImpl implements ContractService {
 	}
 
 	/**
-	 * 해당 고객이 동일한 매물 계약하지 못하도록 예외 처리
-	 * (고객이 동일한 매물을 계약하는 경우 예외)
-	 * 동일 매물을 계약할 경우, 해당 매물의 계약 리스트의 모든 계약 상태가 '완료' 상태여야 하도록 처리
-	 * (해당 매물의 계약 리스트 중 판매중인 계약이 있으면 예외 처리 되도록 구현)
+	 * 계약 등록 시, 동일 매물에 대해 계약중인 계약이 있는 경우 예외 처리
 	 * @param customer 계약을 하는 고객
 	 * @param property 계약하는 매물
+	 * @param status 등록하려는 계약 상태
 	 */
-	// public void existsByContractAndProperty(Customer customer, Property property, ContractStatus status) {
-	// 	// 등록하려는 계약 상태가 완료나 취소인 경우, 계약 가능
-	// 	// 등록하려는 계약 상태가 진행중인 경우, 다른 진행중인 계약이 있는지 확인
-	// 	if(status == ContractStatus.IN_PROGRESS) {
-	// 		boolean isExist = contractRepository.existsByCustomerAndPropertyAndStatus(customer, property,
-	// 			ContractStatus.IN_PROGRESS);
-	// 		if (isExist) {
-	// 			throw new AlreadyExistsException("해당 고객은 본 매물에 대해 진행중인 계약이 존재합니다.",
-	// 				"CONTRACT_ALREADY_EXISTS");
-	// 		}
-	// 	}
-	// }
+	public void existsByContractAndProperty(Customer customer, Property property, ContractStatus status) {
+		// 등록하려는 계약 상태가 완료나 취소인 경우, 계약 가능
+		// 등록하려는 계약 상태가 진행중인 경우, 다른 진행중인 계약이 있는지 확인
+		if (status == ContractStatus.IN_PROGRESS) {
+			boolean isExist = contractRepository.existsByPropertyCondition_PropertyAndCustomerAndStatus(property, customer,
+				ContractStatus.IN_PROGRESS);
+			if (isExist) {
+				throw new BusinessException(ErrorCode.DUPLICATE_PROPERTY_BY_SAME_CUSTOMER);
+			}
+		}
+	}
 
 	/**
 	 * 매물을 의뢰한 고객과 계약할 고객이 동일한 경우 예외 처리

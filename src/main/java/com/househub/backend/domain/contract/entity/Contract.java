@@ -98,15 +98,15 @@ public class Contract {
 
 	// 수정 메서드 (setter 대신 사용)
 	public void updateContract(ContractReqDto updateDto) {
-		if (updateDto.getContractStatus() == ContractStatus.COMPLETED)
-			this.completedAt = updateDto.getCompletedAt();
-		else
-			this.completedAt = null; // 거래 완료 상태가 아닌 경우에는 null 로 설정
-
 		if (updateDto.getContractType() != null)
 			this.contractType = updateDto.getContractType();
-		if (updateDto.getContractStatus() != null)
+		if (updateDto.getContractStatus() != null) {
 			this.status = updateDto.getContractStatus();
+			if (updateDto.getContractStatus() == ContractStatus.COMPLETED)
+				this.completedAt = updateDto.getCompletedAt();
+			else
+				this.completedAt = null; // 거래 완료 상태가 아닌 경우에는 null 로 설정
+		}
 		if (updateDto.getMemo() != null)
 			this.memo = updateDto.getMemo();
 		if (updateDto.getSalePrice() != null)
