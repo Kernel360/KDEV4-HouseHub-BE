@@ -19,7 +19,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.househub.backend.common.enums.Gender;
-import com.househub.backend.common.exception.AlreadyExistsException;
 import com.househub.backend.common.exception.InvalidExcelValueException;
 import com.househub.backend.common.exception.ResourceNotFoundException;
 import com.househub.backend.common.response.ErrorResponse;
@@ -72,26 +71,13 @@ public class CustomerStoreImplTest {
 		when(customerRepository.save(any(Customer.class))).thenReturn(expectedCustomer);
 
 		// when
-		Customer result = customerStore.createCustomer(validRequest, agent);
+		Customer result = customerStore.createCustomer(expectedCustomer);
 
 		// then
-		verify(customerReader).checkCustomer(validRequest.getContact(), agent.getId());
 		assertThat(result).isEqualTo(expectedCustomer);
 
 		// verify
 		verify(customerRepository, times(1)).save(any(Customer.class));
-	}
-
-	@Test
-	@DisplayName("고객 생성 시 중복 전화번호 존재")
-	void createCustomer_duplicateContact() {
-		// given
-		doThrow(new AlreadyExistsException("중복", "CODE"))
-			.when(customerReader).checkCustomer(anyString(), anyLong());
-
-		// when & then
-		assertThatThrownBy(() -> customerStore.createCustomer(validRequest, agent))
-			.isInstanceOf(AlreadyExistsException.class);
 	}
 
 	// 2. updateCustomer 테스트

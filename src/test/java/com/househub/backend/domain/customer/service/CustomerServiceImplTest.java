@@ -20,6 +20,7 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.househub.backend.common.enums.Gender;
+import com.househub.backend.common.exception.AlreadyExistsException;
 import com.househub.backend.domain.agent.dto.AgentResDto;
 import com.househub.backend.domain.agent.entity.Agent;
 import com.househub.backend.domain.customer.dto.CreateCustomerReqDto;
@@ -61,22 +62,60 @@ class CustomerServiceImplTest {
 	}
 
 	@Test
-	@DisplayName("고객 생성 성공 테스트")
-	void createCustomer_Success() {
-		// Given
-		Customer expectedCustomer = testRequest.toEntity(testAgent);
-		when(customerStore.createCustomer(any(CreateCustomerReqDto.class), any(Agent.class)))
-			.thenReturn(expectedCustomer);
+	@DisplayName("고객 생성 성공")
+	void createCustomer_success() {
+		// given
+		Agent agent = Agent.builder().id(1L).build();
+		AgentResDto agentDto = AgentResDto.fromEntity(agent);
 
-		// When
-		CreateCustomerResDto result = customerService.createCustomer(
-			testRequest,
-			AgentResDto.fromEntity(testAgent)
-		);
+		Customer savedCustomer = Customer.builder()
+			.id(1L)
+			.name(testRequest.getName())
+			.contact(testRequest.getContact())
+			.ageGroup(testRequest.getAgeGroup())
+			.email(testRequest.getEmail())
+			.memo(testRequest.getMemo())
+			.gender(testRequest.getGender())
+			.agent(agent)
+			.build();
 
-		// Then
-		assertThat(result.getName()).isEqualTo("김철수");
-		assertThat(result.getContact()).isEqualTo("010-1234-5678");
+		// customerReader.checkCustomer()는 아무 동작도 하지 않음(중복 아님)
+		doNothing().when(customerReader).checkCustomer(testRequest.getContact(), agent.getId());
+		// 저장 시 저장된 고객 리턴
+		when(customerStore.createCustomer(any(Customer.class))).thenReturn(savedCustomer);
+
+		// when
+		CreateCustomerResDto result = customerService.createCustomer(testRequest, agentDto);
+
+		// then
+		assertThat(result.getId()).isEqualTo(savedCustomer.getId());
+		assertThat(result.getName()).isEqualTo(savedCustomer.getName());
+		assertThat(result.getContact()).isEqualTo(savedCustomer.getContact());
+
+		verify(customerReader).checkCustomer(testRequest.getContact(), agent.getId());
+		verify(customerStore).createCustomer(any(Customer.class));
+	}
+
+	@Test
+	@DisplayName("고객 생성 시 중복 전화번호 예외 발생")
+	void createCustomer_duplicateContact() {
+		// given
+		Agent agent = Agent.builder().id(1L).build();
+		AgentResDto agentDto = AgentResDto.fromEntity(agent);
+
+		CreateCustomerReqDto reqDto = CreateCustomerReqDto.builder()
+			.contact("010-1234-5678")
+			.build();
+
+		doThrow(new AlreadyExistsException("중복", "CODE"))
+			.when(customerReader).checkCustomer(reqDto.getContact(), agent.getId());
+
+		// when & then
+		assertThatThrownBy(() -> customerService.createCustomer(reqDto, agentDto))
+			.isInstanceOf(AlreadyExistsException.class);
+
+		verify(customerReader).checkCustomer(reqDto.getContact(), agent.getId());
+		verify(customerStore, never()).createCustomer(any());
 	}
 
 	@Test

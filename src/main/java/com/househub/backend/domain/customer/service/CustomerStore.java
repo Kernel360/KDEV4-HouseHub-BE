@@ -9,7 +9,7 @@ import com.househub.backend.domain.customer.dto.CreateCustomerReqDto;
 import com.househub.backend.domain.customer.entity.Customer;
 
 public interface CustomerStore {
-	Customer createCustomer(CreateCustomerReqDto initCustomer, Agent agent);
+	Customer createCustomer(Customer customer);
 
 	List<Customer> createCustomersByExcel(MultipartFile file, Agent agent);
 

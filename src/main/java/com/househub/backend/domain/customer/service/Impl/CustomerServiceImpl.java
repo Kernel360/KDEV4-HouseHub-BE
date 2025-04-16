@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.househub.backend.domain.agent.dto.AgentResDto;
@@ -26,9 +27,11 @@ public class CustomerServiceImpl implements CustomerService {
 	private final CustomerStore customerStore;
 	private final CustomerReader customerReader;
 
+	@Transactional
 	public CreateCustomerResDto createCustomer(CreateCustomerReqDto request, AgentResDto agentDto) {
 		Agent agent = agentDto.toEntity();
-		Customer storedCustomer = customerStore.createCustomer(request, agent);
+		customerReader.checkCustomer(request.getContact(), agent.getId());
+		Customer storedCustomer = customerStore.createCustomer(request.toEntity(agent));
 		return CreateCustomerResDto.fromEntity(storedCustomer);
 	}
 
@@ -53,12 +56,14 @@ public class CustomerServiceImpl implements CustomerService {
 		return CreateCustomerResDto.fromEntity(customer);
 	}
 
+	@Transactional
 	public CreateCustomerResDto updateCustomer(Long id, CreateCustomerReqDto request, AgentResDto agentDto) {
 		Agent agent = agentDto.toEntity();
 		Customer updatedCustomer = customerStore.updateCustomer(id, request, agent);
 		return CreateCustomerResDto.fromEntity(updatedCustomer);
 	}
 
+	@Transactional
 	public CreateCustomerResDto deleteCustomer(Long id, AgentResDto agentDto) {
 		Agent agent = agentDto.toEntity();
 		Customer deletedCustomer = customerStore.deleteCustomer(id, agent);

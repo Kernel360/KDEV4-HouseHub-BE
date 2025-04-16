@@ -3,7 +3,6 @@ package com.househub.backend.domain.customer.service.Impl;
 import java.util.List;
 
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.househub.backend.common.enums.Gender;
@@ -30,10 +29,7 @@ public class CustomerStoreImpl implements CustomerStore {
 	private final CustomerReader customerReader;
 
 	@Override
-	@Transactional
-	public Customer createCustomer(CreateCustomerReqDto request, Agent agent) {
-		customerReader.checkCustomer(request.getContact(), agent.getId());
-		Customer customer = request.toEntity(agent);
+	public Customer createCustomer(Customer customer) {
 		return customerRepository.save(customer);
 	}
 
@@ -63,12 +59,11 @@ public class CustomerStoreImpl implements CustomerStore {
 		}
 
 		return result.successData().stream()
-			.map(dto -> createCustomer(dto,agent))
+			.map(dto -> dto.toEntity(agent)).map(this::createCustomer)
 			.toList();
 	}
 
 	@Override
-	@Transactional
 	public Customer updateCustomer(Long id, CreateCustomerReqDto request ,Agent agent) {
 		Customer customer = customerRepository.findByIdAndAgentIdAndDeletedAtIsNull(id,agent.getId()).orElseThrow(() -> new ResourceNotFoundException("해당 고객이 존재하지 않습니다:", "CUSTOMER_NOT_FOUND"));
 
@@ -89,7 +84,6 @@ public class CustomerStoreImpl implements CustomerStore {
 	}
 
 	@Override
-	@Transactional
 	public Customer deleteCustomer(Long id, Agent agent) {
 		Customer customer = customerRepository.findByIdAndAgentIdAndDeletedAtIsNull(id,agent.getId()).orElseThrow(() -> new ResourceNotFoundException("해당 고객이 존재하지 않습니다:", "CUSTOMER_NOT_FOUND"));
 		// 소프트 딜리트
