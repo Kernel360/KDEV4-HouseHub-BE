@@ -15,8 +15,9 @@ import lombok.RequiredArgsConstructor;
 public class CustomerReaderImpl implements CustomerReader {
 	private final CustomerRepository customerRepository;
 
+	// 고객을 연락처와 agentId 로 조회
 	@Override
-	public Optional<Customer> findByContact(String contact) {
-		return customerRepository.findByContact(contact);
+	public Optional<Customer> findByContactAndAgentId(String contact, Long agentId) {
+		return customerRepository.findByContactAndAgentId(contact, agentId);
 	}
 }
