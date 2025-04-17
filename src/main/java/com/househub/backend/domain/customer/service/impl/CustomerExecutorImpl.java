@@ -20,10 +20,10 @@ public class CustomerExecutorImpl implements CustomerExecutor {
 
 	@Transactional
 	@Override
-	public Customer saveCustomerIfNotExists(CreateCustomerReqDto request, Agent agent) {
+	public Customer findOrCreateCustomer(CreateCustomerReqDto request, Agent agent) {
 		// 전화번호로 고객 조회해서 존재하지 않으면 고객 생성
-		return customerReader.findCustomerByContact(request.getContact())
-			.orElseGet(() -> customerStore.save(
+		return customerReader.findByContact(request.getContact())
+			.orElseGet(() -> customerStore.create(
 				request.toEntity(agent)
 			));
 	}

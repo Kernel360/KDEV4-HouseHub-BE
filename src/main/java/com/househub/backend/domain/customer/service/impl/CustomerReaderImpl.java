@@ -16,7 +16,7 @@ public class CustomerReaderImpl implements CustomerReader {
 	private final CustomerRepository customerRepository;
 
 	@Override
-	public Optional<Customer> findCustomerByContact(String contact) {
+	public Optional<Customer> findByContact(String contact) {
 		return customerRepository.findByContact(contact);
 	}
 }

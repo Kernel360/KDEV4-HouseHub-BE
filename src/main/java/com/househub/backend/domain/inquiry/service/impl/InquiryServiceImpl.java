@@ -15,6 +15,7 @@ import com.househub.backend.domain.agent.entity.AgentStatus;
 import com.househub.backend.domain.agent.repository.AgentRepository;
 import com.househub.backend.domain.customer.entity.Customer;
 import com.househub.backend.domain.customer.service.CustomerExecutor;
+import com.househub.backend.domain.inquiry.dto.CreateInquiryCommand;
 import com.househub.backend.domain.inquiry.dto.CreateInquiryReqDto;
 import com.househub.backend.domain.inquiry.dto.CreateInquiryResDto;
 import com.househub.backend.domain.inquiry.dto.InquiryDetailResDto;
@@ -48,19 +49,24 @@ public class InquiryServiceImpl implements InquiryService {
 	@Override
 	public CreateInquiryResDto createInquiry(CreateInquiryReqDto reqDto) {
 		// templateToken 으로 InquiryTemplateShareToken 엔티티 조회
-		InquiryTemplate template = inquiryTemplateReader.getValidTemplate(reqDto.getTemplateToken());
+		InquiryTemplate template = inquiryTemplateReader.findByToken(reqDto.getTemplateToken());
 
 		// 문의 남긴 고객이 DB 에 존재하는지 확인
 		// 고객이 DB에 존재하지 않는 경우, 고객 새로 생성
-		Customer customer = customerExecutor.saveCustomerIfNotExists(
+		Customer customer = customerExecutor.findOrCreateCustomer(
 			reqDto.toCustomerReqDto(),
 			template.getAgent()
 		);
 
-		Inquiry inquiry = inquiryExecutor.executeInquiryCreation(
-			reqDto.getAnswers(),
-			template,
-			customer);
+		CreateInquiryCommand command = CreateInquiryCommand.builder()
+			.template(template)
+			.customer(customer)
+			.answers(reqDto.getAnswers())
+			.build();
+
+		// executor 에 들어가는 기준
+		// 일단 비즈니스 로직에서
+		Inquiry inquiry = inquiryExecutor.executeInquiryCreation(command);
 
 		return CreateInquiryResDto.builder()
 			.inquiryId(inquiry.getId())

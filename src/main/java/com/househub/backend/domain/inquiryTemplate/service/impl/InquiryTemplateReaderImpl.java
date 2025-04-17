@@ -17,7 +17,7 @@ public class InquiryTemplateReaderImpl implements InquiryTemplateReader {
 	private final InquiryTemplateSharedTokenRepository sharedTokenRepository;
 
 	@Override
-	public InquiryTemplate getValidTemplate(String token) {
+	public InquiryTemplate findByToken(String token) {
 		InquiryTemplateSharedToken shareToken = sharedTokenRepository.findByShareTokenAndActiveTrue(token)
 			.orElseThrow(() -> new BusinessException(ErrorCode.INVALID_SHARED_TOKEN));
 

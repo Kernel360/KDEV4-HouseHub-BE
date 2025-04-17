@@ -16,7 +16,7 @@ public class CustomerStoreImpl implements CustomerStore {
 
 	@Transactional
 	@Override
-	public Customer save(Customer customer) {
+	public Customer create(Customer customer) {
 		return customerRepository.save(customer);
 	}
 }

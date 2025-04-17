@@ -5,5 +5,5 @@ import com.househub.backend.domain.customer.dto.CreateCustomerReqDto;
 import com.househub.backend.domain.customer.entity.Customer;
 
 public interface CustomerExecutor {
-	Customer saveCustomerIfNotExists(CreateCustomerReqDto request, Agent agent);
+	Customer findOrCreateCustomer(CreateCustomerReqDto request, Agent agent);
 }
