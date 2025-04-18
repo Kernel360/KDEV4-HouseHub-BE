@@ -6,6 +6,7 @@ import java.util.Optional;
 import com.househub.backend.common.enums.Gender;
 import com.househub.backend.domain.agent.entity.Agent;
 import com.househub.backend.domain.customer.dto.CreateCustomerReqDto;
+import com.househub.backend.domain.customer.enums.CustomerStatus;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -37,23 +38,21 @@ public class Customer {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@Column(nullable = false, length = 50)
+	@Column(length = 50)
 	private String name;
 
-	@Column(nullable = true)
 	private Integer ageGroup;
 
 	@Column(nullable = false, unique = true)
 	private String contact;
 
-	@Column(nullable = false, unique = true)
+	@Column(unique = true)
 	private String email;
 
 	@Column(columnDefinition = "TEXT")
 	private String memo;
 
 	@Enumerated(EnumType.STRING)
-	@Column(nullable = true)
 	private Gender gender;
 
 	@Column(nullable = false, updatable = false)
@@ -63,6 +62,11 @@ public class Customer {
 
 	private LocalDateTime deletedAt;
 
+	@Builder.Default
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
+	private CustomerStatus status = CustomerStatus.POTENTIAL; // 기본값: 잠재 고객
+
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "agent_id", nullable = false)
 	private Agent agent;
@@ -71,6 +75,7 @@ public class Customer {
 	protected void onCreate() {
 		createdAt = LocalDateTime.now();
 		updatedAt = LocalDateTime.now();
+		status = CustomerStatus.POTENTIAL; // 기본값: 잠재 고객
 	}
 
 	@PreUpdate
@@ -79,15 +84,15 @@ public class Customer {
 	}
 
 	public void update(CreateCustomerReqDto reqDto) {
-		Optional.ofNullable(reqDto.getName()).ifPresent(name -> this.name = name);
-		Optional.ofNullable(reqDto.getEmail()).ifPresent(email -> this.email = email);
+		this.name = reqDto.getName();
+		this.email = reqDto.getEmail();
 		Optional.ofNullable(reqDto.getContact()).ifPresent(contact -> this.contact = contact);
 		this.ageGroup = reqDto.getAgeGroup(); // null 허용
 		this.gender = reqDto.getGender(); // null 허용
 		this.memo = reqDto.getMemo(); // null 허용
 	}
 
-	public void delete() {
+	public void softDelete() {
 		this.deletedAt = LocalDateTime.now();
 	}
 }

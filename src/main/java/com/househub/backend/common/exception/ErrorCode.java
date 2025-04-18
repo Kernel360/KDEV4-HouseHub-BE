@@ -15,7 +15,9 @@ public enum ErrorCode {
 		"이메일 발송 중 오류가 발생했습니다. 이메일 주소를 확인하거나 잠시 후 다시 시도해주세요."),
 	RESOURCE_NOT_FOUND(HttpStatus.NOT_FOUND, "RESOURCE_NOT_FOUND", "요청한 리소스를 찾을 수 없습니다."),
 	EMAIL_MISMATCH(HttpStatus.BAD_REQUEST, "EMAIL_MISMATCH", "해당 이메일과 일치하는 중개사가 존재하지 않습니다."),
-	PASSWORD_MISMATCH(HttpStatus.BAD_REQUEST, "PASSWORD_MISMATCH", "비밀번호가 일치하지 않습니다.");
+	PASSWORD_MISMATCH(HttpStatus.BAD_REQUEST, "PASSWORD_MISMATCH", "비밀번호가 일치하지 않습니다."),
+	INVALID_SHARED_TOKEN(HttpStatus.BAD_REQUEST, "INVALID_SHARED_TOKEN", "유효하지 않은 링크입니다."),
+	CONTACT_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "CONTACT_ALREADY_EXISTS", "이 전화번호로 등록된 고객이 이미 있어요.");
 
 	private final HttpStatus httpStatus;
 	private final String code;   // 프론트에서 오류 코드 구분용 (예: AUTH_CODE_INVALID)

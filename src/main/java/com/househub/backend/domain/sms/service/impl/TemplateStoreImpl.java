@@ -1,4 +1,4 @@
-package com.househub.backend.domain.sms.service.Impl;
+package com.househub.backend.domain.sms.service.impl;
 
 import org.springframework.stereotype.Component;
 

@@ -22,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.househub.backend.common.response.SuccessResponse;
 import com.househub.backend.common.util.SecurityUtil;
+import com.househub.backend.domain.agent.dto.AgentResDto;
 import com.househub.backend.domain.customer.dto.CreateCustomerReqDto;
 import com.househub.backend.domain.customer.dto.CreateCustomerResDto;
 import com.househub.backend.domain.customer.dto.CustomerListResDto;
@@ -43,8 +44,8 @@ public class CustomerController {
 	@PostMapping("")
 	public ResponseEntity<SuccessResponse<CreateCustomerResDto>> createCustomer(
 		@Valid @RequestBody CreateCustomerReqDto request) {
-		Long agentId = SecurityUtil.getAuthenticatedAgent().getId();
-		CreateCustomerResDto response = customerService.createCustomer(request,agentId);
+		AgentResDto agentDto = SecurityUtil.getAuthenticatedAgent();
+		CreateCustomerResDto response = customerService.create(request,agentDto);
 		return ResponseEntity.ok(SuccessResponse.success("고객 등록이 완료되었습니다.", "CUSTOMER_REGISTER_SUCCESS", response));
 	}
 
@@ -52,17 +53,13 @@ public class CustomerController {
 	// 페이지네이션 적용
 	@GetMapping("")
 	public ResponseEntity<SuccessResponse<CustomerListResDto>> findAllCustomer(
-		// @ModelAttribute CustomerSearchDto searchDto,
 		@RequestParam(name = "keyword", required = false) String keyword,
 		Pageable pageable
 	) {
-		int page = Math.max(pageable.getPageNumber() -1,0);
-		int size = pageable.getPageSize();
+		Pageable adjustedPageable = PageRequest.of(Math.max(pageable.getPageNumber() -1,0),pageable.getPageSize(), pageable.getSort());
+		AgentResDto agentDto = SecurityUtil.getAuthenticatedAgent();
 
-		Pageable adjustedPageable = PageRequest.of(page,size, pageable.getSort());
-
-		Long agentId = SecurityUtil.getAuthenticatedAgent().getId();
-		CustomerListResDto response = customerService.findAllByDeletedAtIsNull(keyword, agentId, adjustedPageable);
+		CustomerListResDto response = customerService.findAll(keyword, agentDto, adjustedPageable);
         return ResponseEntity.ok(SuccessResponse.success("고객 목록 조회에 성공했습니다.", "FIND_ALL_CUSTOMER_SUCCESS", response));
     }
 
@@ -71,8 +68,8 @@ public class CustomerController {
 	// 본인이 등록한 고객만 보게함
 	@GetMapping("/{id}")
 	public ResponseEntity<SuccessResponse<CreateCustomerResDto>> findOneCustomer(@PathVariable Long id) {
-		Long agentId = SecurityUtil.getAuthenticatedAgent().getId();
-		CreateCustomerResDto response = customerService.findByIdAndDeletedAtIsNull(id,agentId);
+		AgentResDto agentDto = SecurityUtil.getAuthenticatedAgent();
+		CreateCustomerResDto response = customerService.findById(id,agentDto);
         return ResponseEntity.ok(SuccessResponse.success("고객 상세 조회가 완료되었습니다.", "FIND_CUSTOMER_SUCCESS", response));
     }
 
@@ -82,8 +79,8 @@ public class CustomerController {
 	@PutMapping("/{id}")
 	public ResponseEntity<SuccessResponse<CreateCustomerResDto>> updateCustomer(@PathVariable Long id,
 		@Valid @RequestBody CreateCustomerReqDto request) {
-		Long agentId = SecurityUtil.getAuthenticatedAgent().getId();
-		CreateCustomerResDto response = customerService.updateCustomer(id, request, agentId);
+		AgentResDto agentDto = SecurityUtil.getAuthenticatedAgent();
+		CreateCustomerResDto response = customerService.update(id, request, agentDto);
 
         return ResponseEntity.ok(SuccessResponse.success("고객 정보 수정이 완료되었습니다.", "UPDATE_CUSTOMER_SUCCESS", response));
     }
@@ -92,8 +89,8 @@ public class CustomerController {
 	// 이미 삭제된 고객은 못하게 막기
 	@DeleteMapping("/{id}")
 	public ResponseEntity<SuccessResponse<CreateCustomerResDto>> deleteCustomer(@PathVariable Long id) {
-		Long agentId = SecurityUtil.getAuthenticatedAgent().getId();
-		CreateCustomerResDto response = customerService.deleteCustomer(id,agentId);
+		AgentResDto agentDto = SecurityUtil.getAuthenticatedAgent();
+		CreateCustomerResDto response = customerService.delete(id,agentDto);
 
         return ResponseEntity.ok(SuccessResponse.success("해당 고객의 삭제가 완료되었습니다.", "DELETE_CUSTOMER_SUCCESS", response));
     }
@@ -102,11 +99,11 @@ public class CustomerController {
 	@PostMapping("/upload")
 	public ResponseEntity<SuccessResponse<List<CreateCustomerResDto>>> createCustomersByExcel(
 		@RequestParam("file") MultipartFile file) {
-		Long agentId = SecurityUtil.getAuthenticatedAgent().getId();
+		AgentResDto agentDto = SecurityUtil.getAuthenticatedAgent();
 		if (file.isEmpty()) {
 			throw new IllegalArgumentException("업로드할 파일이 없습니다.");
 		}
-		List<CreateCustomerResDto> response = customerService.createCustomersByExcel(file,agentId);
+		List<CreateCustomerResDto> response = customerService.createAllByExcel(file,agentDto);
 		return ResponseEntity.ok(SuccessResponse.success("고객 정보 등록 완료", "CUSTOMER_REGISTER_SUCCESS", response));
 	}
 

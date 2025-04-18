@@ -1,33 +1,30 @@
 package com.househub.backend.domain.customer.service.impl;
 
-import java.io.IOException;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.househub.backend.common.enums.Gender;
-import com.househub.backend.common.exception.AlreadyExistsException;
 import com.househub.backend.common.exception.InvalidExcelValueException;
-import com.househub.backend.common.exception.ResourceNotFoundException;
-import com.househub.backend.common.response.ErrorResponse.FieldError;
-import com.househub.backend.common.validation.ExcelValidator;
+import com.househub.backend.domain.agent.dto.AgentResDto;
 import com.househub.backend.domain.agent.entity.Agent;
-import com.househub.backend.domain.agent.repository.AgentRepository;
 import com.househub.backend.domain.customer.dto.CreateCustomerReqDto;
 import com.househub.backend.domain.customer.dto.CreateCustomerResDto;
 import com.househub.backend.domain.customer.dto.CustomerListResDto;
 import com.househub.backend.domain.customer.entity.Customer;
-import com.househub.backend.domain.customer.repository.CustomerRepository;
+import com.househub.backend.domain.customer.service.CustomerExecutor;
+import com.househub.backend.domain.customer.service.CustomerReader;
 import com.househub.backend.domain.customer.service.CustomerService;
+import com.househub.backend.domain.customer.service.CustomerStore;
+import com.househub.backend.domain.customer.util.CustomerExcelProcessor;
+import com.househub.backend.domain.customer.util.ExcelParserUtils;
 
 import lombok.RequiredArgsConstructor;
 
@@ -35,121 +32,84 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class CustomerServiceImpl implements CustomerService {
 
-    private final CustomerRepository customerRepository;
-    private final AgentRepository agentRepository;
+	private final CustomerStore customerStore;
+	private final CustomerReader customerReader;
+	private final CustomerExecutor customerExecutor;
+	private final CustomerExcelProcessor excelProcessor;
 
-    @Transactional
-    public CreateCustomerResDto createCustomer(CreateCustomerReqDto request, Long agentId) {
-        Agent agent = validateAgent(agentId);
-        // 이메일로 고객 조회
-        customerRepository.findByEmail(request.getEmail()).ifPresent(customer -> {
-            throw new AlreadyExistsException("해당 이메일(" + request.getEmail() + ")로 생성되었던 계정이 이미 존재합니다.", "EMAIL_ALREADY_EXIST");
-        });
-        Customer customer = request.toEntity(agent);
-        // 새로운 고객 생성 및 저장
-        return CreateCustomerResDto.fromEntity(customerRepository.save(customer));
-    }
+	@Transactional
+	public CreateCustomerResDto create(CreateCustomerReqDto request, AgentResDto agentDto) {
+		Agent agent = agentDto.toEntity();
+		customerReader.checkDuplicatedByContact(request.getContact(), agent.getId());
+		Customer storedCustomer = customerStore.create(request.toEntity(agent));
+		return CreateCustomerResDto.fromEntity(storedCustomer);
+	}
 
-    @Transactional
-    public List<CreateCustomerResDto> createCustomersByExcel(MultipartFile file, Long agentId) {
-        List<FieldError> allErrors = new ArrayList<>();
-        List<CreateCustomerReqDto> validDtos = new ArrayList<>();
-		try (Workbook workbook = new XSSFWorkbook(file.getInputStream())) {
-			Sheet sheet = workbook.getSheetAt(0);
-			ExcelValidator validator = new ExcelValidator();
+	@Transactional
+	public List<CreateCustomerResDto> createAllByExcel(MultipartFile file, AgentResDto agentDto) {
+		Agent agent = agentDto.toEntity();
+		ExcelParserUtils.ExcelParseResult<CreateCustomerReqDto> result = excelProcessor.process(file);
 
-			// 행 단위 검증 및 분류
-			sheet.forEach(row -> {
-				if (row.getRowNum() == 0)
-					return; // 헤더 스킵
+		if (!result.errors().isEmpty()) {
+			throw new InvalidExcelValueException("입력값에 "+ result.errors().size() +" 개의 오류가 존재합니다.", result.errors(), "VALIDATION_ERROR");
+		}
 
-				List<FieldError> rowErrors = validator.validateRow(row);
-				if (!rowErrors.isEmpty()) {
-					allErrors.addAll(rowErrors);
-				} else {
-					validDtos.add(createCustomerDtoFromRow(row));
-				}
-			});
+		// null 값 필터링
+		List<CreateCustomerReqDto> filteredDtos = result.successData().stream()
+			.filter(Objects::nonNull)
+			.collect(Collectors.toList());
 
-			if (!allErrors.isEmpty()) {
-				throw new InvalidExcelValueException("입력값을 확인해주세요!", allErrors, "VALIDATION_ERROR");
+		checkExcelDuplicates(filteredDtos);
+		checkDatabaseDuplicates(filteredDtos, agent.getId());
+
+		List<Customer> customers = filteredDtos.stream()
+			.map(dto -> dto.toEntity(agent))
+			.toList();
+
+		return customerStore.createAll(customers).stream().map(CreateCustomerResDto::fromEntity).toList();
+	}
+
+
+	private void checkExcelDuplicates(List<CreateCustomerReqDto> dtos) {
+		Set<String> contacts = new HashSet<>();
+		for (CreateCustomerReqDto dto : dtos) {
+			if (!contacts.add(dto.getContact())) {
+				throw new InvalidExcelValueException("엑셀 내 중복 연락처가 존재합니다. " + dto.getContact(),"DUPLICATED_CONTACT");
 			}
-
-            // 유효한 데이터만 처리
-            return validDtos.stream()
-                    .map(request -> createCustomer(request, agentId))
-                    .toList();
-
-		} catch (IOException e) {
-			throw new RuntimeException("엑셀 처리 실패", e);
 		}
 	}
 
-	private CreateCustomerReqDto createCustomerDtoFromRow(Row row) {
-
-		return CreateCustomerReqDto.builder()
-			.name(row.getCell(0).getStringCellValue())
-			.ageGroup((int)row.getCell(1).getNumericCellValue())
-			.contact(row.getCell(2).getStringCellValue())
-			.email(row.getCell(3).getStringCellValue())
-			.memo(row.getCell(4).getStringCellValue())
-			.gender(Gender.valueOf(row.getCell(5).getStringCellValue()))
-			.build();
+	private void checkDatabaseDuplicates(List<CreateCustomerReqDto> dtos, Long agentId) {
+		for (CreateCustomerReqDto dto : dtos) {
+			customerReader.checkDuplicatedByContact(dto.getContact(), agentId);
+			customerReader.checkDuplicatedByEmail(dto.getEmail(),agentId);
+		}
 	}
 
-    public CustomerListResDto findAllByDeletedAtIsNull(String keyword, Long agentId, Pageable pageable) {
-        Agent agent = validateAgent(agentId);
-
-		Page<Customer> customerPage = customerRepository.findAllByAgentAndFiltersAndDeletedAtIsNull(
-			agent.getId(),
-			keyword,
-			keyword,
-			keyword,
-			pageable
-		);
+	public CustomerListResDto findAll(String keyword, AgentResDto agentDto, Pageable pageable) {
+		Agent agent = agentDto.toEntity();
+		Page<Customer> customerPage = customerReader.findAllByKeyword(keyword, agent.getId(), pageable);
 		Page<CreateCustomerResDto> response = customerPage.map(CreateCustomerResDto::fromEntity);
 		return CustomerListResDto.fromPage(response);
-    }
+	}
 
-    public CreateCustomerResDto findByIdAndDeletedAtIsNull(Long id, Long agentId) {
-        Agent agent = validateAgent(agentId);
-        Customer customer = customerRepository.findByIdAndAgentAndDeletedAtIsNull(id,agent).orElseThrow(() -> new ResourceNotFoundException("해당 아이디를 가진 고객이 존재하지 않습니다:" + id, "CUSTOMER_NOT_FOUND"));
-        return CreateCustomerResDto.fromEntity(customer);
-    }
-
-    @Transactional
-    public CreateCustomerResDto updateCustomer(Long id, CreateCustomerReqDto request, Long agentId) {
-        Agent agent = validateAgent(agentId);
-        Customer customer = customerRepository.findByIdAndAgentAndDeletedAtIsNull(id,agent).orElseThrow(() -> new ResourceNotFoundException("해당 고객이 존재하지 않습니다:", "CUSTOMER_NOT_FOUND"));
-
-		if (!customer.getEmail().equals(request.getEmail())) {
-			customerRepository.findByEmail(request.getEmail())
-				.ifPresent(existingCustomer -> {
-					if (!existingCustomer.getId().equals(customer.getId())) {
-						throw new AlreadyExistsException(
-							"이미 사용 중인 이메일입니다: " + request.getEmail(),
-							"EMAIL_ALREADY_EXISTS"
-						);
-					}
-				});
-		}
-
-		customer.update(request);
+	public CreateCustomerResDto findById(Long id, AgentResDto agentDto) {
+		Agent agent = agentDto.toEntity();
+		Customer customer = customerReader.findByIdOrThrow(id, agent.getId());
 		return CreateCustomerResDto.fromEntity(customer);
 	}
 
-    @Transactional
-    public CreateCustomerResDto deleteCustomer(Long id, Long agentId) {
-        Agent agent = validateAgent(agentId);
+	@Transactional
+	public CreateCustomerResDto update(Long id, CreateCustomerReqDto request, AgentResDto agentDto) {
+		Agent agent = agentDto.toEntity();
+		Customer updatedCustomer = customerExecutor.validateAndUpdate(id, request, agent);
+		return CreateCustomerResDto.fromEntity(updatedCustomer);
+	}
 
-        Customer customer = customerRepository.findByIdAndAgentAndDeletedAtIsNull(id,agent).orElseThrow(() -> new ResourceNotFoundException("해당 고객이 존재하지 않습니다:", "CUSTOMER_NOT_FOUND"));
-        // 소프트 딜리트
-        customer.delete();
-        return CreateCustomerResDto.fromEntity(customer);
-    }
-
-    private Agent validateAgent(Long agentId) {
-        return agentRepository.findById(agentId)
-            .orElseThrow(() -> new ResourceNotFoundException("공인중개사가 존재하지 않습니다.", "AGENT_NOT_FOUND"));
-    }
+	@Transactional
+	public CreateCustomerResDto delete(Long id, AgentResDto agentDto) {
+		Agent agent = agentDto.toEntity();
+		Customer deletedCustomer = customerExecutor.validateAndDelete(id,agent);
+		return CreateCustomerResDto.fromEntity(deletedCustomer);
+	}
 }
