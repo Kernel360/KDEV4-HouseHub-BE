@@ -42,15 +42,4 @@ public class AgentResDto implements Serializable {
             .status(this.status)
             .build();
     }
-
-    public Agent toEntity() {
-        return Agent.builder()
-            .id(this.getId())
-            .email(this.getEmail())
-            .password(this.getPassword())
-            .name(this.getName())
-            .role(this.getRole())
-            .status(this.getStatus())
-            .build();
-    }
 }
