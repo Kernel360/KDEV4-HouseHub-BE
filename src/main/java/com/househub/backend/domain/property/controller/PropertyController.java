@@ -24,8 +24,8 @@ public class PropertyController {
 	@PostMapping
 	public ResponseEntity<SuccessResponse<CreatePropertyResDto>> createProperty(
 		@RequestBody @Valid PropertyReqDto createPropertyDto) {
-		CreatePropertyResDto response = propertyService.createProperty(createPropertyDto, getSignInAgentId());
-		return ResponseEntity.ok(SuccessResponse.success("매물이 성공적으로 등록되었습니다.", "CREATE_PROPERTY_SUCCESS", response));
+		propertyService.createProperty(createPropertyDto, getSignInAgentId());
+		return ResponseEntity.ok(SuccessResponse.success("매물이 성공적으로 등록되었습니다.", "CREATE_PROPERTY_SUCCESS", null));
 	}
 
 	// 전체 매물 조회 및 검색
@@ -53,7 +53,7 @@ public class PropertyController {
 	@PutMapping("/{id}")
 	public ResponseEntity<SuccessResponse<Void>> updateProperty(
 		@PathVariable("id") Long id,
-		@RequestBody @Valid PropertyReqDto updatePropertyReqDto
+		@RequestBody @Valid PropertyUpdateReqDto updatePropertyReqDto
 	) {
 		propertyService.updateProperty(id, updatePropertyReqDto);
 		return ResponseEntity.ok(SuccessResponse.success("매물이 성공적으로 수정되었습니다.", "UPDATE_PROPERTY_SUCCESS", null));

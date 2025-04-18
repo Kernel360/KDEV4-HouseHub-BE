@@ -2,16 +2,18 @@ package com.househub.backend.domain.property.dto;
 
 import com.househub.backend.domain.agent.entity.Agent;
 import com.househub.backend.domain.customer.entity.Customer;
+import com.househub.backend.domain.property.dto.propertyCondition.PropertyConditionReqDto;
 import com.househub.backend.domain.property.entity.Property;
 import com.househub.backend.domain.property.enums.PropertyType;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
+import java.util.List;
 
 @Builder
 @Getter
@@ -22,16 +24,18 @@ public class PropertyReqDto {
 	private Long customerId;
 	@NotNull(message = "매물 유형은 필수입니다.")
 	private PropertyType propertyType;
-	private String memo;
 	@NotNull(message = "도로명 주소는 필수입니다.")
 	private String roadAddress; // 도로명 주소
 	@NotNull(message = "지번 주소는 필수입니다.")
 	private String jibunAddress; // 지번 주소
 	@NotNull(message = "상세 주소는 필수입니다.")
 	private String detailAddress; // 상세 주소
+	private String memo;
+	private Boolean active; // 매물 활성화 여부
 
-	private BigDecimal latitude;
-	private BigDecimal longitude;
+	private List<@Valid PropertyConditionReqDto> conditions;
+	// private BigDecimal latitude;
+	// private BigDecimal longitude;
 
 	public Property toEntity(Customer customer, Agent agent) {
 		Property property = Property.builder()
@@ -42,8 +46,8 @@ public class PropertyReqDto {
 			.roadAddress(this.roadAddress)
 			.detailAddress(this.detailAddress)
 			.jibunAddress(this.jibunAddress)
-			.latitude(this.latitude)
-			.longitude(this.longitude)
+			.memo(this.memo)
+			.active(this.active != null ? this.active : true) // 기본값 true
 			.build();
 		property.parseJibunAddress(this.jibunAddress);
 		return property;

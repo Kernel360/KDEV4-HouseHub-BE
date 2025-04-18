@@ -6,7 +6,7 @@ import org.springframework.data.domain.Pageable;
 
 public interface PropertyService {
     // 매물 등록
-    public CreatePropertyResDto createProperty(PropertyReqDto createPropertyDto, Long agentId);
+    public void createProperty(PropertyReqDto createPropertyDto, Long agentId);
 
     // 매물 상세 조회
     public FindPropertyDetailResDto findProperty(Long propertyId);
@@ -15,7 +15,7 @@ public interface PropertyService {
     public PropertyListResDto findProperties(PropertySearchDto searchDto, Pageable pageable, Long agentId);
 
     // 매물 정보 수정
-    public void updateProperty(Long propertyId, PropertyReqDto updatePropertyReqDto);
+    public void updateProperty(Long propertyId, PropertyUpdateReqDto updatePropertyReqDto);
 
     // 매물 삭제
     public void deleteProperty(Long propertyId);

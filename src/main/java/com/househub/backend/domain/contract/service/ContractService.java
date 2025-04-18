@@ -12,7 +12,7 @@ public interface ContractService {
     public CreateContractResDto createContract(ContractReqDto contractReqDto, Long agentId);
 
     // 계약 수정
-    public void updateContract(Long id, ContractReqDto dto);
+    public void updateContract(Long id, ContractUpdateReqDto dto);
 
     // 계약 목록 조회
     public ContractListResDto findContracts(ContractSearchDto searchDto, Pageable pageable, Long agentId);
