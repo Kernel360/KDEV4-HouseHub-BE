@@ -11,16 +11,15 @@ import com.househub.backend.domain.customer.dto.CustomerListResDto;
 
 public interface CustomerService {
 
+	CreateCustomerResDto createCustomer(CreateCustomerReqDto request, Long agentId);
 
-    CreateCustomerResDto createCustomer(CreateCustomerReqDto request, Long agentId);
+	CreateCustomerResDto findByIdAndDeletedAtIsNull(Long id, Long agentId);
 
-    CreateCustomerResDto findByIdAndDeletedAtIsNull(Long id, Long agentId);
+	CreateCustomerResDto updateCustomer(Long id, CreateCustomerReqDto reqDto, Long agentId);
 
-    CreateCustomerResDto updateCustomer(Long id, CreateCustomerReqDto reqDto, Long agentId);
+	CreateCustomerResDto deleteCustomer(Long id, Long agentId);
 
-    CreateCustomerResDto deleteCustomer(Long id, Long agentId);
+	CustomerListResDto findAllByDeletedAtIsNull(String searchDto, Long agentId, Pageable pageable);
 
-    CustomerListResDto findAllByDeletedAtIsNull(String searchDto, Long agentId, Pageable pageable);
-
-    List<CreateCustomerResDto> createCustomersByExcel(MultipartFile file, Long agentId);
+	List<CreateCustomerResDto> createCustomersByExcel(MultipartFile file, Long agentId);
 }
