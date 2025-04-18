@@ -17,7 +17,7 @@ import com.househub.backend.domain.agent.entity.Agent;
 import com.househub.backend.domain.customer.dto.CreateCustomerReqDto;
 import com.househub.backend.domain.customer.entity.Customer;
 import com.househub.backend.domain.customer.repository.CustomerRepository;
-import com.househub.backend.domain.customer.service.Impl.CustomerStoreImpl;
+import com.househub.backend.domain.customer.service.impl.CustomerStoreImpl;
 
 @ExtendWith(MockitoExtension.class)
 public class CustomerStoreImplTest {

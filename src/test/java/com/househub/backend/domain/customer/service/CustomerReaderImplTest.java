@@ -23,7 +23,7 @@ import com.househub.backend.common.exception.ResourceNotFoundException;
 import com.househub.backend.domain.agent.entity.Agent;
 import com.househub.backend.domain.customer.entity.Customer;
 import com.househub.backend.domain.customer.repository.CustomerRepository;
-import com.househub.backend.domain.customer.service.Impl.CustomerReaderImpl;
+import com.househub.backend.domain.customer.service.impl.CustomerReaderImpl;
 
 @ExtendWith(MockitoExtension.class)
 class CustomerReaderImplTest {

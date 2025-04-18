@@ -1,4 +1,4 @@
-package com.househub.backend.domain.customer.service.Impl;
+package com.househub.backend.domain.customer.service.impl;
 
 import java.util.List;
 
