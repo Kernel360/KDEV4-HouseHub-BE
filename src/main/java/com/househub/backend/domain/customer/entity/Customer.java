@@ -85,7 +85,7 @@ public class Customer {
 		this.memo = reqDto.getMemo(); // null 허용
 	}
 
-	public void delete() {
+	public void softDelete() {
 		this.deletedAt = LocalDateTime.now();
 	}
 }

@@ -15,15 +15,15 @@ public interface CustomerService {
     // Criteria : 조회 요청
     // Info : 리턴
 
-    CreateCustomerResDto createCustomer(CreateCustomerReqDto request, AgentResDto agentDto);
+    CreateCustomerResDto create(CreateCustomerReqDto request, AgentResDto agentDto);
+
+    List<CreateCustomerResDto> createAllByExcel(MultipartFile file, AgentResDto agentDto);
 
     CreateCustomerResDto findById(Long id, AgentResDto agentDto);
 
-    CreateCustomerResDto updateCustomer(Long id, CreateCustomerReqDto reqDto, AgentResDto agentDto);
+    CreateCustomerResDto update(Long id, CreateCustomerReqDto reqDto, AgentResDto agentDto);
 
-    CreateCustomerResDto deleteCustomer(Long id, AgentResDto agentDto);
+    CreateCustomerResDto delete(Long id, AgentResDto agentDto);
 
     CustomerListResDto findAll(String searchDto, AgentResDto agentDto, Pageable pageable);
-
-    List<CreateCustomerResDto> createCustomersByExcel(MultipartFile file, AgentResDto agentDto);
 }

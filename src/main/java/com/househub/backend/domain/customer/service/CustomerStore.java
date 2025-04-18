@@ -2,18 +2,15 @@ package com.househub.backend.domain.customer.service;
 
 import java.util.List;
 
-import org.springframework.web.multipart.MultipartFile;
-
-import com.househub.backend.domain.agent.entity.Agent;
 import com.househub.backend.domain.customer.dto.CreateCustomerReqDto;
 import com.househub.backend.domain.customer.entity.Customer;
 
 public interface CustomerStore {
-	Customer createCustomer(Customer customer);
+	Customer create(Customer customer);
 
-	List<Customer> createCustomersByExcel(MultipartFile file, Agent agent);
+	List<Customer> createAll(List<Customer> customers);
 
-	Customer updateCustomer(Long id, CreateCustomerReqDto request ,Agent agent);
+	Customer update(Customer customer, CreateCustomerReqDto request);
 
-	Customer deleteCustomer(Long id, Agent agent);
+	Customer delete(Customer customer);
 }

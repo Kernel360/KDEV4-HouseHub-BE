@@ -45,7 +45,7 @@ public class CustomerController {
 	public ResponseEntity<SuccessResponse<CreateCustomerResDto>> createCustomer(
 		@Valid @RequestBody CreateCustomerReqDto request) {
 		AgentResDto agentDto = SecurityUtil.getAuthenticatedAgent();
-		CreateCustomerResDto response = customerService.createCustomer(request,agentDto);
+		CreateCustomerResDto response = customerService.create(request,agentDto);
 		return ResponseEntity.ok(SuccessResponse.success("고객 등록이 완료되었습니다.", "CUSTOMER_REGISTER_SUCCESS", response));
 	}
 
@@ -80,7 +80,7 @@ public class CustomerController {
 	public ResponseEntity<SuccessResponse<CreateCustomerResDto>> updateCustomer(@PathVariable Long id,
 		@Valid @RequestBody CreateCustomerReqDto request) {
 		AgentResDto agentDto = SecurityUtil.getAuthenticatedAgent();
-		CreateCustomerResDto response = customerService.updateCustomer(id, request, agentDto);
+		CreateCustomerResDto response = customerService.update(id, request, agentDto);
 
         return ResponseEntity.ok(SuccessResponse.success("고객 정보 수정이 완료되었습니다.", "UPDATE_CUSTOMER_SUCCESS", response));
     }
@@ -90,7 +90,7 @@ public class CustomerController {
 	@DeleteMapping("/{id}")
 	public ResponseEntity<SuccessResponse<CreateCustomerResDto>> deleteCustomer(@PathVariable Long id) {
 		AgentResDto agentDto = SecurityUtil.getAuthenticatedAgent();
-		CreateCustomerResDto response = customerService.deleteCustomer(id,agentDto);
+		CreateCustomerResDto response = customerService.delete(id,agentDto);
 
         return ResponseEntity.ok(SuccessResponse.success("해당 고객의 삭제가 완료되었습니다.", "DELETE_CUSTOMER_SUCCESS", response));
     }
@@ -103,7 +103,7 @@ public class CustomerController {
 		if (file.isEmpty()) {
 			throw new IllegalArgumentException("업로드할 파일이 없습니다.");
 		}
-		List<CreateCustomerResDto> response = customerService.createCustomersByExcel(file,agentDto);
+		List<CreateCustomerResDto> response = customerService.createAllByExcel(file,agentDto);
 		return ResponseEntity.ok(SuccessResponse.success("고객 정보 등록 완료", "CUSTOMER_REGISTER_SUCCESS", response));
 	}
 

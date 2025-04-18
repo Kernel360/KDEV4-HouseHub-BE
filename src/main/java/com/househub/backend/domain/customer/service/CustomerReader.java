@@ -6,8 +6,9 @@ import org.springframework.data.domain.Pageable;
 import com.househub.backend.domain.customer.entity.Customer;
 
 public interface CustomerReader {
-	public Customer getCustomerById(Long id, Long agentId);
-	public Customer getCustomerByContact(String contact, Long agentId);
-	public void checkCustomer(String contact, Long agentId);
-	public Page<Customer> getAllCustomer(String keyword, Long agentId, Pageable pageable);
+	Customer findByIdOrThrow(Long id, Long agentId);
+	Customer findByContactOrThrow(String contact, Long agentId);
+	void checkDuplicatedByContact(String contact, Long agentId);
+	void checkDuplicatedByEmail(String email, Long agentId);
+	Page<Customer> findAllByKeyword(String keyword, Long agentId, Pageable pageable);
 }

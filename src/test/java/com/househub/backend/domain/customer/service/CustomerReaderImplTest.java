@@ -50,7 +50,7 @@ class CustomerReaderImplTest {
 			when(customerRepository.findByIdAndAgentIdAndDeletedAtIsNull(id, agentId)).thenReturn(Optional.of(customer));
 
 			// when
-			Customer result = customerReader.getCustomerById(id, agentId);
+			Customer result = customerReader.findByIdOrThrow(id, agentId);
 
 			// then
 			assertThat(result).isEqualTo(customer);
@@ -65,7 +65,7 @@ class CustomerReaderImplTest {
 			when(customerRepository.findByIdAndAgentIdAndDeletedAtIsNull(id, agentId)).thenReturn(Optional.empty());
 
 			// when & then
-			assertThatThrownBy(() -> customerReader.getCustomerById(id, agentId))
+			assertThatThrownBy(() -> customerReader.findByIdOrThrow(id, agentId))
 				.isInstanceOf(ResourceNotFoundException.class)
 				.hasMessageContaining("해당 ID로(" + id + ")로 생성된 계정이 존재하지 않습니다.");
 		}
@@ -87,7 +87,7 @@ class CustomerReaderImplTest {
 			when(customerRepository.findByContactAndAgentIdAndDeletedAtIsNull(contact, agentId)).thenReturn(Optional.of(customer));
 
 			// when
-			Customer result = customerReader.getCustomerByContact(contact, agentId);
+			Customer result = customerReader.findByContactOrThrow(contact, agentId);
 
 			// then
 			assertThat(result).isEqualTo(customer);
@@ -102,7 +102,7 @@ class CustomerReaderImplTest {
 			when(customerRepository.findByContactAndAgentIdAndDeletedAtIsNull(contact, agentId)).thenReturn(Optional.empty());
 
 			// when,then
-			assertThatThrownBy(() -> customerReader.getCustomerByContact(contact, agentId))
+			assertThatThrownBy(() -> customerReader.findByContactOrThrow(contact, agentId))
 				.isInstanceOf(ResourceNotFoundException.class)
 				.hasMessageContaining("해당 전화번호로(" + contact + ")로 생성되었던 계정이 존재하지 않습니다.");
 		}
@@ -121,18 +121,21 @@ class CustomerReaderImplTest {
 				.contact(contact)
 				.agent(Agent.builder().id(agentId).build())
 				.build();
-			when(customerRepository.findByContactAndAgentIdAndDeletedAtIsNull(contact,agentId)).thenReturn(Optional.of(customer));
+
+			when(customerRepository.findByContactAndAgentIdAndDeletedAtIsNull(contact, agentId))
+				.thenReturn(Optional.of(customer));
 
 			// when & then
-			assertThatThrownBy(() -> customerReader.checkCustomer(contact, agentId))
+			assertThatThrownBy(() -> customerReader.checkDuplicatedByContact(contact, agentId))
 				.isInstanceOf(AlreadyExistsException.class)
-				.hasMessageContaining("해당 전화번호로(" + contact + ")로 생성되었던 계정이 이미 존재합니다.")
+				.hasMessageContaining("해당 전화번호로(" + contact + ")로 생성되었던 고객이 이미 존재합니다.") // ✅ "계정" → "고객" 수정
 				.hasFieldOrPropertyWithValue("code", "CUSTOMER_ALREADY_EXIST");
 
 			// verify
 			verify(customerRepository, times(1))
 				.findByContactAndAgentIdAndDeletedAtIsNull(contact, agentId);
 		}
+
 
 		@Test
 		@DisplayName("존재하지 않는 고객 전화번호인 경우 예외 없음")
@@ -145,7 +148,7 @@ class CustomerReaderImplTest {
 				.thenReturn(Optional.empty());
 
 			// when & then
-			assertThatCode(() -> customerReader.checkCustomer(contact, agentId))
+			assertThatCode(() -> customerReader.checkDuplicatedByContact(contact, agentId))
 				.doesNotThrowAnyException();
 
 			// verify
@@ -171,7 +174,7 @@ class CustomerReaderImplTest {
 				mockPage);
 
 			// when
-			Page<Customer> result = customerReader.getAllCustomer(keyword, agentId, pageable);
+			Page<Customer> result = customerReader.findAllByKeyword(keyword, agentId, pageable);
 
 			// then
 			assertThat(result.getContent().size()).isEqualTo(1);

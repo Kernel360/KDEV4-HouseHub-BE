@@ -41,4 +41,6 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
 	@Query("SELECT COUNT(c) FROM Customer c WHERE c.agent.id = :agentId AND c.createdAt >= :sevenDaysAgo")
 	long countNewCustomersInLast7DaysByAgentId(@Param("agentId") Long agentId,
 		@Param("sevenDaysAgo") LocalDateTime sevenDaysAgo);
+
+	Optional<Customer> findByEmailAndAgentIdAndDeletedAtIsNull(String email, Long agentId);
 }

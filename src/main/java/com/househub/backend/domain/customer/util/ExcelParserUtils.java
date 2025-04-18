@@ -27,8 +27,6 @@ public class ExcelParserUtils {
 			Sheet sheet = workbook.getSheetAt(0);
 
 			for (Row row : sheet) {
-				if (row.getRowNum() == 0) continue;
-
 				try {
 					T result = rowProcessor.process(row);
 					successList.add(result);
