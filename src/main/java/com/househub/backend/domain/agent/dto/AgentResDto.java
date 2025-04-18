@@ -23,13 +23,24 @@ public class AgentResDto implements Serializable {
 
     public static AgentResDto fromEntity(Agent agent) {
         return AgentResDto.builder()
-                .id(agent.getId())
-                .email(agent.getEmail())
-                .password(agent.getPassword())
-                .name(agent.getName())
-                .role(agent.getRole())
-                .status(agent.getStatus())
-                .build();
+            .id(agent.getId())
+            .email(agent.getEmail())
+            .password(agent.getPassword())
+            .name(agent.getName())
+            .role(agent.getRole())
+            .status(agent.getStatus())
+            .build();
+    }
+
+    public Agent toEntity() {
+        return Agent.builder()
+            .id(this.id)
+            .email(this.email)
+            .password(this.password)
+            .name(this.name)
+            .role(this.role)
+            .status(this.status)
+            .build();
     }
 
     public Agent toEntity() {

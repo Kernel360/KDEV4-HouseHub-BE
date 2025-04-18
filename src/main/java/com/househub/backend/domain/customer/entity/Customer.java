@@ -6,6 +6,7 @@ import java.util.Optional;
 import com.househub.backend.common.enums.Gender;
 import com.househub.backend.domain.agent.entity.Agent;
 import com.househub.backend.domain.customer.dto.CreateCustomerReqDto;
+import com.househub.backend.domain.customer.enums.CustomerStatus;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -61,6 +62,11 @@ public class Customer {
 
 	private LocalDateTime deletedAt;
 
+	@Builder.Default
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
+	private CustomerStatus status = CustomerStatus.POTENTIAL; // 기본값: 잠재 고객
+
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "agent_id", nullable = false)
 	private Agent agent;
@@ -69,6 +75,7 @@ public class Customer {
 	protected void onCreate() {
 		createdAt = LocalDateTime.now();
 		updatedAt = LocalDateTime.now();
+		status = CustomerStatus.POTENTIAL; // 기본값: 잠재 고객
 	}
 
 	@PreUpdate
