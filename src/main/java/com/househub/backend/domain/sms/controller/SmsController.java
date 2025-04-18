@@ -45,8 +45,8 @@ public class SmsController {
 	// 문자 전송
 	@PostMapping("/send")
 	public ResponseEntity<SuccessResponse<SendSmsResDto>> sendSms(@RequestBody @Valid SendSmsReqDto sendSmsReqDto) {
-		AgentResDto agent = SecurityUtil.getAuthenticatedAgent();
-		SendSmsResDto response = smsService.sendSms(sendSmsReqDto, agent.getId());
+		AgentResDto agentDto = SecurityUtil.getAuthenticatedAgent();
+		SendSmsResDto response = smsService.sendSms(sendSmsReqDto, agentDto);
 		return ResponseEntity.ok(SuccessResponse.success("문자 전송에 성공했습니다.", "SMS_SEND_SUCCESS", response));
 	}
 
@@ -62,8 +62,8 @@ public class SmsController {
 	// 문자 단건 조회
 	@GetMapping("/{id}")
 	public ResponseEntity<SuccessResponse<SendSmsResDto>> getSmsHistory(@PathVariable Long id) {
-		AgentResDto agent = SecurityUtil.getAuthenticatedAgent();
-		SendSmsResDto response = smsService.findById(id, agent.getId());
+		AgentResDto agentDto = SecurityUtil.getAuthenticatedAgent();
+		SendSmsResDto response = smsService.findById(id, agentDto);
 
 		return ResponseEntity.ok(SuccessResponse.success("문자 단건 조회에 성공했습니다.","SMS_READ_SUCCESS",response));
 	}
@@ -79,40 +79,40 @@ public class SmsController {
 
 		Pageable adjustedPageable = PageRequest.of(page,size, pageable.getSort());
 
-		Long agentId = SecurityUtil.getAuthenticatedAgent().getId();
-		SmsListResDto response = smsService.getAllByKeywordAndDeletedAtIsNull(keyword, agentId, adjustedPageable);
+		AgentResDto agentDto = SecurityUtil.getAuthenticatedAgent();
+		SmsListResDto response = smsService.findAllByKeyword(keyword, agentDto, adjustedPageable);
 		return ResponseEntity.ok(SuccessResponse.success("문자 전체 조회에 성공했습니다.", "ALL_SMS_READ_SUCCESS",response));
 	}
 
 	// 문자 발송 템플릿 생성
 	@PostMapping("/templates")
 	public ResponseEntity<SuccessResponse<TemplateResDto>> createTemplate(@RequestBody @Valid CreateUpdateTemplateReqDto createUpdateTemplateReqDto) {
-		Long agentId = SecurityUtil.getAuthenticatedAgent().getId();
-		TemplateResDto response = templateService.createTemplate(createUpdateTemplateReqDto,agentId);
+		AgentResDto agentDto = SecurityUtil.getAuthenticatedAgent();
+		TemplateResDto response = templateService.createTemplate(createUpdateTemplateReqDto,agentDto);
 		return ResponseEntity.ok(SuccessResponse.success("문자 템플릿 생성에 성공했습니다.", "SMS_TEMPLATE_CREATE_SUCCESS",response));
 	}
 
     // 문자 발송 템플릿 수정
 	@PutMapping("/templates/{id}")
 	public ResponseEntity<SuccessResponse<TemplateResDto>> updateTemplate(@RequestBody @Valid CreateUpdateTemplateReqDto createUpdateTemplateReqDto, @PathVariable Long id){
-		Long agentId = SecurityUtil.getAuthenticatedAgent().getId();
-		TemplateResDto response = templateService.updateTemplate(createUpdateTemplateReqDto,id,agentId);
+		AgentResDto agentDto = SecurityUtil.getAuthenticatedAgent();
+		TemplateResDto response = templateService.updateTemplate(createUpdateTemplateReqDto,id,agentDto);
 		return ResponseEntity.ok(SuccessResponse.success("문자 템플릿 수정에 성공했습니다.", "SMS_TEMPLATE_UPDATE_SUCCESS",response));
 	}
 
     // 문자 발송 템플릿 삭제
 	@DeleteMapping("/templates/{id}")
 	public ResponseEntity<SuccessResponse<Void>> deleteTemplate(@PathVariable Long id){
-		Long agentId = SecurityUtil.getAuthenticatedAgent().getId();
-		SmsTemplate response =  templateService.deleteTemplate(id,agentId);
+		AgentResDto agentDto = SecurityUtil.getAuthenticatedAgent();
+		SmsTemplate response =  templateService.deleteTemplate(id,agentDto);
 		return ResponseEntity.ok(SuccessResponse.success("문자 템플릿" + response.getTitle() +" 삭제에 성공했습니다.", "SMS_TEMPLATE_DELETE_SUCCESS",null));
 	}
 
     // 문자 발송 템플릿 상세 조회
 	@GetMapping("/templates/{id}")
 	public ResponseEntity<SuccessResponse<TemplateResDto>> findTemplate(@PathVariable Long id) {
-		Long agentId = SecurityUtil.getAuthenticatedAgent().getId();
-		TemplateResDto response = templateService.findTemplate(id,agentId);
+		AgentResDto agentDto = SecurityUtil.getAuthenticatedAgent();
+		TemplateResDto response = templateService.findTemplate(id,agentDto);
 		return ResponseEntity.ok(SuccessResponse.success("문자 템플릿" + response.getTitle() +"조회에 성공했습니다","SMS_TEMPLATE_FIND_SUCCESS",response));
 	}
 
@@ -128,8 +128,8 @@ public class SmsController {
 
 		Pageable adjustedPageable = PageRequest.of(page,size, pageable.getSort());
 
-		Long agentId = SecurityUtil.getAuthenticatedAgent().getId();
-		SmsTemplateListResDto response = templateService.findAll(keyword, agentId, adjustedPageable);
-		return ResponseEntity.ok(SuccessResponse.success("문자 템플릿 전체 조회에 성공했습니다.","SMS_TEMPLATE_FIND_ALL_SUCCESS",response));
+		AgentResDto agentDto = SecurityUtil.getAuthenticatedAgent();
+		SmsTemplateListResDto response = templateService.findAll(keyword, agentDto, adjustedPageable);
+		return ResponseEntity.ok(SuccessResponse.success("문자 템플릿 전체 조회에 성공했습니다.","SMS_TEMPLATE_FIND_ALL_SUCCESS", response));
 	}
 }

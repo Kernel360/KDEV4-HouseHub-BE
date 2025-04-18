@@ -5,7 +5,6 @@ import java.util.Optional;
 
 import com.househub.backend.domain.agent.entity.Agent;
 import com.househub.backend.domain.sms.dto.CreateUpdateTemplateReqDto;
-import com.househub.backend.domain.sms.dto.TemplateResDto;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -64,17 +63,6 @@ public class SmsTemplate {
 	public void update(CreateUpdateTemplateReqDto dto){
 		Optional.ofNullable(dto.getContent()).ifPresent(content -> this.content = content);
 		Optional.ofNullable(dto.getTitle()).ifPresent(title -> this.title = title);
-	}
-
-	public TemplateResDto toResDto() {
-		return TemplateResDto.builder()
-			.id(this.getId())
-			.title(this.getTitle())
-			.content(this.getContent())
-			.createdAt(this.createdAt)
-			.updatedAt(this.updatedAt)
-			.deletedAt(this.deletedAt)
-			.build();
 	}
 
 	public SmsTemplate delete() {

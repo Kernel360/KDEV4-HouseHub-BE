@@ -1,6 +1,5 @@
 package com.househub.backend.domain.sms.repository;
 
-import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -13,10 +12,7 @@ import com.househub.backend.domain.sms.entity.SmsTemplate;
 
 public interface TemplateRepository extends JpaRepository<SmsTemplate, Long> {
 
-	List<SmsTemplate> findAllByAgentIdAndDeletedAtIsNull(Long agentId);
-
 	Optional<SmsTemplate> findByIdAndAgentIdAndDeletedAtIsNull(Long id, Long agentId);
-
 
 	@Query(value = "SELECT t FROM SmsTemplate t " +
 		"WHERE t.deletedAt IS NULL " +
