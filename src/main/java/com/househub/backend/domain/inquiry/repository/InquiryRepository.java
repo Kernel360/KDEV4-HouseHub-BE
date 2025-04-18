@@ -18,31 +18,25 @@ public interface InquiryRepository extends JpaRepository<Inquiry, Long> {
 			SELECT i
 			FROM Inquiry i
 			LEFT JOIN FETCH i.customer c
-			LEFT JOIN FETCH i.candidate cc
 			WHERE
-				(c.agent.id = :agentId OR (c IS NULL AND cc IS NOT NULL))
+				(c.agent.id = :agentId)
 				AND (
 					:keyword IS NULL OR
 					LOWER(c.name) LIKE LOWER(CONCAT('%', :keyword, '%')) OR
 					LOWER(c.contact) LIKE LOWER(CONCAT('%', :keyword, '%')) OR
-					LOWER(c.email) LIKE LOWER(CONCAT('%', :keyword, '%')) OR
-					LOWER(cc.name) LIKE LOWER(CONCAT('%', :keyword, '%')) OR
-					LOWER(cc.contact) LIKE LOWER(CONCAT('%', :keyword, '%')) OR
-					LOWER(cc.email) LIKE LOWER(CONCAT('%', :keyword, '%'))
+					LOWER(c.email) LIKE LOWER(CONCAT('%', :keyword, '%'))
 				)
 		""")
-	Page<Inquiry> findInquiriesWithCustomerOrCandidate(
+	Page<Inquiry> findInquiriesWithCustomer(
 		@Param("agentId") Long agentId,
 		@Param("keyword") String keyword,
 		Pageable pageable
 	);
-	
+
 	@Query("SELECT i FROM Inquiry i " +
 		"LEFT JOIN FETCH i.customer c " +
-		"LEFT JOIN FETCH i.candidate cc " +
 		"LEFT JOIN FETCH i.answers a " +
 		"LEFT JOIN FETCH a.question q " +
 		"WHERE i.id = :inquiryId")
 	Optional<Inquiry> findWithDetailsById(@Param("inquiryId") Long inquiryId);
-
 }

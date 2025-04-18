@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.househub.backend.domain.customer.entity.Customer;
-import com.househub.backend.domain.customer.entity.CustomerCandidate;
 import com.househub.backend.domain.inquiryTemplate.entity.InquiryTemplate;
 
 import jakarta.persistence.CascadeType;
@@ -45,11 +44,6 @@ public class Inquiry {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "customer_id")
 	private Customer customer; // null 허용
-
-	// 아직 고객 등록되지 않은 임시 문의자
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "customer_candidate_id")
-	private CustomerCandidate candidate; // null 허용
 
 	// 문의 항목에 대한 실제 답변 리스트
 	@OneToMany(mappedBy = "inquiry", cascade = CascadeType.ALL, orphanRemoval = true)
