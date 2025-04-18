@@ -37,11 +37,17 @@ public class CustomerExcelProcessor {
 	public ExcelParserUtils.ExcelParseResult<CreateCustomerReqDto> process(MultipartFile file) {
 		String fileName = file.getOriginalFilename();
 		String extension = FilenameUtils.getExtension(fileName);
+		final long MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
 		if (!"xlsx".equalsIgnoreCase(extension) && !"xls".equalsIgnoreCase(extension)) {
 			throw new InvalidFormatException("엑셀 파일(xlsx,xls)만 업로드 가능합니다.", "EXTENSION_ERROR");
 		}
-
+		if (file.getSize() > MAX_FILE_SIZE) {
+			throw new InvalidFormatException(
+				"파일 크기는" + (MAX_FILE_SIZE/1024/1024) + "MB를 초과할 수 없습니다.",
+				"FILE_SIZE_EXCEEDED"
+			);
+		}
 		return ExcelParserUtils.parseExcel(file, row -> {
 			if (row.getRowNum() == 0) {
 				validateHeader(row);
