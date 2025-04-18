@@ -19,8 +19,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CreateCustomerReqDto {
-	@Size(min = 2, max = 50, message = "이름은 2자 이상 50자 이하 여야 합니다.")
-	private String name;
+
+    @Size(min = 2, max = 50, message = "이름은 2자 이상 50자 이하 여야 합니다.")
+    private String name;
 
 	private Integer ageGroup;
 
