@@ -28,7 +28,7 @@ public class InquiryExecutorImpl implements InquiryExecutor {
 	// 문의 및 문의 답변 생성
 	public Inquiry executeInquiryCreation(CreateInquiryCommand command) {
 		// 문의 저장
-		Inquiry inquiry = inquiryStore.save(Inquiry.builder()
+		Inquiry inquiry = inquiryStore.create(Inquiry.builder()
 			.template(command.template())
 			.customer(command.customer())
 			.build());
@@ -48,7 +48,7 @@ public class InquiryExecutorImpl implements InquiryExecutor {
 				.answer(serializedAnswer)
 				.build();
 
-			inquiryStore.saveAnswer(answer);
+			inquiryStore.createAnswer(answer);
 		}
 
 		return inquiry;

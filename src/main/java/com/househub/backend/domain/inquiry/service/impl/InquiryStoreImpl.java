@@ -17,12 +17,12 @@ public class InquiryStoreImpl implements InquiryStore {
 	private final InquiryAnswerRepository answerRepository;
 
 	@Override
-	public Inquiry save(Inquiry inquiry) {
+	public Inquiry create(Inquiry inquiry) {
 		return inquiryRepository.save(inquiry);
 	}
 
 	@Override
-	public void saveAnswer(InquiryAnswer inquiryAnswer) {
+	public void createAnswer(InquiryAnswer inquiryAnswer) {
 		answerRepository.save(inquiryAnswer);
 	}
 }

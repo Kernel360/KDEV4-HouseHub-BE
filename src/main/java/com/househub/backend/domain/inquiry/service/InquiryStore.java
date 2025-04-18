@@ -4,7 +4,7 @@ import com.househub.backend.domain.inquiry.entity.Inquiry;
 import com.househub.backend.domain.inquiry.entity.InquiryAnswer;
 
 public interface InquiryStore {
-	Inquiry save(Inquiry inquiry);
+	Inquiry create(Inquiry inquiry);
 
-	void saveAnswer(InquiryAnswer inquiryAnswer);
+	void createAnswer(InquiryAnswer inquiryAnswer);
 }
