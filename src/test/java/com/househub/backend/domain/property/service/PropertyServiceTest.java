@@ -82,7 +82,7 @@ public class PropertyServiceTest {
 			.willReturn(Optional.of(customer));
 		willDoNothing().given(propertyReader)
 			.validateRegisterProperty(anyString(), anyString(), eq(customerId));
-		given(propertyStore.store(any(Property.class))).willReturn(property);
+		given(propertyStore.create(any(Property.class))).willReturn(property);
 
 		// when
 		propertyService.createProperty(reqDto, agentId);
@@ -91,7 +91,7 @@ public class PropertyServiceTest {
 		verify(agentRepository).findByIdAndStatus(agentId, AgentStatus.ACTIVE);
 		verify(customerRepository).findById(customerId);
 		verify(propertyReader).validateRegisterProperty(any(), any(), any());
-		verify(propertyStore).store(any(Property.class));
+		verify(propertyStore).create(any(Property.class));
 		// verify(propertyConditionService).createPropertyCondition(anyLong(), any(PropertyConditionReqDto.class));
 	}
 

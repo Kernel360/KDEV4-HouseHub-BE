@@ -33,7 +33,7 @@ public class PropertyConditionServiceImpl implements PropertyConditionService {
 	public void createPropertyCondition(Long propertyId, PropertyConditionReqDto reqDto) {
 		Property property = propertyReader.findPropertyBy(propertyId);
 		PropertyCondition propertyCondition = reqDto.toEntity(property);
-		propertyStore.store(propertyCondition);
+		propertyStore.createCondition(propertyCondition);
 	}
 
 	/**

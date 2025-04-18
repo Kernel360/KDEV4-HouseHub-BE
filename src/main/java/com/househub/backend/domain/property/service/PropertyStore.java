@@ -5,9 +5,9 @@ import com.househub.backend.domain.property.entity.Property;
 import com.househub.backend.domain.property.entity.PropertyCondition;
 
 public interface PropertyStore {
-	Property store(Property property);
+	Property create(Property property);
 
-	PropertyCondition store(PropertyCondition propertyCondition);
+	PropertyCondition createCondition(PropertyCondition propertyCondition);
 
 	void update(PropertyUpdateReqDto propertyUpdateReqDto, Property property);
 }

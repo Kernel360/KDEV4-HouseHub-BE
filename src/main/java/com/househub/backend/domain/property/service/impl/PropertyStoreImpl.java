@@ -19,11 +19,11 @@ public class PropertyStoreImpl implements PropertyStore {
 	private final PropertyConditionRepository propertyConditionRepository;
 
 	@Override
-	public Property store(Property property) {
+	public Property create(Property property) {
 		return propertyRepository.save(property);
 	}
 
-	public PropertyCondition store(PropertyCondition propertyCondition) {
+	public PropertyCondition createCondition(PropertyCondition propertyCondition) {
 		return propertyConditionRepository.save(propertyCondition);
 	}
 

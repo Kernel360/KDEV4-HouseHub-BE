@@ -50,12 +50,12 @@ public class PropertyServiceImpl implements PropertyService {
 		// 4. dto -> entity
 		Property property = dto.toEntity(customer, agent);
 		// 5. db에 매물 저장
-		propertyStore.store(property);
+		propertyStore.create(property);
 		// 6. db에 매물 조건 저장
 		if(dto.getConditions() != null) {
 			for (PropertyConditionReqDto conditionReqDto : dto.getConditions()) {
 				PropertyCondition propertyCondition = conditionReqDto.toEntity(property);
-				propertyStore.store(propertyCondition);
+				propertyStore.createCondition(propertyCondition);
 			}
 		}
 	}
