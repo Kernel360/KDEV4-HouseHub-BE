@@ -1,5 +1,7 @@
 package com.househub.backend.domain.customer.service.Impl;
 
+import java.util.Optional;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
@@ -54,5 +56,11 @@ public class CustomerReaderImpl implements CustomerReader {
 			keyword,
 			pageable
 		);
+	}
+
+	// 고객을 연락처와 agentId 로 조회
+	@Override
+	public Optional<Customer> findByContactAndAgentId(String contact, Long agentId) {
+		return customerRepository.findByContactAndAgentId(contact, agentId);
 	}
 }

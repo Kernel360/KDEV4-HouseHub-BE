@@ -27,11 +27,9 @@ import com.househub.backend.domain.customer.util.CustomerExcelProcessor;
 import com.househub.backend.domain.customer.util.ExcelParserUtils;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class CustomerServiceImpl implements CustomerService {
 
 	private final CustomerStore customerStore;
@@ -53,7 +51,6 @@ public class CustomerServiceImpl implements CustomerService {
 		ExcelParserUtils.ExcelParseResult<CreateCustomerReqDto> result = excelProcessor.process(file);
 
 		if (!result.errors().isEmpty()) {
-			log.info("" + result.errors().size());
 			throw new InvalidExcelValueException("입력값에 "+ result.errors().size() +" 개의 오류가 존재합니다.", result.errors(), "VALIDATION_ERROR");
 		}
 
