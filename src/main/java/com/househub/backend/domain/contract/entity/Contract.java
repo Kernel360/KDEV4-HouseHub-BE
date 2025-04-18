@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 import org.hibernate.annotations.SQLRestriction;
 
 import com.househub.backend.domain.agent.entity.Agent;
-import com.househub.backend.domain.contract.dto.ContractReqDto;
+import com.househub.backend.domain.contract.dto.ContractUpdateReqDto;
 import com.househub.backend.domain.contract.enums.ContractStatus;
 import com.househub.backend.domain.contract.enums.ContractType;
 import com.househub.backend.domain.customer.entity.Customer;
@@ -53,10 +53,6 @@ public class Contract {
 	@JoinColumn(name = "propertyConditionId", nullable = false)
 	private PropertyCondition propertyCondition;
 
-	// @ManyToOne
-	// @JoinColumn(name = "propertyId", nullable = false)
-	// private Property property;
-
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
 	private ContractType contractType; // 거래 유형 (매매, 전세, 월세)
@@ -96,19 +92,30 @@ public class Contract {
 		updatedAt = LocalDateTime.now();
 	}
 
-	// 수정 메서드 (setter 대신 사용)
-	public void updateContract(ContractReqDto updateDto) {
-		if (updateDto.getContractType() != null)
-			this.contractType = updateDto.getContractType();
+	public void updateContract(ContractUpdateReqDto updateDto) {
 		if (updateDto.getContractStatus() != null) {
 			this.status = updateDto.getContractStatus();
-			if (updateDto.getContractStatus() == ContractStatus.COMPLETED)
+			// 계약 상태에 따라 매물 조건의 활성화 상태를 변경
+			// 계약 취소 상태로 변경 -> 매물 조건 활성화
+			if (updateDto.getContractStatus() == ContractStatus.CANCELED) {
+				propertyCondition.updateActiveStatus(true);
+				propertyCondition.getProperty().updateActiveStatus(true);
+			} else  {
+				// 계약 진행중 또는 계약 완료 상태로 변경 시, 해당 매물 및 매물 조건 비활성화
+				propertyCondition.getProperty().updateActiveStatus(false);
+				propertyCondition.getProperty().getConditions().stream()
+					.filter(PropertyCondition::getActive)
+					.forEach(c -> c.updateActiveStatus(false));
 				this.completedAt = updateDto.getCompletedAt();
-			else
-				this.completedAt = null; // 거래 완료 상태가 아닌 경우에는 null 로 설정
+			}
+			// 계약 완료 상태가 아닌 경우에는 completedAt 을 null 로 설정
+			if (updateDto.getContractStatus() != ContractStatus.COMPLETED) {
+				this.completedAt = null;
+			}
 		}
-		if (updateDto.getMemo() != null)
-			this.memo = updateDto.getMemo();
+
+		if (updateDto.getContractType() != null)
+			this.contractType = updateDto.getContractType();
 		if (updateDto.getSalePrice() != null)
 			this.salePrice = updateDto.getSalePrice();
 		if (updateDto.getJeonsePrice() != null)
@@ -117,11 +124,21 @@ public class Contract {
 			this.monthlyRentDeposit = updateDto.getMonthlyRentDeposit();
 		if (updateDto.getMonthlyRentFee() != null)
 			this.monthlyRentFee = updateDto.getMonthlyRentFee();
-		this.updatedAt = LocalDateTime.now();
+
+		if (updateDto.getMemo() != null)
+			this.memo = updateDto.getMemo();
+		if (updateDto.getStartedAt() != null)
+			this.startedAt = updateDto.getStartedAt();
+		if (updateDto.getExpiredAt() != null)
+			this.expiredAt = updateDto.getExpiredAt();
+	}
+
+	public void changeCustomer(Customer customer) {
+		this.customer = customer;
 	}
 
 	// 삭제 메서드
-	public void deleteContract() {
+	public void softDelete() {
 		this.deletedAt = LocalDateTime.now();
 	}
 }

@@ -5,16 +5,15 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.househub.backend.common.exception.ResourceNotFoundException;
 import com.househub.backend.domain.property.dto.propertyCondition.PropertyConditionListResDto;
 import com.househub.backend.domain.property.dto.propertyCondition.PropertyConditionReqDto;
 import com.househub.backend.domain.property.dto.propertyCondition.PropertyConditionResDto;
 import com.househub.backend.domain.property.dto.propertyCondition.PropertyConditionUpdateReqDto;
 import com.househub.backend.domain.property.entity.Property;
 import com.househub.backend.domain.property.entity.PropertyCondition;
-import com.househub.backend.domain.property.repository.PropertyConditionRepository;
-import com.househub.backend.domain.property.repository.PropertyRepository;
 import com.househub.backend.domain.property.service.PropertyConditionService;
+import com.househub.backend.domain.property.service.PropertyReader;
+import com.househub.backend.domain.property.service.PropertyStore;
 
 import lombok.RequiredArgsConstructor;
 
@@ -22,8 +21,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class PropertyConditionServiceImpl implements PropertyConditionService {
 
-	private final PropertyConditionRepository propertyConditionRepository;
-	private final PropertyRepository propertyRepository;
+	private final PropertyReader propertyReader;
+	private final PropertyStore propertyStore;
 
 	/**
 	 * 매물 조건 추가
@@ -32,9 +31,9 @@ public class PropertyConditionServiceImpl implements PropertyConditionService {
 	@Transactional
 	@Override
 	public void createPropertyCondition(Long propertyId, PropertyConditionReqDto reqDto) {
-		Property property = findPropertyById(propertyId);
+		Property property = propertyReader.findPropertyBy(propertyId);
 		PropertyCondition propertyCondition = reqDto.toEntity(property);
-		propertyConditionRepository.save(propertyCondition);
+		propertyStore.store(propertyCondition);
 	}
 
 	/**
@@ -47,8 +46,8 @@ public class PropertyConditionServiceImpl implements PropertyConditionService {
 	@Override
 	public void updatePropertyCondition(Long propertyId, Long propertyConditionId,
 		PropertyConditionUpdateReqDto propertyConditionReqDto) {
-		Property property = findPropertyById(propertyId);
-		PropertyCondition propertyCondition = findPropertyConditionById(propertyConditionId);
+		propertyReader.findPropertyBy(propertyId);
+		PropertyCondition propertyCondition = propertyReader.findPropertyConditionBy(propertyConditionId);
 		propertyCondition.update(propertyConditionReqDto);
 	}
 
@@ -60,8 +59,8 @@ public class PropertyConditionServiceImpl implements PropertyConditionService {
 	@Transactional(readOnly = true)
 	@Override
 	public PropertyConditionListResDto findPropertyConditions(Long propertyId, Pageable pageable) {
-		Property property = findPropertyById(propertyId);
-		Page<PropertyCondition> propertyConditions = propertyConditionRepository.findAllByPropertyId(property.getId(), pageable);
+		Property property = propertyReader.findPropertyBy(propertyId);
+		Page<PropertyCondition> propertyConditions = propertyReader.findPropertyConditionsByPropertyId(property.getId(), pageable);
 		Page<PropertyConditionResDto> propertyConditionResDtos = propertyConditions.map(PropertyConditionResDto::fromEntity);
 		return PropertyConditionListResDto.fromPage(propertyConditionResDtos);
 	}
@@ -73,24 +72,7 @@ public class PropertyConditionServiceImpl implements PropertyConditionService {
 	@Transactional
 	@Override
 	public void deletePropertyCondition(Long propertyId, Long propertyConditionId) {
-		PropertyCondition propertyCondition = findPropertyConditionById(propertyConditionId);
-		propertyConditionRepository.delete(propertyCondition);
-	}
-
-	public PropertyCondition findPropertyConditionById(Long propertyConditionId) {
-		return propertyConditionRepository.findById(propertyConditionId)
-				.orElseThrow(() -> new ResourceNotFoundException("존재하지 않는 매물 조건입니다.", "PROPERTY_NOT_FOUND"));
-	}
-
-	/**
-	 * 해당 매물 id로 존재 여부 확인
-	 * @param id 매물 ID
-	 * @return 매물 ID로 매물을 찾았을 경우, Property 리턴
-	 *         매물을 찾지 못했을 경우, exception 처리
-	 */
-	public Property findPropertyById(Long id) {
-		Property property = propertyRepository.findById(id)
-			.orElseThrow(() -> new ResourceNotFoundException("존재하지 않는 매물입니다.", "PROPERTY_NOT_FOUND"));
-		return property;
+		PropertyCondition propertyCondition = propertyReader.findPropertyConditionBy(propertyConditionId);
+		propertyCondition.softDelete();
 	}
 }

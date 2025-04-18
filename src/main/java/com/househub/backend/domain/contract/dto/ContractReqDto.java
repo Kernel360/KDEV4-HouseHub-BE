@@ -5,7 +5,8 @@ import com.househub.backend.domain.contract.entity.Contract;
 import com.househub.backend.domain.contract.enums.ContractStatus;
 import com.househub.backend.domain.contract.enums.ContractType;
 import com.househub.backend.domain.customer.entity.Customer;
-import com.househub.backend.domain.property.entity.Property;
+import com.househub.backend.domain.property.entity.PropertyCondition;
+
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -27,7 +28,7 @@ public class ContractReqDto {
     @NotNull(message = "거래 유형은 필수입니다.")
     private ContractType contractType; // 거래 유형 (매매, 전세, 월세)
     @NotNull(message = "거래 상태는 필수입니다.")
-    private ContractStatus contractStatus; // 거래 상태 ( 거래 가능, 진행중, 완료 )
+    private ContractStatus contractStatus; // 거래 상태 ( 진행중, 완료, 취소 )
 
     private Long salePrice; // 매매가 (매매 계약일 경우 필요)
     private Long jeonsePrice; // 전세가 (전세 계약일 경우 필요)
@@ -53,6 +54,15 @@ public class ContractReqDto {
         return false;
     }
 
+    // 거래 진행중 상태일 경우, 거래 완료일은 입력 불가
+    @AssertTrue(message = "거래 진행중 상태일 경우, 거래 완료일은 입력할 수 없습니다.")
+    public boolean isCompletedAtNotRequired() {
+        if (contractStatus == ContractStatus.IN_PROGRESS) {
+            return completedAt == null;
+        }
+        return true; // 거래 진행중 상태가 아니면 통과
+    }
+
     @AssertTrue(message = "거래 완료 상태일 경우, 거래 완료일은 필수입니다.")
     public boolean isCompletedAtRequired() {
         if (contractStatus == ContractStatus.COMPLETED) {
@@ -66,9 +76,10 @@ public class ContractReqDto {
         return !startedAt.isAfter(expiredAt);
     }
 
-    public Contract toEntity(Property property, Customer customer, Agent agent) {
+    public Contract toEntity(PropertyCondition propertyCondition, Customer customer, Agent agent) {
         return Contract.builder()
                 // .property(property)
+                .propertyCondition(propertyCondition)
                 .customer(customer)
                 .agent(agent)
                 .contractType(this.contractType)

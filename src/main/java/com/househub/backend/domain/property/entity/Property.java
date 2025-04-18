@@ -41,9 +41,6 @@ public class Property {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id; // 매물 고유 식별자 (PK)
 
-    // @OneToMany(mappedBy = "property", cascade = CascadeType.ALL)
-    // private List<Contract> contracts;
-
     @OneToMany(mappedBy = "property", cascade = CascadeType.ALL)
     private List<PropertyCondition> conditions; // 매물 조건 (거래중, 계약완료, 계약취소 등)
 
@@ -105,7 +102,7 @@ public class Property {
     }
 
     // active 상태 변경 메서드
-    public void changeActiveStatus(boolean active) {
+    public void updateActiveStatus(boolean active) {
         this.active = active;
     }
 
@@ -128,12 +125,11 @@ public class Property {
     }
 
     // 삭제 메서드
-    public void deleteProperty() {
+    public void softDelete() {
         this.deletedAt = LocalDateTime.now();
-        this.active = false; // 매물 삭제 시, 매물 상태를 false 로 변경
         // 해당 매물에 대한 매물 조건 모두 소프트 딜리트
         for(PropertyCondition condition: this.conditions) {
-            condition.delete();
+            condition.softDelete();
         }
     }
 }

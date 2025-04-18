@@ -78,12 +78,15 @@ public class PropertyCondition {
 	}
 
 	// 삭제 메서드
-	public void delete() {
+	public void softDelete() {
 		this.deletedAt = LocalDateTime.now();
-		this.active = false;
 		// 해당 계약 리스트 소프트 딜리트
 		for(Contract contract : contracts) {
-			contract.deleteContract();
+			contract.softDelete();
+		}
+		// 해당 매물에 대해 모든 매물 조건이 삭제되면 매물 비활성화
+		if (property.getConditions().stream().allMatch(c -> c.getDeletedAt() != null)) {
+			property.updateActiveStatus(false);
 		}
 	}
 
@@ -109,6 +112,14 @@ public class PropertyCondition {
 		}
 		if(updateReqDto.getActive() != null) {
 			this.active = updateReqDto.getActive();
+			if(!updateReqDto.getActive()) { // 비활성화로 바꿀 경우
+				// 모든 매물 조건이 비활성화이면 매물도 비활성화
+				if(property.getConditions().stream().allMatch(c -> c.getActive() == false)) {
+					property.updateActiveStatus(false);
+				}
+			} else { // 활성화로 바꿀 경우
+				property.updateActiveStatus(true);
+			}
 		}
 	}
 

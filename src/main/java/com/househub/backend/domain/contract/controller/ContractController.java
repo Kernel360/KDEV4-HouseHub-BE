@@ -5,6 +5,7 @@ import com.househub.backend.common.util.SecurityUtil;
 import com.househub.backend.domain.contract.dto.ContractListResDto;
 import com.househub.backend.domain.contract.dto.ContractReqDto;
 import com.househub.backend.domain.contract.dto.ContractSearchDto;
+import com.househub.backend.domain.contract.dto.ContractUpdateReqDto;
 import com.househub.backend.domain.contract.dto.CreateContractResDto;
 import com.househub.backend.domain.contract.dto.FindContractResDto;
 import com.househub.backend.domain.contract.service.ContractService;
@@ -36,7 +37,7 @@ public class ContractController {
 	@PutMapping("/{id}")
 	public ResponseEntity<SuccessResponse<Void>> updateContract(
 		@PathVariable("id") Long id,
-		@RequestBody @Valid ContractReqDto reqDto
+		@RequestBody @Valid ContractUpdateReqDto reqDto
 	) {
 		contractService.updateContract(id, reqDto);
 		return ResponseEntity.ok(SuccessResponse.success("계약이 성공적으로 수정되었습니다.", "UPDATE_CONTRACT_SUCCESS", null));

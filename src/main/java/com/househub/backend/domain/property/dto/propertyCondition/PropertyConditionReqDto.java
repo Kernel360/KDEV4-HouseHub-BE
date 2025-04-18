@@ -13,7 +13,7 @@ import lombok.Setter;
 @Getter
 public class PropertyConditionReqDto {
 	// 매물 등록할 때 같이 등록 시에는 null 허용, 추가 등록 시에는 필수
-	private Long propertyId; // 매물 ID
+	// private Long propertyId; // 매물 ID
 	@NotNull(message = "거래 유형을 입력해주세요.")
 	private ContractType contractType; // 거래 유형 (매매, 전세, 월세)
 	private Long salePrice; // 매매가

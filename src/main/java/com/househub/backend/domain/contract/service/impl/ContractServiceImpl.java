@@ -1,5 +1,7 @@
 package com.househub.backend.domain.contract.service.impl;
 
+import java.util.Optional;
+
 import com.househub.backend.common.exception.BusinessException;
 import com.househub.backend.common.exception.ErrorCode;
 import com.househub.backend.common.exception.ResourceNotFoundException;
@@ -9,14 +11,14 @@ import com.househub.backend.domain.agent.repository.AgentRepository;
 import com.househub.backend.domain.contract.dto.*;
 import com.househub.backend.domain.contract.entity.Contract;
 import com.househub.backend.domain.contract.enums.ContractStatus;
-import com.househub.backend.domain.contract.repository.ContractRepository;
+import com.househub.backend.domain.contract.service.ContractReader;
 import com.househub.backend.domain.contract.service.ContractService;
+import com.househub.backend.domain.contract.service.ContractStore;
 import com.househub.backend.domain.customer.entity.Customer;
 import com.househub.backend.domain.customer.repository.CustomerRepository;
 import com.househub.backend.domain.property.entity.Property;
 import com.househub.backend.domain.property.entity.PropertyCondition;
-import com.househub.backend.domain.property.repository.PropertyRepository;
-import com.househub.backend.domain.property.service.PropertyConditionReader;
+import com.househub.backend.domain.property.service.PropertyReader;
 
 import lombok.RequiredArgsConstructor;
 
@@ -28,12 +30,12 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class ContractServiceImpl implements ContractService {
-	private final ContractRepository contractRepository;
-	private final PropertyRepository propertyRepository;
 	private final CustomerRepository customerRepository;
 	private final AgentRepository agentRepository;
 
-	private final PropertyConditionReader propertyConditionReader;
+	private final PropertyReader propertyReader;
+	private final ContractStore contractStore;
+	private final ContractReader contractReader;
 
 	/**
 	 * 계약 등록
@@ -44,30 +46,31 @@ public class ContractServiceImpl implements ContractService {
 	@Transactional
 	public CreateContractResDto createContract(ContractReqDto dto, Long agentId) {
 		// 계약할 매물 조건 조회
-		PropertyCondition propertyCondition = propertyConditionReader.findPropertyConditionById(dto.getPropertyConditionId());
+		PropertyCondition propertyCondition = propertyReader.findPropertyConditionBy(dto.getPropertyConditionId());
 		// 계약할 매물 조회
-		Property property = findPropertyById(propertyCondition.getProperty().getId());
+		Property property = propertyReader.findPropertyBy(propertyCondition.getProperty().getId());
 		// 계약할 고객 조회
 		Customer customer = findCustomerById(dto.getCustomerId());
+		// 1. 예외 처리
 		// 매물을 등록한 고객과 계약할 고객이 동일한 경우 예외 처리
 		isSameCustomerAndProperty(customer, property);
+		// 2. 예외처리
+		// 계약자가 동일 매물에 진행중인 계약이 있으면 등록 불가
+		contractReader.existsInProgressContract(property, customer, dto.getContractStatus());
 
-		// 지금 계약하는 고객이
-		// 같은 매물의 다른 조건에 계약이 되어있는 경우,
-		// 그 다른 조건의 계약이 진행중인 계약이면 안됨
-		// 해당 고객이 동일 매물에 대해 진행중인 계약이 있는지 확인
-		existsByContractAndProperty(customer, property, dto.getContractStatus());
 
 		// dto → entity 변환 후 저장
 		Agent agent = findAgentById(agentId);
-		Contract contract = dto.toEntity(property, customer, agent);
-		contract = contractRepository.save(contract);
-		// 계약 완료 상태로 등록 시
-		// 기존에 해당 매물 조건에 대한 계약 리스트가 없다면
-		// 매물 조건의 활성화 상태를 false로 변경
-		if (dto.getContractStatus() == ContractStatus.COMPLETED && propertyCondition.getContracts().isEmpty()) {
-			// 매물 조건 active false
-			propertyCondition.updateActiveStatus(false);
+		Contract contract = dto.toEntity(propertyCondition, customer, agent);
+		contract = contractStore.create(contract);
+		// 계약 진행중 상태로 등록시 매물 조건 비활성화
+		if (dto.getContractStatus() == ContractStatus.IN_PROGRESS) {
+			// 해당 매물에 대해 활성화 상태인 매물 조건들 모두 비활성화
+			property.getConditions().stream()
+				.filter(PropertyCondition::getActive)
+				.forEach(c -> c.updateActiveStatus(false));
+			// 매물도 비활성화
+			property.updateActiveStatus(false);
 		}
 		return CreateContractResDto.toDto(contract.getId());
 	}
@@ -79,30 +82,27 @@ public class ContractServiceImpl implements ContractService {
 	 */
 	@Transactional
 	@Override
-	public void updateContract(Long id, ContractReqDto dto) {
-		Contract contract = findContractById(id);
+	public void updateContract(Long id, ContractUpdateReqDto dto) {
+		Contract contract = contractReader.findBy(id);
 		// 계약할 매물 조건 조회
-		PropertyCondition propertyCondition = propertyConditionReader.findPropertyConditionById(dto.getPropertyConditionId());
-		// 고객 조회
-		Customer customer = findCustomerById(dto.getCustomerId());
+		PropertyCondition propertyCondition = propertyReader.findPropertyConditionBy(contract.getPropertyCondition().getId());
 		// 매물 조회
-		Property property = findPropertyById(propertyCondition.getProperty().getId());
+		Property property = propertyReader.findPropertyBy(propertyCondition.getProperty().getId());
+		Customer customer = findCustomerById(Optional.ofNullable(dto.getCustomerId()).orElse(contract.getCustomer().getId()));
 		// 매물을 등록한 고객과 계약할 고객이 동일한 경우 예외 처리
 		isSameCustomerAndProperty(customer, property);
-		// 거래 진행중 상태 이외의 상태로 변경하는 경우
+
+		// 계약 상태 변경
+		// 거래 진행중 상태로 바꿀 경우
 		if (dto.getContractStatus() == ContractStatus.IN_PROGRESS) {
 		    // 같은 고객과 매물에 대한 완료되지 않은 계약이 있는지 확인
 		    // 완료되지 않은 계약이 있으면 예외
-		    existsByContractAndProperty(customer, property, dto.getContractStatus());
+			contractReader.existsInProgressContract(property, customer, dto.getContractStatus());
 		}
 
-		// 계약 완료로 바꿀 경우 해당 계약 조건 활성화 false
-		if (dto.getContractStatus() == ContractStatus.COMPLETED) {
-			// 매물 조건 active false
-			propertyCondition.updateActiveStatus(false);
-		}
 		// 계약 정보 수정
 		contract.updateContract(dto);
+		contract.changeCustomer(customer);
 	}
 
 	/**
@@ -115,17 +115,9 @@ public class ContractServiceImpl implements ContractService {
 	@Override
 	@Transactional(readOnly = true)
 	public ContractListResDto findContracts(ContractSearchDto searchDto, Pageable pageable, Long agentId) {
-		Agent agent = findAgentById(agentId);
 		// 페이지네이션 적용하여 계약 조회
 		// 해당 공인중개사가 체결한 계약만 조회
-		Page<Contract> contractPage = contractRepository.findContractsByAgentAndFilters(
-			agentId,
-			searchDto.getAgentName(),
-			searchDto.getCustomerName(),
-			searchDto.getContractType(),
-			searchDto.getStatus(),
-			pageable
-		);
+		Page<Contract> contractPage = contractReader.searchContracts(agentId, searchDto, pageable);
 		// 계약 엔티티를 dto 로 변환하여 리스트로 반환
 		Page<FindContractResDto> response = contractPage.map(FindContractResDto::fromEntity);
 		return ContractListResDto.fromPage(response);
@@ -139,7 +131,7 @@ public class ContractServiceImpl implements ContractService {
 	@Override
 	@Transactional(readOnly = true)
 	public FindContractResDto findContract(Long id) {
-		Contract contract = findContractById(id);
+		Contract contract = contractReader.findBy(id);
 		return FindContractResDto.fromEntity(contract);
 	}
 
@@ -150,20 +142,19 @@ public class ContractServiceImpl implements ContractService {
 	@Transactional
 	@Override
 	public void deleteContract(Long id) {
-		Contract contract = findContractById(id);
-		contract.deleteContract();
+		Contract contract = contractReader.findBy(id);
+		contract.softDelete();
 	}
 
 	/**
-	 * 해당 계약 id 존재 여부 확인
-	 * @param id 계약 ID
-	 * @return 계약 ID로 계약을 찾았을 경우, Contract 리턴
-	 *         계약을 찾지 못했을 경우, exception 처리
+	 * 매물을 의뢰한 고객과 계약할 고객이 동일한 경우 예외 처리
+	 * @param customer 계약할 고객
+	 * @param property 계약할 매물
 	 */
-	public Contract findContractById(Long id) {
-		Contract contract = contractRepository.findById(id)
-			.orElseThrow(() -> new ResourceNotFoundException("존재하지 않는 계약입니다.", "CONTRACT_NOT_FOUND"));
-		return contract;
+	public void isSameCustomerAndProperty(Customer customer, Property property) {
+		if (property.getCustomer().getId().equals(customer.getId())) {
+			throw new BusinessException(ErrorCode.CONTRACT_PROPERTY_CUSTOMER_SAME);
+		}
 	}
 
 	/**
@@ -179,47 +170,6 @@ public class ContractServiceImpl implements ContractService {
 	}
 
 	/**
-	 * 매물 id 로 존재 여부 확인
-	 * @param id 매물 ID
-	 * @return 매물 ID로 계약을 찾았을 경우, Property 리턴
-	 *         매물을 찾지 못했을 경우, exception 처리
-	 */
-	public Property findPropertyById(Long id) {
-		Property property = propertyRepository.findById(id)
-			.orElseThrow(() -> new ResourceNotFoundException("존재하지 않는 매물입니다.", "PROPERTY_NOT_FOUND"));
-		return property;
-	}
-
-	/**
-	 * 계약 등록 시, 동일 매물에 대해 계약중인 계약이 있는 경우 예외 처리
-	 * @param customer 계약을 하는 고객
-	 * @param property 계약하는 매물
-	 * @param status 등록하려는 계약 상태
-	 */
-	public void existsByContractAndProperty(Customer customer, Property property, ContractStatus status) {
-		// 등록하려는 계약 상태가 완료나 취소인 경우, 계약 가능
-		// 등록하려는 계약 상태가 진행중인 경우, 다른 진행중인 계약이 있는지 확인
-		if (status == ContractStatus.IN_PROGRESS) {
-			boolean isExist = contractRepository.existsByPropertyCondition_PropertyAndCustomerAndStatus(property, customer,
-				ContractStatus.IN_PROGRESS);
-			if (isExist) {
-				throw new BusinessException(ErrorCode.DUPLICATE_PROPERTY_BY_SAME_CUSTOMER);
-			}
-		}
-	}
-
-	/**
-	 * 매물을 의뢰한 고객과 계약할 고객이 동일한 경우 예외 처리
-	 * @param customer 계약할 고객
-	 * @param property 계약할 매물
-	 */
-	public void isSameCustomerAndProperty(Customer customer, Property property) {
-		if (property.getCustomer().getId().equals(customer.getId())) {
-			throw new BusinessException(ErrorCode.CONTRACT_PROPERTY_CUSTOMER_SAME);
-		}
-	}
-
-	/**
 	 * status 가 반드시 ACTIVE 인 중개사만 조회
 	 * @param agentId 중개사 ID
 	 * @return 중개사 엔티티
@@ -229,34 +179,4 @@ public class ContractServiceImpl implements ContractService {
 		return agentRepository.findByIdAndStatus(agentId, AgentStatus.ACTIVE)
 			.orElseThrow(() -> new ResourceNotFoundException("해당 중개사를 찾을 수 없습니다.", "AGENT_NOT_FOUND"));
 	}
-
-	/**
-	 * 매물의 계약 상태에 따라 매물의 활성화 상태를 업데이트
-	 * @param property 매물 엔티티
-	 */
-	// public void updatePropertyActiveStatus(Property property) {
-	// 	List<Contract> contracts = property.getContracts().stream()
-	// 		.filter(contract -> contract.getDeletedAt() == null) // 삭제되지 않은 계약만 필터링
-	// 		.toList();
-	//
-	// 	// 1. 삭제되지 않은 계약 중에서 진행중인 계약이 하나라도 있으면 비활성화
-	// 	boolean hasInProgress = contracts.stream()
-	// 		.anyMatch(contract -> contract.getStatus() != ContractStatus.COMPLETED);
-	//
-	// 	if (hasInProgress) {
-	// 		property.changeActiveStatus(false);
-	// 		return;
-	// 	}
-	//
-	// 	// 2. 모든 계약이 완료 상태인 경우, 계약 만료일이 지났는지 확인
-	// 	boolean hasValidPeriod = contracts.stream()
-	// 		.filter(contract -> contract.getStatus() == ContractStatus.COMPLETED)
-	// 		.anyMatch(contract -> {
-	// 			LocalDate expiredAt = contract.getExpiredAt();
-	// 			return expiredAt != null && expiredAt.isAfter(LocalDate.now());
-	// 		});
-	//
-	// 	// 유효기간 남아있으면 비활성화
-	// 	property.changeActiveStatus(!hasValidPeriod);
-	// }
 }

@@ -1,7 +1,7 @@
 package com.househub.backend.domain.property.service.impl;
 
-import com.househub.backend.common.exception.BusinessException;
-import com.househub.backend.common.exception.ErrorCode;
+import java.util.Optional;
+
 import com.househub.backend.common.exception.ResourceNotFoundException;
 import com.househub.backend.domain.agent.entity.Agent;
 import com.househub.backend.domain.agent.entity.AgentStatus;
@@ -11,9 +11,10 @@ import com.househub.backend.domain.customer.repository.CustomerRepository;
 import com.househub.backend.domain.property.dto.*;
 import com.househub.backend.domain.property.dto.propertyCondition.PropertyConditionReqDto;
 import com.househub.backend.domain.property.entity.Property;
-import com.househub.backend.domain.property.repository.PropertyRepository;
-import com.househub.backend.domain.property.service.PropertyConditionService;
+import com.househub.backend.domain.property.entity.PropertyCondition;
+import com.househub.backend.domain.property.service.PropertyReader;
 import com.househub.backend.domain.property.service.PropertyService;
+import com.househub.backend.domain.property.service.PropertyStore;
 
 import lombok.RequiredArgsConstructor;
 
@@ -22,17 +23,15 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Optional;
-
 @Service
 @RequiredArgsConstructor
 public class PropertyServiceImpl implements PropertyService {
 
-	private final PropertyRepository propertyRepository;
-	private final CustomerRepository customerRepository;
-	private final AgentRepository agentRepository;
-	private final PropertyConditionService propertyConditionService;
+	private final PropertyReader propertyReader;
+	private final PropertyStore propertyStore;
+
+	private final CustomerRepository customerRepository; // 추후 리팩토링 코드로 변경 예정
+	private final AgentRepository agentRepository; // 추후 리팩토링 코드로 변경 예정
 
 	/**
 	 * 매물 등록
@@ -42,20 +41,21 @@ public class PropertyServiceImpl implements PropertyService {
 	@Transactional
 	@Override
 	public void createProperty(PropertyReqDto dto, Long agentId) {
-		// 로그인한 공인중개사 조회
+		// 1. 로그인한 공인중개사 조회
 		Agent agent = findAgentById(agentId);
-		// 의뢰인(임대인 또는 매도인) 존재 여부 확인
+		// 2. 의뢰인(임대인 또는 매도인) 존재 여부 확인
 		Customer customer = findCustomerById(dto.getCustomerId());
-		// 매물을 등록할 수 있는 조건인지 확인
-		validateRegisterProperty(dto.getRoadAddress(), dto.getDetailAddress(), dto.getCustomerId());
-		// dto -> entity
+		// 3. 매물을 등록할 수 있는 조건인지 확인
+		propertyReader.validateRegisterProperty(dto.getRoadAddress(), dto.getDetailAddress(), dto.getCustomerId());
+		// 4. dto -> entity
 		Property property = dto.toEntity(customer, agent);
-		// db에 매물 저장
-		propertyRepository.save(property);
-		// db에 매물 조건 저장
+		// 5. db에 매물 저장
+		propertyStore.store(property);
+		// 6. db에 매물 조건 저장
 		if(dto.getConditions() != null) {
 			for (PropertyConditionReqDto conditionReqDto : dto.getConditions()) {
-				propertyConditionService.createPropertyCondition(property.getId(), conditionReqDto);
+				PropertyCondition propertyCondition = conditionReqDto.toEntity(property);
+				propertyStore.store(propertyCondition);
 			}
 		}
 	}
@@ -69,11 +69,9 @@ public class PropertyServiceImpl implements PropertyService {
 	@Override
 	public FindPropertyDetailResDto findProperty(Long id) {
 		// 매물 조회
-		Property property = findPropertyById(id);
+		Property property = propertyReader.findPropertyBy(id);
 		// entity -> dto
-		// 해당 매물의 조건, 계약 리스트도 response 에 포함
-		FindPropertyDetailResDto response = FindPropertyDetailResDto.fromEntity(property);
-		return response;
+		return FindPropertyDetailResDto.fromEntity(property);
 	}
 
 	/**
@@ -86,17 +84,7 @@ public class PropertyServiceImpl implements PropertyService {
 	@Override
 	public PropertyListResDto findProperties(PropertySearchDto searchDto, Pageable pageable, Long agentId) {
 		// 페이지네이션, 검색 필터링 적용하여 매물 조회
-		Page<Property> propertyList = propertyRepository.searchProperties(
-			agentId,
-			searchDto.getProvince(),
-			searchDto.getCity(),
-			searchDto.getDong(),
-			searchDto.getPropertyType(),
-			searchDto.getAgentName(),
-			searchDto.getCustomerName(),
-			searchDto.getActive(),
-			pageable
-		);
+		Page<Property> propertyList = propertyReader.searchProperties(searchDto, agentId, pageable);
 		// 매물 엔티티를 dto 로 변환하여 리스트로 반환
 		return PropertyListResDto.fromPage(propertyList.map(FindPropertyResDto::toDto));
 	}
@@ -110,16 +98,19 @@ public class PropertyServiceImpl implements PropertyService {
 	@Override
 	public void updateProperty(Long propertyId, PropertyUpdateReqDto updateDto) {
 		// 매물 조회
-		Property property = findPropertyById(propertyId);
-
-		// 주소 관련 필드 미리 계산
-		String roadAddress = updateDto.getRoadAddress() != null ? updateDto.getRoadAddress() : property.getRoadAddress();
-		String detailAddress = updateDto.getDetailAddress() != null ? updateDto.getDetailAddress() : property.getDetailAddress();
-		Long customerId = updateDto.getCustomerId() != null ? updateDto.getCustomerId() : property.getCustomer().getId();
-
-		// 주소 유효성 검사
-		validateRegisterProperty(roadAddress, detailAddress, customerId);
-
+		Property property = propertyReader.findPropertyBy(propertyId);
+		// active false로 변경 시, 매물 조건도 모두 inactive 로 변경 + 주소 유효성 검사 안해도 됨!
+		if(updateDto.getActive() != null && updateDto.getActive() == false) {
+			property.getConditions().forEach(condition -> condition.updateActiveStatus(false));
+			// 주소 또는 고객(의뢰인) 변경 시에만 유효성 검사
+		} else if(updateDto.getCustomerId() != null || updateDto.getRoadAddress() != null || updateDto.getDetailAddress() != null) {
+			// 주소 관련 필드 미리 계산
+			String roadAddress = Optional.ofNullable(updateDto.getRoadAddress()).orElse(property.getRoadAddress());
+			String detailAddress = updateDto.getDetailAddress() != null ? updateDto.getDetailAddress() : property.getDetailAddress();
+			Long customerId = updateDto.getCustomerId() != null ? updateDto.getCustomerId() : property.getCustomer().getId();
+			// 주소 유효성 검사
+			propertyReader.validateRegisterProperty(roadAddress, detailAddress, customerId);
+ 		}
 		// 의뢰인(임대인 또는 매도인) 변경 여부 확인 후, 있으면 변경
 		if(updateDto.getCustomerId() != null) {
 			Customer customer = findCustomerById(updateDto.getCustomerId());
@@ -136,11 +127,8 @@ public class PropertyServiceImpl implements PropertyService {
 	@Transactional
 	@Override
 	public void deleteProperty(Long propertyId) {
-		// 매물 조회
-		Property property = findPropertyById(propertyId);
-		// 매물 소프트 삭제
-		// 매물 삭제 시, 해당 매물 조건 및 계약 리스트도 모두 소프트 딜리트 해야함
-		property.deleteProperty();
+		Property property = propertyReader.findPropertyBy(propertyId);
+		property.softDelete();
 	}
 
 	/**
@@ -152,45 +140,6 @@ public class PropertyServiceImpl implements PropertyService {
 	private Agent findAgentById(Long agentId) {
 		return agentRepository.findByIdAndStatus(agentId, AgentStatus.ACTIVE)
 			.orElseThrow(() -> new ResourceNotFoundException("해당 중개사를 찾을 수 없습니다.", "AGENT_NOT_FOUND"));
-	}
-
-	/**
-	 * 매물 등록 가능 여부 확인
-	 * @param roadAddress 도로명 주소
-	 * @param detailAddress 상세 주소
-	 * @param customerId 고객 ID
-	 */
-	public void validateRegisterProperty(String roadAddress, String detailAddress, Long customerId) {
-		// 1. 같은 주소 + 다른 고객 + 기존 매물 active = true -> 등록 불가
-		List<Property> othersActive = propertyRepository
-			.findByRoadAddressAndDetailAddressAndCustomerIdNotAndActive(roadAddress, detailAddress, customerId, true);
-		// 2. 같은 주소 + 다른 고객 + 기존 매물 active = false -> 등록 가능
-		if (!othersActive.isEmpty()) {
-			// 다른 고객이 동일 주소 매물을 등록한 적이 있음
-			throw new BusinessException(ErrorCode.DUPLICATE_ACTIVE_PROPERTY_BY_OTHER_CUSTOMER);
-		}
-
-
-		// 3. 같은 주소 + 같은 고객 -> 등록 불가
-		Optional<Property> sameCustomerProperty = propertyRepository
-			.findByRoadAddressAndDetailAddressAndCustomerId(roadAddress, detailAddress, customerId);
-		if (sameCustomerProperty.isPresent()) {
-			// 같은 고객이 동일 주소 매물을 등록한 적이 있음
-			throw new BusinessException(ErrorCode.DUPLICATE_PROPERTY_BY_SAME_CUSTOMER);
-		}
-		// 동일 주소, 다른 고객의 활성 매물이 있을 경우 활성화 여부 true로 변경 불가하도록 순서를 이렇게 함
-	}
-
-	/**
-	 * 해당 매물 id로 존재 여부 확인
-	 * @param id 매물 ID
-	 * @return 매물 ID로 매물을 찾았을 경우, Property 리턴
-	 *         매물을 찾지 못했을 경우, exception 처리
-	 */
-	public Property findPropertyById(Long id) {
-		Property property = propertyRepository.findById(id)
-			.orElseThrow(() -> new ResourceNotFoundException("존재하지 않는 매물입니다.", "PROPERTY_NOT_FOUND"));
-		return property;
 	}
 
 	/**
