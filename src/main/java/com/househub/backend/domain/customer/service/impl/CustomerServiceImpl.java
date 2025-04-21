@@ -1,10 +1,9 @@
 package com.househub.backend.domain.customer.service.impl;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -49,15 +48,12 @@ public class CustomerServiceImpl implements CustomerService {
 	public List<CreateCustomerResDto> createAllByExcel(MultipartFile file, AgentResDto agentDto) {
 		Agent agent = agentDto.toEntity();
 		ExcelParserUtils.ExcelParseResult<CreateCustomerReqDto> result = excelProcessor.process(file);
+		List<CreateCustomerReqDto> filteredDtos = new ArrayList<>(result.successData());
 
 		if (!result.errors().isEmpty()) {
-			throw new InvalidExcelValueException("입력값에 "+ result.errors().size() +" 개의 오류가 존재합니다.", result.errors(), "VALIDATION_ERROR");
+			throw new InvalidExcelValueException("입력값에 " + result.errors().size() + " 개의 오류가 존재합니다.", result.errors(),
+				"VALIDATION_ERROR");
 		}
-
-		// null 값 필터링
-		List<CreateCustomerReqDto> filteredDtos = result.successData().stream()
-			.filter(Objects::nonNull)
-			.collect(Collectors.toList());
 
 		checkExcelDuplicates(filteredDtos);
 		checkDatabaseDuplicates(filteredDtos, agent.getId());
@@ -69,12 +65,11 @@ public class CustomerServiceImpl implements CustomerService {
 		return customerStore.createAll(customers).stream().map(CreateCustomerResDto::fromEntity).toList();
 	}
 
-
 	private void checkExcelDuplicates(List<CreateCustomerReqDto> dtos) {
 		Set<String> contacts = new HashSet<>();
 		for (CreateCustomerReqDto dto : dtos) {
 			if (!contacts.add(dto.getContact())) {
-				throw new InvalidExcelValueException("엑셀 내 중복 연락처가 존재합니다. " + dto.getContact(),"DUPLICATED_CONTACT");
+				throw new InvalidExcelValueException("엑셀 내 중복 연락처가 존재합니다. " + dto.getContact(), "DUPLICATED_CONTACT");
 			}
 		}
 	}
@@ -82,7 +77,7 @@ public class CustomerServiceImpl implements CustomerService {
 	private void checkDatabaseDuplicates(List<CreateCustomerReqDto> dtos, Long agentId) {
 		for (CreateCustomerReqDto dto : dtos) {
 			customerReader.checkDuplicatedByContact(dto.getContact(), agentId);
-			customerReader.checkDuplicatedByEmail(dto.getEmail(),agentId);
+			customerReader.checkDuplicatedByEmail(dto.getEmail(), agentId);
 		}
 	}
 
@@ -109,7 +104,7 @@ public class CustomerServiceImpl implements CustomerService {
 	@Transactional
 	public CreateCustomerResDto delete(Long id, AgentResDto agentDto) {
 		Agent agent = agentDto.toEntity();
-		Customer deletedCustomer = customerExecutor.validateAndDelete(id,agent);
+		Customer deletedCustomer = customerExecutor.validateAndDelete(id, agent);
 		return CreateCustomerResDto.fromEntity(deletedCustomer);
 	}
 }

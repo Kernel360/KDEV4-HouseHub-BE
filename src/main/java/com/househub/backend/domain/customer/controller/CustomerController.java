@@ -28,6 +28,7 @@ import com.househub.backend.domain.customer.dto.CreateCustomerResDto;
 import com.househub.backend.domain.customer.dto.CustomerListResDto;
 import com.househub.backend.domain.customer.service.CustomerService;
 
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -96,7 +97,8 @@ public class CustomerController {
     }
 
 	// excel 업로드
-	@PostMapping("/upload")
+	@Operation(summary = "엑셀 업로드", description = "엑셀 파일을 업로드 합니다.")
+	@PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<SuccessResponse<List<CreateCustomerResDto>>> createCustomersByExcel(
 		@RequestParam("file") MultipartFile file) {
 		AgentResDto agentDto = SecurityUtil.getAuthenticatedAgent();

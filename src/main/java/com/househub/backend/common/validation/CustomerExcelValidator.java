@@ -2,6 +2,7 @@ package com.househub.backend.common.validation;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
@@ -9,15 +10,16 @@ import org.apache.poi.ss.usermodel.Row;
 import org.springframework.stereotype.Component;
 
 import com.househub.backend.common.response.ErrorResponse.FieldError;
+import com.househub.backend.domain.customer.enums.CustomerExcelColumn;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
 @Component
-public class ExcelValidator implements ConstraintValidator<ValidExcel, Row> {
+public class CustomerExcelValidator implements ConstraintValidator<ValidCustomerExcel, Row> {
 
     @Override
-    public void initialize(ValidExcel constraintAnnotation) {
+    public void initialize(ValidCustomerExcel constraintAnnotation) {
         ConstraintValidator.super.initialize(constraintAnnotation);
     }
 
@@ -29,22 +31,23 @@ public class ExcelValidator implements ConstraintValidator<ValidExcel, Row> {
         return errors.isEmpty();
     }
 
+    private final Map<CustomerExcelColumn, CellValidator> validators = Map.of(
+        CustomerExcelColumn.NAME, this::validateName,
+        CustomerExcelColumn.AGE_GROUP, this::validateAgeGroup,
+        CustomerExcelColumn.CONTACT, this::validateContact,
+        CustomerExcelColumn.EMAIL, this::validateEmail,
+        CustomerExcelColumn.MEMO, this::validateMemo,
+        CustomerExcelColumn.GENDER, this::validateGender
+    );
+
     public List<FieldError> validateRow(Row row) {
         List<FieldError> errors = new ArrayList<>();
-        validateCell(row.getCell(0), this::validateName, errors);      // 이름
-        validateCell(row.getCell(1), this::validateAgeGroup, errors);  // 연령대
-        validateCell(row.getCell(2), this::validateContact, errors);   // 연락처(필수)
-        validateCell(row.getCell(3), this::validateEmail, errors);     // 이메일
-        validateCell(row.getCell(4), this::validateMemo, errors);      // 메모
-        validateCell(row.getCell(5), this::validateGender, errors);    // 성별
-        return errors;
-    }
-
-    private void validateCell(Cell cell, CellValidator validator, List<FieldError> errors) {
-        FieldError error = validator.validate(cell);
-        if (error != null) {
-            errors.add(error);
+        for (CustomerExcelColumn col : CustomerExcelColumn.values()) {
+            Cell cell = row.getCell(col.ordinal());
+            FieldError error = validators.get(col).validate(cell);
+            if (error != null) errors.add(error);
         }
+        return errors;
     }
 
     // 이름: 비어 있으면 통과, 값이 있으면 형식만 체크
