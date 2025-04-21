@@ -11,49 +11,48 @@ import com.househub.backend.domain.sms.dto.CreateUpdateTemplateReqDto;
 import com.househub.backend.domain.sms.dto.SmsTemplateListResDto;
 import com.househub.backend.domain.sms.dto.TemplateResDto;
 import com.househub.backend.domain.sms.entity.SmsTemplate;
-import com.househub.backend.domain.sms.service.TemplateReader;
-import com.househub.backend.domain.sms.service.TemplateService;
-import com.househub.backend.domain.sms.service.TemplateStore;
+import com.househub.backend.domain.sms.service.SmsTemplateExecutor;
+import com.househub.backend.domain.sms.service.SmsTemplateReader;
+import com.househub.backend.domain.sms.service.SmsTemplateService;
+import com.househub.backend.domain.sms.service.SmsTemplateStore;
 
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class TemplateServiceImpl implements TemplateService {
+public class SmsSmsTemplateServiceImpl implements SmsTemplateService {
 
-	private final TemplateReader templateReader;
-	private final TemplateStore templateStore;
+	private final SmsTemplateReader smsTemplateReader;
+	private final SmsTemplateStore smsTemplateStore;
+	private final SmsTemplateExecutor smsTemplateExecutor;
 
 	@Transactional
 	@Override
-	public TemplateResDto createTemplate(CreateUpdateTemplateReqDto dto, AgentResDto agentDto) {
+	public TemplateResDto create(CreateUpdateTemplateReqDto dto, AgentResDto agentDto) {
 		Agent agent = agentDto.toEntity();
 		SmsTemplate template = dto.toEntity(agent);
-		return TemplateResDto.fromEntity(templateStore.createSmsTemplate(template));
+		return TemplateResDto.fromEntity(smsTemplateStore.create(template));
 	}
 
 	@Transactional
 	@Override
-	public TemplateResDto updateTemplate(CreateUpdateTemplateReqDto dto, Long id, AgentResDto agentDto) {
+	public TemplateResDto update(CreateUpdateTemplateReqDto dto, Long id, AgentResDto agentDto) {
 		Agent agent = agentDto.toEntity();
-		SmsTemplate template = templateReader.findTemplateById(id, agent.getId());
-		template.update(dto);
-		return TemplateResDto.fromEntity(templateStore.createSmsTemplate(template));
+		return TemplateResDto.fromEntity(smsTemplateExecutor.update(dto,id,agent));
 	}
 
 	@Transactional
 	@Override
-	public SmsTemplate deleteTemplate(Long id, AgentResDto agentDto) {
+	public SmsTemplate delete(Long id, AgentResDto agentDto) {
 		Agent agent = agentDto.toEntity();
-		SmsTemplate template = templateReader.findTemplateById(id, agent.getId());
-		return templateStore.createSmsTemplate(template.delete());
+		return smsTemplateExecutor.delete(id,agent);
 	}
 
 	@Override
 	public SmsTemplateListResDto findAll(String keyword, AgentResDto agentDto, Pageable pageable) {
 		Agent agent = agentDto.toEntity();
 
-		Page<SmsTemplate> templatePage = templateReader.findAllByKeyword(
+		Page<SmsTemplate> templatePage = smsTemplateReader.findAllByKeyword(
 			agent.getId(),
 			keyword,
 			keyword,
@@ -65,9 +64,9 @@ public class TemplateServiceImpl implements TemplateService {
 	}
 
 	@Override
-	public TemplateResDto findTemplate(Long id, AgentResDto agentDto) {
+	public TemplateResDto findById(Long id, AgentResDto agentDto) {
 		Agent agent = agentDto.toEntity();
-		SmsTemplate template = templateReader.findTemplateById(id, agent.getId());
+		SmsTemplate template = smsTemplateReader.findById(id, agent.getId());
 		return TemplateResDto.fromEntity(template);
 	}
 }

@@ -15,7 +15,7 @@ public class SmsStoreImpl implements SmsStore {
 	private final SmsRepository smsRepository;
 
 	@Override
-	public Sms createSms(Sms sms) {
+	public Sms create(Sms sms) {
 		return smsRepository.save(sms);
 	}
 }

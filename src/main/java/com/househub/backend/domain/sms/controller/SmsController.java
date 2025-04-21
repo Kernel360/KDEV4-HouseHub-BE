@@ -29,7 +29,7 @@ import com.househub.backend.domain.sms.dto.SmsTemplateListResDto;
 import com.househub.backend.domain.sms.dto.TemplateResDto;
 import com.househub.backend.domain.sms.entity.SmsTemplate;
 import com.househub.backend.domain.sms.service.SmsService;
-import com.househub.backend.domain.sms.service.TemplateService;
+import com.househub.backend.domain.sms.service.SmsTemplateService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -40,7 +40,7 @@ import lombok.RequiredArgsConstructor;
 public class SmsController {
 
 	private final SmsService smsService;
-	private final TemplateService templateService;
+	private final SmsTemplateService smsTemplateService;
 
 	// 문자 전송
 	@PostMapping("/send")
@@ -88,7 +88,7 @@ public class SmsController {
 	@PostMapping("/templates")
 	public ResponseEntity<SuccessResponse<TemplateResDto>> createTemplate(@RequestBody @Valid CreateUpdateTemplateReqDto createUpdateTemplateReqDto) {
 		AgentResDto agentDto = SecurityUtil.getAuthenticatedAgent();
-		TemplateResDto response = templateService.createTemplate(createUpdateTemplateReqDto,agentDto);
+		TemplateResDto response = smsTemplateService.create(createUpdateTemplateReqDto,agentDto);
 		return ResponseEntity.ok(SuccessResponse.success("문자 템플릿 생성에 성공했습니다.", "SMS_TEMPLATE_CREATE_SUCCESS",response));
 	}
 
@@ -96,7 +96,7 @@ public class SmsController {
 	@PutMapping("/templates/{id}")
 	public ResponseEntity<SuccessResponse<TemplateResDto>> updateTemplate(@RequestBody @Valid CreateUpdateTemplateReqDto createUpdateTemplateReqDto, @PathVariable Long id){
 		AgentResDto agentDto = SecurityUtil.getAuthenticatedAgent();
-		TemplateResDto response = templateService.updateTemplate(createUpdateTemplateReqDto,id,agentDto);
+		TemplateResDto response = smsTemplateService.update(createUpdateTemplateReqDto,id,agentDto);
 		return ResponseEntity.ok(SuccessResponse.success("문자 템플릿 수정에 성공했습니다.", "SMS_TEMPLATE_UPDATE_SUCCESS",response));
 	}
 
@@ -104,7 +104,7 @@ public class SmsController {
 	@DeleteMapping("/templates/{id}")
 	public ResponseEntity<SuccessResponse<Void>> deleteTemplate(@PathVariable Long id){
 		AgentResDto agentDto = SecurityUtil.getAuthenticatedAgent();
-		SmsTemplate response =  templateService.deleteTemplate(id,agentDto);
+		SmsTemplate response =  smsTemplateService.delete(id,agentDto);
 		return ResponseEntity.ok(SuccessResponse.success("문자 템플릿" + response.getTitle() +" 삭제에 성공했습니다.", "SMS_TEMPLATE_DELETE_SUCCESS",null));
 	}
 
@@ -112,7 +112,7 @@ public class SmsController {
 	@GetMapping("/templates/{id}")
 	public ResponseEntity<SuccessResponse<TemplateResDto>> findTemplate(@PathVariable Long id) {
 		AgentResDto agentDto = SecurityUtil.getAuthenticatedAgent();
-		TemplateResDto response = templateService.findTemplate(id,agentDto);
+		TemplateResDto response = smsTemplateService.findById(id,agentDto);
 		return ResponseEntity.ok(SuccessResponse.success("문자 템플릿" + response.getTitle() +"조회에 성공했습니다","SMS_TEMPLATE_FIND_SUCCESS",response));
 	}
 
@@ -129,7 +129,7 @@ public class SmsController {
 		Pageable adjustedPageable = PageRequest.of(page,size, pageable.getSort());
 
 		AgentResDto agentDto = SecurityUtil.getAuthenticatedAgent();
-		SmsTemplateListResDto response = templateService.findAll(keyword, agentDto, adjustedPageable);
+		SmsTemplateListResDto response = smsTemplateService.findAll(keyword, agentDto, adjustedPageable);
 		return ResponseEntity.ok(SuccessResponse.success("문자 템플릿 전체 조회에 성공했습니다.","SMS_TEMPLATE_FIND_ALL_SUCCESS", response));
 	}
 }

@@ -17,13 +17,13 @@ public class SmsReaderImpl implements SmsReader {
 	private final SmsRepository smsRepository;
 
 	@Override
-	public Page<Sms> findAllSmsByKeyword(Long agentId, String receiver, String msg, Pageable pageable) {
-		receiver = receiver.replace("-","");
+	public Page<Sms> findAllByKeyword(Long agentId, String receiver, String msg, Pageable pageable) {
+		receiver = receiver!=null?receiver.replace("-",""):null;
 		return smsRepository.findAllSmsByAgentIdAndFiltersAndDeletedAtIsNull(agentId, receiver, msg, pageable);
 	}
 
 	@Override
-	public Sms findSmsById(Long id, Long agentId) {
+	public Sms findById(Long id, Long agentId) {
 		return smsRepository.findByIdAndAgentId(id, agentId);
 	}
 }

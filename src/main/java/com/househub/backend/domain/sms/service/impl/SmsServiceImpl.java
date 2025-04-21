@@ -14,36 +14,35 @@ import com.househub.backend.domain.sms.dto.SendSmsReqDto;
 import com.househub.backend.domain.sms.dto.SendSmsResDto;
 import com.househub.backend.domain.sms.dto.SmsListResDto;
 import com.househub.backend.domain.sms.entity.Sms;
-import com.househub.backend.domain.sms.enums.Status;
+import com.househub.backend.domain.sms.enums.SmsStatus;
 import com.househub.backend.domain.sms.service.SmsReader;
 import com.househub.backend.domain.sms.service.SmsService;
 import com.househub.backend.domain.sms.service.SmsStore;
-import com.househub.backend.domain.sms.utils.AligoApiClient;
 
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class AligoSmsServiceImpl implements SmsService {
+public class SmsServiceImpl implements SmsService {
 
-	private final AligoApiClient aligoApiClient;
+	private final AligoServiceImpl aligoService;
 	private final SmsStore smsStore;
 	private final SmsReader smsReader;
 
 	// send와 create 분리
 	public SendSmsResDto sendSms(SendSmsReqDto request, AgentResDto agentDto) {
 		Agent agent = agentDto.toEntity();
-		AligoSmsResDto aligoResponse = aligoApiClient.sendSms(request);
+		AligoSmsResDto aligoResponse = aligoService.sendSms(request);
 		if(aligoResponse.getResultCode() == 1){
-			return SendSmsResDto.fromEntity(smsStore.createSms(request.toEntity(Status.SUCCESS,agent)));
+			return SendSmsResDto.fromEntity(smsStore.create(request.toEntity(SmsStatus.SUCCESS,agent)));
 		} else {
-			return SendSmsResDto.fromEntity(smsStore.createSms(request.toEntity(Status.FAIL,agent)));
+			return SendSmsResDto.fromEntity(smsStore.create(request.toEntity(SmsStatus.FAIL,agent)));
 		}
 	}
 	
 	public List<AligoHistoryResDto.HistoryDetailDto> getRecentMessages(Integer page, Integer pageSize, String startDate,
 		Integer limitDay) {
-		AligoHistoryResDto response = aligoApiClient.getRecentMessages(page,pageSize,startDate,limitDay);
+		AligoHistoryResDto response = aligoService.getRecentMessages(page,pageSize,startDate,limitDay);
 		if (response.getResultCode() == 1) {
 			return response.getList();
 		} else {
@@ -55,7 +54,7 @@ public class AligoSmsServiceImpl implements SmsService {
 	public SmsListResDto findAllByKeyword(String keyword, AgentResDto agentDto, Pageable pageable) {
 		Agent agent = agentDto.toEntity();
 
-		Page<Sms> smsPage = smsReader.findAllSmsByKeyword(
+		Page<Sms> smsPage = smsReader.findAllByKeyword(
 			agent.getId(),
 			keyword,
 			keyword,
@@ -68,7 +67,7 @@ public class AligoSmsServiceImpl implements SmsService {
 	@Override
 	public SendSmsResDto findById(Long id, AgentResDto agentDto) {
 		Agent agent = agentDto.toEntity();
-		Sms sms = smsReader.findSmsById(id,agent.getId());
+		Sms sms = smsReader.findById(id,agent.getId());
 		return SendSmsResDto.fromEntity(sms);
 	}
 }

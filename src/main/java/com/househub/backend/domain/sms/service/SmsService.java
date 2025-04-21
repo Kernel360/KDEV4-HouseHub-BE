@@ -21,6 +21,9 @@ public interface SmsService {
 	List<AligoHistoryResDto.HistoryDetailDto> getRecentMessages(Integer page, Integer pageSize, String startDate,
 		Integer limitDay);
 
+	// 단체 문자 발송 (동일한 내용의 문자를 최대 1000명에게 전송)
+
+
 	SendSmsResDto findById(Long id, AgentResDto agentDto);
 
 	SmsListResDto findAllByKeyword(String keyword, AgentResDto agentDto, Pageable pageable);

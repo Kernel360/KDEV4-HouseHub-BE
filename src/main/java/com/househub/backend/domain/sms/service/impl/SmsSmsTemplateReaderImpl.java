@@ -7,18 +7,18 @@ import org.springframework.stereotype.Component;
 import com.househub.backend.common.exception.ResourceNotFoundException;
 import com.househub.backend.domain.sms.entity.SmsTemplate;
 import com.househub.backend.domain.sms.repository.TemplateRepository;
-import com.househub.backend.domain.sms.service.TemplateReader;
+import com.househub.backend.domain.sms.service.SmsTemplateReader;
 
 import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
-public class TemplateReaderImpl implements TemplateReader {
+public class SmsSmsTemplateReaderImpl implements SmsTemplateReader {
 
 	private final TemplateRepository templateRepository;
 
 	@Override
-	public SmsTemplate findTemplateById(Long id, Long agentId) {
+	public SmsTemplate findById(Long id, Long agentId) {
 		return templateRepository.findByIdAndAgentIdAndDeletedAtIsNull(id, agentId)
 			.orElseThrow(() -> new ResourceNotFoundException("템플릿이 존재하지 않습니다.", "TEMPLATE_NOT_FOUND"));
 	}

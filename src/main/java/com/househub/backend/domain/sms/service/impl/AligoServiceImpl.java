@@ -1,4 +1,4 @@
-package com.househub.backend.domain.sms.utils;
+package com.househub.backend.domain.sms.service.impl;
 
 import java.util.Map;
 
@@ -20,6 +20,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.househub.backend.domain.sms.dto.AligoHistoryResDto;
 import com.househub.backend.domain.sms.dto.AligoSmsResDto;
 import com.househub.backend.domain.sms.dto.SendSmsReqDto;
+import com.househub.backend.domain.sms.service.AligoService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class AligoApiClient {
+public class AligoServiceImpl implements AligoService {
 
 	private final RestTemplate restTemplate;
 	@Value("${aligo.apikey}")
@@ -41,7 +42,7 @@ public class AligoApiClient {
 	 * @param params 요청 파라미터
 	 * @return JSON 형식의 응답 데이터
 	 */
-	public Map<String, Object> sendRequest(String url, MultiValueMap<String, String> params) {
+	private Map<String, Object> sendRequest(String url, MultiValueMap<String, String> params) {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
@@ -68,7 +69,7 @@ public class AligoApiClient {
 		}
 	}
 
-	public <T> T sendRequestForObject(String url, MultiValueMap<String, String> params, Class<T> responseType) {
+	private <T> T sendRequestForObject(String url, MultiValueMap<String, String> params, Class<T> responseType) {
 		Map<String, Object> rawResponse = sendRequest(url, params);
 
 		try {

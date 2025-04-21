@@ -5,7 +5,7 @@ import org.springframework.data.domain.Pageable;
 
 import com.househub.backend.domain.sms.entity.SmsTemplate;
 
-public interface TemplateReader {
-	SmsTemplate findTemplateById(Long id, Long agentId);
+public interface SmsTemplateReader {
+	SmsTemplate findById(Long id, Long agentId);
 	Page<SmsTemplate> findAllByKeyword(Long agentId, String title, String content, Pageable pageable);
 }

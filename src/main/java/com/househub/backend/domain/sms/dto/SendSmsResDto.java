@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 
 import com.househub.backend.domain.sms.entity.Sms;
 import com.househub.backend.domain.sms.enums.MessageType;
-import com.househub.backend.domain.sms.enums.Status;
+import com.househub.backend.domain.sms.enums.SmsStatus;
 
 import lombok.Builder;
 import lombok.Data;
@@ -19,7 +19,7 @@ public class SendSmsResDto {
 	private String msg;
 	private MessageType msgType;
 	private String title;
-	private Status status;
+	private SmsStatus status;
 	private String rdate;
 	private String rtime;
 
