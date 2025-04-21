@@ -38,14 +38,14 @@ public class SmsSmsTemplateServiceImpl implements SmsTemplateService {
 	@Override
 	public TemplateResDto update(CreateUpdateTemplateReqDto dto, Long id, AgentResDto agentDto) {
 		Agent agent = agentDto.toEntity();
-		return TemplateResDto.fromEntity(smsTemplateExecutor.update(dto,id,agent));
+		return TemplateResDto.fromEntity(smsTemplateExecutor.findAndUpdate(dto,id,agent));
 	}
 
 	@Transactional
 	@Override
 	public SmsTemplate delete(Long id, AgentResDto agentDto) {
 		Agent agent = agentDto.toEntity();
-		return smsTemplateExecutor.delete(id,agent);
+		return smsTemplateExecutor.findAndDelete(id,agent);
 	}
 
 	@Override

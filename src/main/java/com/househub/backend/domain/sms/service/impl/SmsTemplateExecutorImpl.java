@@ -19,15 +19,14 @@ public class SmsTemplateExecutorImpl implements SmsTemplateExecutor {
 	private final SmsTemplateStore smsTemplateStore;
 
 	@Override
-	public SmsTemplate delete(Long id, Agent agent) {
+	public SmsTemplate findAndDelete(Long id, Agent agent) {
 		SmsTemplate template = smsTemplateReader.findById(id, agent.getId());
-		return smsTemplateStore.create(template.delete());
+		return smsTemplateStore.delete(template);
 	}
 
 	@Override
-	public SmsTemplate update(CreateUpdateTemplateReqDto dto, Long id, Agent agent) {
+	public SmsTemplate findAndUpdate(CreateUpdateTemplateReqDto dto, Long id, Agent agent) {
 		SmsTemplate template = smsTemplateReader.findById(id, agent.getId());
-		template.update(dto);
-		return smsTemplateStore.create(template);
+		return smsTemplateStore.update(template,dto);
 	}
 }

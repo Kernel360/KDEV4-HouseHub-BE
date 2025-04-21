@@ -5,6 +5,6 @@ import com.househub.backend.domain.sms.dto.CreateUpdateTemplateReqDto;
 import com.househub.backend.domain.sms.entity.SmsTemplate;
 
 public interface SmsTemplateExecutor {
-	SmsTemplate delete(Long id, Agent agent);
-	SmsTemplate update(CreateUpdateTemplateReqDto dto, Long id, Agent agent);
+	SmsTemplate findAndDelete(Long id, Agent agent);
+	SmsTemplate findAndUpdate(CreateUpdateTemplateReqDto dto, Long id, Agent agent);
 }
