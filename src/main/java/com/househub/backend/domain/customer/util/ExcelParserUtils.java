@@ -29,7 +29,8 @@ public class ExcelParserUtils {
 			for (Row row : sheet) {
 				try {
 					T result = rowProcessor.process(row);
-					successList.add(result);
+					if(result != null)
+						successList.add(result);
 				} catch (InvalidExcelValueException ex) {
 					errors.addAll(ex.getFieldErrors());
 				}

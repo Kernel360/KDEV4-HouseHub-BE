@@ -21,13 +21,16 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "customers")
+@Table(name = "customers", uniqueConstraints = {
+	@UniqueConstraint(name = "UK_contact_agentId", columnNames = {"contact","agent_id"})
+})
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -43,10 +46,9 @@ public class Customer {
 
 	private Integer ageGroup;
 
-	@Column(nullable = false, unique = true)
+	@Column(nullable = false)
 	private String contact;
 
-	@Column(unique = true)
 	private String email;
 
 	@Column(columnDefinition = "TEXT")
