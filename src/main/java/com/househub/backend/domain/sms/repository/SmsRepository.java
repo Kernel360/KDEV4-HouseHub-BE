@@ -6,12 +6,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import com.househub.backend.domain.sms.dto.SendSmsResDto;
 import com.househub.backend.domain.sms.entity.Sms;
 
 public interface SmsRepository extends JpaRepository<Sms, Long> {
 
-	SendSmsResDto findByIdAndAgentId(Long id, Long agentId);
+	Sms findByIdAndAgentId(Long id, Long agentId);
 
 
 

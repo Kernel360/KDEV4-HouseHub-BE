@@ -3,7 +3,7 @@ package com.househub.backend.domain.sms.dto;
 import com.househub.backend.domain.agent.entity.Agent;
 import com.househub.backend.domain.sms.entity.Sms;
 import com.househub.backend.domain.sms.enums.MessageType;
-import com.househub.backend.domain.sms.enums.Status;
+import com.househub.backend.domain.sms.enums.SmsStatus;
 
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
@@ -43,7 +43,7 @@ public class SendSmsReqDto {
 
 	private Long templateId;
 
-	public Sms toEntity(Status status, Agent agent) {
+	public Sms toEntity(SmsStatus status, Agent agent) {
 		return Sms.builder()
 			.sender(this.sender)
 			.receiver(this.receiver)
