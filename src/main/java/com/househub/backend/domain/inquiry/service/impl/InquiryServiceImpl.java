@@ -1,5 +1,6 @@
 package com.househub.backend.domain.inquiry.service.impl;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ import com.househub.backend.domain.inquiry.service.InquiryReader;
 import com.househub.backend.domain.inquiry.service.InquiryService;
 import com.househub.backend.domain.inquiryTemplate.entity.InquiryTemplate;
 import com.househub.backend.domain.inquiryTemplate.service.InquiryTemplateReader;
+import com.househub.backend.domain.notification.event.InquiryCreatedEvent;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +33,7 @@ public class InquiryServiceImpl implements InquiryService {
 	private final InquiryTemplateReader inquiryTemplateReader;
 	private final InquiryExecutor inquiryExecutor;
 	private final InquiryReader inquiryReader;
+	private final ApplicationEventPublisher eventPublisher;
 
 	/**
 	 * 문의를 생성합니다.
@@ -57,9 +60,16 @@ public class InquiryServiceImpl implements InquiryService {
 			.answers(reqDto.getAnswers())
 			.build();
 
-		// executor 에 들어가는 기준
-		// 일단 비즈니스 로직에서
 		Inquiry inquiry = inquiryExecutor.executeInquiryCreation(command);
+
+		// 알림 이벤트 발행
+		eventPublisher.publishEvent(
+			InquiryCreatedEvent.builder()
+				.receiverId(template.getAgent().getId())
+				.inquiryId(inquiry.getId())
+				.content("새로운 문의가 도착했습니다.")
+				.build()
+		);
 
 		return CreateInquiryResDto.builder()
 			.inquiryId(inquiry.getId())

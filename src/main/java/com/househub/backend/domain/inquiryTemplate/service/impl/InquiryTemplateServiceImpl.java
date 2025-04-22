@@ -11,7 +11,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.househub.backend.common.exception.AlreadyExistsException;
 import com.househub.backend.common.exception.NoAssociatedRealEstateException;
 import com.househub.backend.common.exception.ResourceNotFoundException;
 import com.househub.backend.domain.agent.entity.Agent;
@@ -32,13 +31,19 @@ import com.househub.backend.domain.inquiryTemplate.exception.InvalidShareTokenEx
 import com.househub.backend.domain.inquiryTemplate.repository.InquiryTemplateRepository;
 import com.househub.backend.domain.inquiryTemplate.repository.InquiryTemplateSharedTokenRepository;
 import com.househub.backend.domain.inquiryTemplate.repository.QuestionRepository;
+import com.househub.backend.domain.inquiryTemplate.service.InquiryTemplateCreateExecutor;
+import com.househub.backend.domain.inquiryTemplate.service.InquiryTemplateReader;
 import com.househub.backend.domain.inquiryTemplate.service.InquiryTemplateService;
+import com.househub.backend.domain.inquiryTemplate.service.InquiryTemplateStore;
 
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class InquiryTemplateServiceImpl implements InquiryTemplateService {
+	private final InquiryTemplateReader inquiryTemplateReader;
+	private final InquiryTemplateStore inquiryTemplateStore;
+	private final InquiryTemplateCreateExecutor createExecutor;
 	private final AgentRepository agentRepository;
 	private final InquiryTemplateRepository inquiryTemplateRepository;
 	private final QuestionRepository questionRepository;
@@ -54,34 +59,8 @@ public class InquiryTemplateServiceImpl implements InquiryTemplateService {
 	 */
 	@Override
 	@Transactional
-	public void createNewInquiryTemplate(CreateInquiryTemplateReqDto reqDto, Long agentId) throws
-		AlreadyExistsException {
-		// 1. 중개사 ID로 중개사 존재 여부 확인
-		Agent agent = findAgentById(agentId);
-
-		// 2. 동일한 이름의 문의 템플릿이 이미 존재하는지 확인
-		boolean exists = inquiryTemplateRepository.existsByAgentIdAndName(agent.getId(),
-			reqDto.getName());
-		if (exists) {
-			throw new AlreadyExistsException("이미 동일한 이름의 문의 템플릿이 존재합니다.", "DUPLICATED_INQUIRY_TEMPLATE_NAME");
-		}
-
-		// 3. 문의 템플릿 생성
-		InquiryTemplate inquiryTemplate = InquiryTemplate.fromDto(reqDto, agent);
-		inquiryTemplateRepository.save(inquiryTemplate);
-
-		// 3. 질문 목록 생성 및 저장
-		List<Question> questions = reqDto.getQuestions().stream()
-			.map(questionDto -> Question.fromDto(questionDto, inquiryTemplate))
-			.collect(Collectors.toList());
-		questionRepository.saveAll(questions);
-
-		// 4. 공유 토큰 저장 (InquiryTemplateSharedToken)
-		// 문의 템플릿 생성 시 공유 토큰도 무조건 함께 생성하되, 활성화 여부는 템플릿의 isActive 상태를 반영한다.
-		// 공유 토큰은 고객이 해당 템플릿에 접근할 수 있는 식별자이며, 관리자가 공유 여부를 토글하여 사용 여부를 제어할 수 있다.
-		InquiryTemplateSharedToken token = InquiryTemplateSharedToken.create(inquiryTemplate);
-		token.setActive(inquiryTemplate.getActive());
-		sharedTokenRepository.save(token);
+	public void createNewInquiryTemplate(CreateInquiryTemplateReqDto reqDto, Long agentId) {
+		createExecutor.execute(reqDto, agentId);
 	}
 
 	/**
