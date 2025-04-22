@@ -21,16 +21,16 @@ public class SmsJobScheduler {
 	@Qualifier("smsResendJob")
 	private final Job smsResendJob;
 
-	@Scheduled(cron = "0 15 15 * * *")
+	@Scheduled(cron = "0 0/1 * * * *")
 	public void runSmsResendJob() {
 		try {
 			JobParameters parameters = new JobParametersBuilder()
-				.addLong("time", System.currentTimeMillis())
+				.addLong("runtime", System.currentTimeMillis())
 				.toJobParameters();
 
 			jobLauncher.run(smsResendJob, parameters);
 		} catch (Exception e) {
-			log.error("SMS 재전솜 Job 실행 실패", e);
+			log.error("Job 실행 실패: {}", e.getMessage());
 		}
 	}
 }

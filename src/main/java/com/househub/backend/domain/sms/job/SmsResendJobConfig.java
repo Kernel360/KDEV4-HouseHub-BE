@@ -32,7 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Configuration
 @RequiredArgsConstructor
-public class SmsJobConfig {
+public class SmsResendJobConfig {
 
 	private final JobRepository jobRepository;
 	private final PlatformTransactionManager transactionManager;  // ✅ 트랜잭션 매니저 주입
@@ -72,11 +72,11 @@ public class SmsJobConfig {
 	public ItemProcessor<Sms, Sms> smsResendProcessor(SmsExecutor smsExecutor, EntityManager entityManager) {
 		return sms -> {
 			Sms detachedSms = entityManager.merge(sms);
-			entityManager.detach(detachedSms); // ✅ 병합된 엔티티를 detach
+			entityManager.detach(detachedSms);
 
 			boolean result = smsExecutor.resend(detachedSms);
-			detachedSms.updateStatus((result ? SmsStatus.SUCCESS : SmsStatus.FAIL)); // ✅ detachedSms에 상태 업데이트
-			detachedSms.incrementRetryCount(); // ✅ detachedSms에 카운트 증가
+			detachedSms.updateStatus((result ? SmsStatus.SUCCESS : SmsStatus.FAIL));
+			detachedSms.incrementRetryCount();
 			if(!result && detachedSms.getRetryCount() > 3) {
 				detachedSms.updateStatus(SmsStatus.PERMANENT_FAIL);
 			}
@@ -99,4 +99,3 @@ public class SmsJobConfig {
 	}
 
 }
-
