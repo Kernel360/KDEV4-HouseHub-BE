@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import com.househub.backend.common.exception.SmsSendFailException;
 import com.househub.backend.domain.agent.dto.AgentResDto;
 import com.househub.backend.domain.agent.entity.Agent;
 import com.househub.backend.domain.sms.dto.AligoHistoryResDto;
@@ -15,6 +16,7 @@ import com.househub.backend.domain.sms.dto.SendSmsResDto;
 import com.househub.backend.domain.sms.dto.SmsListResDto;
 import com.househub.backend.domain.sms.entity.Sms;
 import com.househub.backend.domain.sms.enums.SmsStatus;
+import com.househub.backend.domain.sms.service.AligoService;
 import com.househub.backend.domain.sms.service.SmsReader;
 import com.househub.backend.domain.sms.service.SmsService;
 import com.househub.backend.domain.sms.service.SmsStore;
@@ -25,7 +27,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SmsServiceImpl implements SmsService {
 
-	private final AligoServiceImpl aligoService;
+	private final AligoService aligoService;
 	private final SmsStore smsStore;
 	private final SmsReader smsReader;
 
@@ -36,7 +38,8 @@ public class SmsServiceImpl implements SmsService {
 		if(aligoResponse.getResultCode() == 1){
 			return SendSmsResDto.fromEntity(smsStore.create(request.toEntity(SmsStatus.SUCCESS,agent)));
 		} else {
-			return SendSmsResDto.fromEntity(smsStore.create(request.toEntity(SmsStatus.FAIL,agent)));
+			smsStore.create(request.toEntity(SmsStatus.FAIL,agent));
+			throw new SmsSendFailException(aligoResponse.getMessage(),"SMS_SEND_FAIL");
 		}
 	}
 	

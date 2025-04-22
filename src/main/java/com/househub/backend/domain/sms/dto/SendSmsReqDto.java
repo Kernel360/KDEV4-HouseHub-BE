@@ -58,11 +58,16 @@ public class SendSmsReqDto {
 			.build();
 	}
 
-	public void setSender(String sender) {
-		this.sender = sender != null ? sender.replaceAll("-", "") : null;
-	}
-
-	public void setReceiver(String receiver) {
-		this.receiver = receiver != null ? receiver.replaceAll("-", "") : null;
+	public static SendSmsReqDto fromEntity(Sms sms){
+		return SendSmsReqDto.builder()
+			.sender(sms.getSender())
+			.receiver(sms.getReceiver())
+			.msg(sms.getMsg())
+			.msgType(sms.getMsgType())
+			.title(sms.getTitle())
+			.rdate(sms.getRdate())
+			.rtime(sms.getRtime())
+			.templateId(sms.getTemplateId())
+			.build();
 	}
 }

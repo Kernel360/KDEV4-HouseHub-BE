@@ -1,10 +1,15 @@
-version: '3.8'
-
 services:
-  househub-backend:
-    container_name: househub-backend
-    build:
-      context: .
-      dockerfile: Dockerfile
+  mysql-container:
+    image: mysql:8.0
+    container_name: mysql-container
+    environment:
+      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_DATABASE: househub
     ports:
-      - "8080:8080"
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10

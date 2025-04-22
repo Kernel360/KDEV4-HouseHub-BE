@@ -51,7 +51,18 @@ dependencies {
     implementation 'org.apache.poi:poi-ooxml:5.2.3'
     runtimeOnly 'org.apache.logging.log4j:log4j-core:2.20.0'
 
+    // 스프링 배치 코어
+    implementation 'org.springframework.boot:spring-boot-starter-batch'
+
+    // 배치 테스트 지원
+    testImplementation 'org.springframework.batch:spring-batch-test'
+
+    // Quartz 스케줄러 (필요시)
+    implementation 'org.springframework.boot:spring-boot-starter-quartz'
+
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 }
 
 tasks.named('test') {
