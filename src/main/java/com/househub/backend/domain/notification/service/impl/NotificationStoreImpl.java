@@ -1,5 +1,7 @@
 package com.househub.backend.domain.notification.service.impl;
 
+import java.util.List;
+
 import org.springframework.stereotype.Component;
 
 import com.househub.backend.domain.notification.entity.Notification;
@@ -16,5 +18,25 @@ public class NotificationStoreImpl implements NotificationStore {
 	@Override
 	public Notification create(Notification notification) {
 		return notificationRepository.save(notification);
+	}
+
+	@Override
+	public void update(Notification notification) {
+		notificationRepository.save(notification);
+	}
+
+	@Override
+	public void updateAll(List<Notification> unreadNotifications) {
+		notificationRepository.saveAll(unreadNotifications);
+	}
+
+	@Override
+	public void delete(Notification notification) {
+		notificationRepository.save(notification);
+	}
+
+	@Override
+	public void deleteAll(List<Notification> notifications) {
+		notificationRepository.saveAll(notifications);
 	}
 }

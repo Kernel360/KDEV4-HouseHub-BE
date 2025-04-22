@@ -50,9 +50,24 @@ public class Notification {
 	@Column(nullable = false, updatable = false)
 	private LocalDateTime createdAt;
 
+	private LocalDateTime deletedAt;
+
 	@PrePersist
 	protected void onCreate() {
 		this.createdAt = LocalDateTime.now();
 		this.isRead = false;
+	}
+
+	public void markAsRead() {
+		this.isRead = true;
+	}
+
+	public void markAsUnread() {
+		this.isRead = false;
+	}
+
+	public void markAsDeleted() {
+		this.deletedAt = LocalDateTime.now();
+		this.isRead = true;
 	}
 }

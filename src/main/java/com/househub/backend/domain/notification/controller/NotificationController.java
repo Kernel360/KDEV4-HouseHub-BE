@@ -1,5 +1,7 @@
 package com.househub.backend.domain.notification.controller;
 
+import java.util.List;
+
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -7,6 +9,8 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -15,6 +19,8 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import com.househub.backend.common.response.SuccessResponse;
 import com.househub.backend.common.util.SecurityUtil;
+import com.househub.backend.domain.notification.dto.NotificationIdsReqDto;
+import com.househub.backend.domain.notification.dto.NotificationIdsResDto;
 import com.househub.backend.domain.notification.dto.NotificationListResDto;
 import com.househub.backend.domain.notification.service.NotificationService;
 import com.househub.backend.domain.notification.service.SseEmitterService;
@@ -51,8 +57,8 @@ public class NotificationController {
 	}
 
 	@GetMapping
-	public ResponseEntity<SuccessResponse<NotificationListResDto>> findUnreadNotifications(
-		@RequestParam(required = false) Boolean isRead,
+	public ResponseEntity<SuccessResponse<NotificationListResDto>> findNotifications(
+		@RequestParam(name = "filter", defaultValue = "all") String filter,
 		@PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
 	) {
 		Long receiverId = SecurityUtil.getAuthenticatedAgent().getId();
@@ -66,10 +72,69 @@ public class NotificationController {
 
 		NotificationListResDto notifications = notificationService.findNotifications(
 			receiverId,
-			isRead,
+			filter,
 			adjustedPageable);
 		return ResponseEntity.ok(
-			SuccessResponse.success("아직 안 읽은 알림 목록 조회 성공", "FIND_UNREAD_NOTIFICATIONS_SUCCESS", notifications));
+			SuccessResponse.success("알림 목록 조회 성공", "FIND_NOTIFICATIONS_SUCCESS", notifications));
 	}
 
+	@PostMapping("/read")
+	public ResponseEntity<SuccessResponse<NotificationIdsResDto>> readNotifications(
+		@RequestBody NotificationIdsReqDto request) {
+		log.info("읽음 처리할 알림 ID 목록: {}", request.getNotificationIds());
+		List<Long> processedIds;
+
+		// 알림 ID 목록이 비어있을 경우 모든 알림을 읽음 처리
+		if (request.isAll()) {
+			Long receiverId = SecurityUtil.getAuthenticatedAgent().getId();
+			processedIds = notificationService.readAllNotifications(receiverId);
+			return ResponseEntity.ok(
+				SuccessResponse.success("모든 알림 읽음 처리 성공", "READ_ALL_NOTIFICATIONS_SUCCESS",
+					new NotificationIdsResDto(processedIds)));
+		} else {
+			processedIds = notificationService.readNotifications(request.getNotificationIds());
+			return ResponseEntity.ok(
+				SuccessResponse.success("선택한 알림 읽음 처리 성공", "READ_SELECTED_NOTIFICATIONS_SUCCESS",
+					new NotificationIdsResDto(processedIds)));
+		}
+	}
+
+	@PostMapping("/unread")
+	public ResponseEntity<SuccessResponse<NotificationIdsResDto>> markNotificationsAsUnread(
+		@RequestBody NotificationIdsReqDto request) {
+		log.info("읽지 않음 처리할 알림 ID 목록: {}", request.getNotificationIds());
+		List<Long> processedIds;
+
+		// 알림 ID 목록이 비어있을 경우 모든 알림을 읽지 않음 처리
+		if (request.isAll()) {
+			Long receiverId = SecurityUtil.getAuthenticatedAgent().getId();
+			processedIds = notificationService.markAllNotificationsAsUnread(receiverId);
+			return ResponseEntity.ok(
+				SuccessResponse.success("모든 알림 읽지 않음 처리 성공", "UNREAD_ALL_NOTIFICATIONS_SUCCESS",
+					new NotificationIdsResDto(processedIds)));
+		} else {
+			processedIds = notificationService.markNotificationsAsUnread(request.getNotificationIds());
+			return ResponseEntity.ok(
+				SuccessResponse.success("선택한 알림 읽지 않음 처리 성공", "UNREAD_SELECTED_NOTIFICATIONS_SUCCESS",
+					new NotificationIdsResDto(processedIds)));
+		}
+	}
+
+	@PostMapping("/delete")
+	public ResponseEntity<SuccessResponse<NotificationIdsResDto>> deleteNotifications(
+		@RequestBody NotificationIdsReqDto request) {
+		log.info("삭제할 알림 ID 목록: {}", request.getNotificationIds());
+
+		List<Long> deletedIds;
+		if (request.isAll()) {
+			Long receiverId = SecurityUtil.getAuthenticatedAgent().getId();
+			deletedIds = notificationService.deleteAllNotifications(receiverId);
+		} else {
+			Long receiverId = SecurityUtil.getAuthenticatedAgent().getId();
+			deletedIds = notificationService.deleteNotifications(receiverId, request.getNotificationIds());
+		}
+
+		return ResponseEntity.ok(
+			SuccessResponse.success("알림 삭제 성공", "DELETE_NOTIFICATION_SUCCESS", new NotificationIdsResDto(deletedIds)));
+	}
 }
