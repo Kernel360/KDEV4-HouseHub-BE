@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 
 import com.househub.backend.domain.agent.entity.Agent;
 import com.househub.backend.domain.sms.enums.MessageType;
-import com.househub.backend.domain.sms.enums.Status;
+import com.househub.backend.domain.sms.enums.SmsStatus;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -44,7 +44,7 @@ public class Sms {
 
 	private String title;
 
-	private Status status;
+	private SmsStatus status;
 
 	private String rdate; // 예약일 (YYYYMMDD)
 
