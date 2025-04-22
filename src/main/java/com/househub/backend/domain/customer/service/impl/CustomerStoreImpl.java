@@ -30,14 +30,14 @@ public class CustomerStoreImpl implements CustomerStore {
 	@Override
 	public Customer update(Customer customer, CreateCustomerReqDto request) {
 		customer.update(request);
-		return customerRepository.save(customer);
+		return customer;
 	}
 
 	@Override
 	public Customer delete(Customer customer) {
 		// 소프트 딜리트
 		customer.softDelete();
-		return customerRepository.save(customer);
+		return customer;
 	}
 }
 
