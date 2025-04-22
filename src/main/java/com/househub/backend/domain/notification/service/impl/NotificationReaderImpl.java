@@ -1,7 +1,7 @@
 package com.househub.backend.domain.notification.service.impl;
 
-import java.util.List;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 import com.househub.backend.domain.agent.entity.Agent;
@@ -19,8 +19,13 @@ public class NotificationReaderImpl implements NotificationReader {
 	private final NotificationRepository notificationRepository;
 
 	@Override
-	public List<Notification> findUnreadNotifications(Long receiverId) {
-		return notificationRepository.findAllByReceiverIdAndIsReadFalse(receiverId);
+	public Page<Notification> findAll(Long receiverId, Pageable pageable) {
+		return notificationRepository.findAllByReceiver_Id(receiverId, pageable);
+	}
+
+	@Override
+	public Page<Notification> findAllByReceiverIdAndIsRead(Long receiverId, Boolean isRead, Pageable pageable) {
+		return notificationRepository.findAllByReceiver_IdAndIsRead(receiverId, isRead, pageable);
 	}
 
 	public Agent findReceiverById(Long receiverId) {
