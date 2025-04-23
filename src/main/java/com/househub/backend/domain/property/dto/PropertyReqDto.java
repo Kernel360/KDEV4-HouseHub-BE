@@ -1,5 +1,7 @@
 package com.househub.backend.domain.property.dto;
 
+import java.math.BigDecimal;
+
 import com.househub.backend.domain.agent.entity.Agent;
 import com.househub.backend.domain.customer.entity.Customer;
 import com.househub.backend.domain.property.entity.Property;
@@ -10,8 +12,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.math.BigDecimal;
 
 @Builder
 @Getter

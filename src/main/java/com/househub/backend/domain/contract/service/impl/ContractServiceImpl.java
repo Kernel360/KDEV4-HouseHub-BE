@@ -1,7 +1,12 @@
 package com.househub.backend.domain.contract.service.impl;
 
-import java.util.List;
 import java.time.LocalDate;
+import java.util.List;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.househub.backend.common.exception.AlreadyExistsException;
 import com.househub.backend.common.exception.BusinessException;
@@ -10,7 +15,11 @@ import com.househub.backend.common.exception.ResourceNotFoundException;
 import com.househub.backend.domain.agent.entity.Agent;
 import com.househub.backend.domain.agent.entity.AgentStatus;
 import com.househub.backend.domain.agent.repository.AgentRepository;
-import com.househub.backend.domain.contract.dto.*;
+import com.househub.backend.domain.contract.dto.ContractListResDto;
+import com.househub.backend.domain.contract.dto.ContractReqDto;
+import com.househub.backend.domain.contract.dto.ContractSearchDto;
+import com.househub.backend.domain.contract.dto.CreateContractResDto;
+import com.househub.backend.domain.contract.dto.FindContractResDto;
 import com.househub.backend.domain.contract.entity.Contract;
 import com.househub.backend.domain.contract.enums.ContractStatus;
 import com.househub.backend.domain.contract.repository.ContractRepository;
@@ -21,11 +30,6 @@ import com.househub.backend.domain.property.entity.Property;
 import com.househub.backend.domain.property.repository.PropertyRepository;
 
 import lombok.RequiredArgsConstructor;
-
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor

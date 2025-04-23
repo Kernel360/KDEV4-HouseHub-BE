@@ -42,7 +42,7 @@ public class ConsultationServiceImpl implements ConsultationService {
 	) {
 		Agent agent = validateAgent(agentId);
 		Long customerId = consultationReqDto.getCustomerId();
-		Customer customer = customerRepository.findByIdAndAgentAndDeletedAtIsNull(customerId, agent)
+		Customer customer = customerRepository.findByIdAndAgentIdAndDeletedAtIsNull(customerId, agent.getId())
 			.orElseThrow(() -> new ResourceNotFoundException("해당하는 고객이 없습니다.", "CUSTOMER_NOT_FOUND"));
 		Consultation consultation = consultationReqDto.toEntity(agent, customer);
 		return ConsultationResDto.fromEntity(consultationRepository.save(consultation));

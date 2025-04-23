@@ -27,4 +27,18 @@ public class CustomerExecutorImpl implements CustomerExecutor {
 				request.toEntity(agent)
 			));
 	}
+	@Override
+	public Customer validateAndUpdate(Long id, CreateCustomerReqDto request, Agent agent) {
+		Customer customer = customerReader.findByIdOrThrow(id, agent.getId());
+		if (!customer.getContact().equals(request.getContact())) {
+			customerReader.checkDuplicatedByContact(request.getContact(), agent.getId());
+		}
+		return customerStore.update(customer, request);
+	}
+
+	@Override
+	public Customer validateAndDelete(Long id, Agent agent) {
+		Customer customer = customerReader.findByIdOrThrow(id, agent.getId());
+		return customerStore.delete(customer);
+	}
 }

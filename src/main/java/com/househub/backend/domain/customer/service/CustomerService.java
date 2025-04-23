@@ -5,21 +5,25 @@ import java.util.List;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.househub.backend.domain.agent.dto.AgentResDto;
 import com.househub.backend.domain.customer.dto.CreateCustomerReqDto;
 import com.househub.backend.domain.customer.dto.CreateCustomerResDto;
 import com.househub.backend.domain.customer.dto.CustomerListResDto;
 
 public interface CustomerService {
+    // Command : 명령 요청
+    // Criteria : 조회 요청
+    // Info : 리턴
 
-	CreateCustomerResDto createCustomer(CreateCustomerReqDto request, Long agentId);
+    CreateCustomerResDto create(CreateCustomerReqDto request, AgentResDto agentDto);
 
-	CreateCustomerResDto findByIdAndDeletedAtIsNull(Long id, Long agentId);
+    List<CreateCustomerResDto> createAllByExcel(MultipartFile file, AgentResDto agentDto);
 
-	CreateCustomerResDto updateCustomer(Long id, CreateCustomerReqDto reqDto, Long agentId);
+    CreateCustomerResDto findById(Long id, AgentResDto agentDto);
 
-	CreateCustomerResDto deleteCustomer(Long id, Long agentId);
+    CreateCustomerResDto update(Long id, CreateCustomerReqDto reqDto, AgentResDto agentDto);
 
-	CustomerListResDto findAllByDeletedAtIsNull(String searchDto, Long agentId, Pageable pageable);
+    CreateCustomerResDto delete(Long id, AgentResDto agentDto);
 
-	List<CreateCustomerResDto> createCustomersByExcel(MultipartFile file, Long agentId);
+    CustomerListResDto findAll(String searchDto, AgentResDto agentDto, Pageable pageable);
 }

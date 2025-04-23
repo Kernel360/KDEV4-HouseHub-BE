@@ -1,15 +1,18 @@
 package com.househub.backend.domain.consultation.dto;
 
+import java.time.LocalDateTime;
+
 import com.househub.backend.domain.agent.entity.Agent;
 import com.househub.backend.domain.consultation.entity.Consultation;
 import com.househub.backend.domain.consultation.enums.ConsultationStatus;
 import com.househub.backend.domain.consultation.enums.ConsultationType;
 import com.househub.backend.domain.customer.entity.Customer;
-import jakarta.validation.constraints.NotNull;
-import lombok.*;
 
-import java.time.LocalDateTime;
-import java.util.Optional;
+import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
 @AllArgsConstructor

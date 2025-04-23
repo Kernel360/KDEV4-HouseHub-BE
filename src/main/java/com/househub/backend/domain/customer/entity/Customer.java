@@ -21,13 +21,16 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "customers")
+@Table(name = "customers", uniqueConstraints = {
+	@UniqueConstraint(name = "UK_contact_agentId", columnNames = {"contact","agent_id"})
+})
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -38,23 +41,20 @@ public class Customer {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@Column(nullable = true, length = 50)
+	@Column(length = 50)
 	private String name;
 
-	@Column(nullable = true)
 	private Integer ageGroup;
 
-	@Column(nullable = false, unique = true)
+	@Column(nullable = false)
 	private String contact;
 
-	@Column(nullable = true, unique = true)
 	private String email;
 
 	@Column(columnDefinition = "TEXT")
 	private String memo;
 
 	@Enumerated(EnumType.STRING)
-	@Column(nullable = true)
 	private Gender gender;
 
 	@Column(nullable = false, updatable = false)
@@ -86,15 +86,15 @@ public class Customer {
 	}
 
 	public void update(CreateCustomerReqDto reqDto) {
-		Optional.ofNullable(reqDto.getName()).ifPresent(name -> this.name = name);
-		Optional.ofNullable(reqDto.getEmail()).ifPresent(email -> this.email = email);
+		this.name = reqDto.getName();
+		this.email = reqDto.getEmail();
 		Optional.ofNullable(reqDto.getContact()).ifPresent(contact -> this.contact = contact);
 		this.ageGroup = reqDto.getAgeGroup(); // null 허용
 		this.gender = reqDto.getGender(); // null 허용
 		this.memo = reqDto.getMemo(); // null 허용
 	}
 
-	public void delete() {
+	public void softDelete() {
 		this.deletedAt = LocalDateTime.now();
 	}
 }
