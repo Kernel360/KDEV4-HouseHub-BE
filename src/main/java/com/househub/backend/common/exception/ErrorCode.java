@@ -17,7 +17,8 @@ public enum ErrorCode {
 	EMAIL_MISMATCH(HttpStatus.BAD_REQUEST, "EMAIL_MISMATCH", "해당 이메일과 일치하는 중개사가 존재하지 않습니다."),
 	PASSWORD_MISMATCH(HttpStatus.BAD_REQUEST, "PASSWORD_MISMATCH", "비밀번호가 일치하지 않습니다."),
 	INVALID_SHARED_TOKEN(HttpStatus.BAD_REQUEST, "INVALID_SHARED_TOKEN", "유효하지 않은 링크입니다."),
-	CONTACT_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "CONTACT_ALREADY_EXISTS", "이 전화번호로 등록된 고객이 이미 있어요.");
+	CONTACT_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "CONTACT_ALREADY_EXISTS", "이 전화번호로 등록된 고객이 이미 있어요."),
+	INVALID_NOTIFICATION_FILTER(HttpStatus.BAD_REQUEST, "INVALID_NOTIFICATION_FILTER", "유효하지 않은 알림 필터 값입니다.");
 
 	private final HttpStatus httpStatus;
 	private final String code;   // 프론트에서 오류 코드 구분용 (예: AUTH_CODE_INVALID)

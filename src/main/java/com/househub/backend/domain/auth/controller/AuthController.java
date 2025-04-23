@@ -25,7 +25,7 @@ import com.househub.backend.domain.auth.dto.VerifyEmailReqDto;
 import com.househub.backend.domain.auth.exception.EmailVerifiedException;
 import com.househub.backend.domain.auth.exception.InvalidPasswordException;
 import com.househub.backend.domain.auth.service.AuthService;
-import com.househub.backend.domain.auth.service.EmailService;
+import com.househub.backend.domain.notification.service.EmailService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
