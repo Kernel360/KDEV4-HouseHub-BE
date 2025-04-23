@@ -1,5 +1,5 @@
 package com.househub.backend.domain.sms.enums;
 
-public enum Status {
+public enum SmsStatus {
 	SUCCESS, FAIL
 }

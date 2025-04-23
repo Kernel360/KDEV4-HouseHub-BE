@@ -32,7 +32,7 @@ public class InquiryListItemResDto {
 			.name(Optional.ofNullable(customer.getName()).orElse("미입력"))
 			.email(Optional.ofNullable(customer.getEmail()).orElse("미입력"))
 			.contact(Optional.ofNullable(customer.getContact()).orElse("미입력"))
-			.createdAt(inquiry.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
+			.createdAt(inquiry.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")))
 			.customerStatus(customer.getStatus().getName())
 			.build();
 	}

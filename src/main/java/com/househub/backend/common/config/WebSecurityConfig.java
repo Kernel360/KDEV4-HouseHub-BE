@@ -43,6 +43,7 @@ public class WebSecurityConfig {
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http
 			.cors(cors -> cors.configurationSource(corsConfigurationSource()))
+			.csrf(AbstractHttpConfigurer::disable) // REST API 서버이므로 CSRF 비활성화
 			.authorizeHttpRequests((authz) -> authz
 				.requestMatchers(
 					"/api/inquiry-templates/share/**",
@@ -57,7 +58,6 @@ public class WebSecurityConfig {
 				).permitAll() // 공개 API
 				.requestMatchers("/api/**").authenticated() // 인증 필요한 경로
 			)
-			.csrf(AbstractHttpConfigurer::disable) // REST API 서버이므로 CSRF 비활성화
 			.exceptionHandling(configurer -> configurer
 				.authenticationEntryPoint(customAuthenticationHandler)
 				.accessDeniedHandler(customAuthenticationHandler)
