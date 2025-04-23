@@ -1,12 +1,12 @@
 package com.househub.backend.domain.property.dto;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
 import com.househub.backend.domain.contract.dto.FindContractResDto;
 import com.househub.backend.domain.customer.dto.CreateCustomerResDto;
 import com.househub.backend.domain.property.entity.Property;
+import com.househub.backend.domain.property.enums.PropertyDirection;
 import com.househub.backend.domain.property.enums.PropertyType;
 
 import lombok.Builder;
@@ -20,18 +20,18 @@ public class FindPropertyDetailResDto {
     private PropertyType propertyType; // 매물 유형
     private CreateCustomerResDto customer; // 의뢰인(임대인 또는 매도인)
     private String memo; // 참고 설명
-    private String province; // 도, 특별시, 광역시
-    private String city; // 시/군/구
-    private String dong; // 읍/면/동
     private String detailAddress; // 상세 주소
     private String roadAddress; // 전체 도로명 주소
     private String jibunAddress; // 지번 주소
-    private LocalDateTime createdAt; // 등록일시
-    private LocalDateTime updatedAt; // 수정일시
-    private BigDecimal latitude; // 위도
-    private BigDecimal longitude; // 경도
     private List<FindContractResDto> contractList;
-    private Boolean active; // 매물이 계약 가능한지 여부 default : true (계약이 없는 경우 true)
+    private Boolean active; // 매물이 계약 가능한지 여부 default
+    private LocalDateTime createdAt; // 생성 일시
+    private Double area; // 면적 (평수)
+    private Integer floor; // 층수
+    private Integer allFloors; // 총 층수
+    private PropertyDirection direction; // 방향 (남, 북, 동, 서 , ...)
+    private Integer bathroomCnt; // 욕실 개수
+    private Integer roomCnt; // 방 개수
 
     // Entity -> DTO 변환
     public static FindPropertyDetailResDto toDto(Property property) {
@@ -40,20 +40,20 @@ public class FindPropertyDetailResDto {
                 .propertyType(property.getPropertyType())
                 .customer(CreateCustomerResDto.fromEntity(property.getCustomer()))
                 .memo(property.getMemo())
-                .province(property.getProvince())
-                .city(property.getCity())
-                .dong(property.getDong())
                 .detailAddress(property.getDetailAddress())
                 .roadAddress(property.getRoadAddress())
                 .jibunAddress(property.getJibunAddress())
-                .createdAt(property.getCreatedAt())
-                .updatedAt(property.getUpdatedAt())
-                .latitude(property.getLatitude())
-                .longitude(property.getLongitude())
+                .area(property.getArea())
+                .floor(property.getFloor())
+                .allFloors(property.getAllFloors())
+                .direction(property.getDirection())
+                .bathroomCnt(property.getBathroomCnt())
+                .roomCnt(property.getRoomCnt())
                 // dto 로 변환 후 반환
                 .contractList(property.getContracts() != null ?
                         property.getContracts().stream().map(FindContractResDto::toDto).toList() : null)
                 .active(property.getActive())
+                .createdAt(property.getCreatedAt())
                 .build();
     }
 }
