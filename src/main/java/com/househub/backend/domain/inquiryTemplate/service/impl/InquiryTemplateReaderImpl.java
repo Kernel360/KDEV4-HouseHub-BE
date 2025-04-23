@@ -6,6 +6,7 @@ import com.househub.backend.common.exception.BusinessException;
 import com.househub.backend.common.exception.ErrorCode;
 import com.househub.backend.domain.inquiryTemplate.entity.InquiryTemplate;
 import com.househub.backend.domain.inquiryTemplate.entity.InquiryTemplateSharedToken;
+import com.househub.backend.domain.inquiryTemplate.repository.InquiryTemplateRepository;
 import com.househub.backend.domain.inquiryTemplate.repository.InquiryTemplateSharedTokenRepository;
 import com.househub.backend.domain.inquiryTemplate.service.InquiryTemplateReader;
 
@@ -14,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 @Component
 @RequiredArgsConstructor
 public class InquiryTemplateReaderImpl implements InquiryTemplateReader {
+	private final InquiryTemplateRepository inquiryTemplateRepository;
 	private final InquiryTemplateSharedTokenRepository sharedTokenRepository;
 
 	@Override
@@ -22,5 +24,11 @@ public class InquiryTemplateReaderImpl implements InquiryTemplateReader {
 			.orElseThrow(() -> new BusinessException(ErrorCode.INVALID_SHARED_TOKEN));
 
 		return shareToken.getTemplate();
+	}
+
+	@Override
+	public boolean existsByAgentIdAndName(Long agentId, String name) {
+		return inquiryTemplateRepository.existsByAgentIdAndName(agentId,
+			name);
 	}
 }

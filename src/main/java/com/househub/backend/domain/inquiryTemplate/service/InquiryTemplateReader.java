@@ -4,4 +4,6 @@ import com.househub.backend.domain.inquiryTemplate.entity.InquiryTemplate;
 
 public interface InquiryTemplateReader {
 	InquiryTemplate findByToken(String templateToken);
+
+	boolean existsByAgentIdAndName(Long agentId, String name);
 }

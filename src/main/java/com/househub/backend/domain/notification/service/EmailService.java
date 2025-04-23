@@ -1,4 +1,4 @@
-package com.househub.backend.domain.auth.service.impl;
+package com.househub.backend.domain.notification.service;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.MailException;
@@ -8,19 +8,18 @@ import org.springframework.stereotype.Service;
 
 import com.househub.backend.common.exception.BusinessException;
 import com.househub.backend.common.exception.ErrorCode;
-import com.househub.backend.domain.auth.service.EmailService;
+import com.househub.backend.domain.notification.entity.Notification;
 
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class EmailServiceImpl implements EmailService {
+public class EmailService {
 	private final JavaMailSender mailSender;
 
 	@Value("${spring.mail.username}")
 	private String fromEmail;
 
-	@Override
 	public void sendVerificationCode(String email, String verificationCode) {
 		SimpleMailMessage message = new SimpleMailMessage();
 		message.setTo(email);
@@ -39,6 +38,19 @@ public class EmailServiceImpl implements EmailService {
 		} catch (MailException e) {
 			throw new BusinessException(ErrorCode.EMAIL_SEND_FAILED);
 		}
+	}
 
+	public void send(Notification notification) {
+		SimpleMailMessage message = new SimpleMailMessage();
+		message.setFrom(fromEmail);
+		message.setTo(notification.getReceiver().getEmail()); // 실제 수신자 이메일 주소
+		message.setSubject("새로운 알림");
+		message.setText(notification.getContent());
+
+		try {
+			mailSender.send(message);
+		} catch (MailException e) {
+			throw new BusinessException(ErrorCode.EMAIL_SEND_FAILED);
+		}
 	}
 }
