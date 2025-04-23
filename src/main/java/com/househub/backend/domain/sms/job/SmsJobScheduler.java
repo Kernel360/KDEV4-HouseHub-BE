@@ -33,4 +33,11 @@ public class SmsJobScheduler {
 			log.error("Job 실행 실패: {}", e.getMessage());
 		}
 	}
+
+	// 계약 종료일 3달 전인 고객에게 문자로 알림을 보냄
+
+
+	// 생일 대상자인 고객에게 축하 메세지 자동 전송
+
+
 }

@@ -15,11 +15,13 @@ import com.househub.backend.domain.sms.dto.SendSmsReqDto;
 import com.househub.backend.domain.sms.dto.SendSmsResDto;
 import com.househub.backend.domain.sms.dto.SmsListResDto;
 import com.househub.backend.domain.sms.entity.Sms;
+import com.househub.backend.domain.sms.entity.SmsTemplate;
 import com.househub.backend.domain.sms.enums.SmsStatus;
 import com.househub.backend.domain.sms.service.AligoService;
 import com.househub.backend.domain.sms.service.SmsReader;
 import com.househub.backend.domain.sms.service.SmsService;
 import com.househub.backend.domain.sms.service.SmsStore;
+import com.househub.backend.domain.sms.service.SmsTemplateReader;
 
 import lombok.RequiredArgsConstructor;
 
@@ -30,15 +32,17 @@ public class SmsServiceImpl implements SmsService {
 	private final AligoService aligoService;
 	private final SmsStore smsStore;
 	private final SmsReader smsReader;
+	private final SmsTemplateReader smsTemplateReader;
 
 	// send와 create 분리
 	public SendSmsResDto sendSms(SendSmsReqDto request, AgentResDto agentDto) {
 		Agent agent = agentDto.toEntity();
 		AligoSmsResDto aligoResponse = aligoService.sendSms(request);
+		SmsTemplate template = smsTemplateReader.findById(request.getTemplateId(),agent.getId());
 		if(aligoResponse.getResultCode() == 1){
-			return SendSmsResDto.fromEntity(smsStore.create(request.toEntity(SmsStatus.SUCCESS,agent)));
+			return SendSmsResDto.fromEntity(smsStore.create(request.toEntity(SmsStatus.SUCCESS,agent,template)));
 		} else {
-			smsStore.create(request.toEntity(SmsStatus.FAIL,agent));
+			smsStore.create(request.toEntity(SmsStatus.FAIL,agent,template));
 			throw new SmsSendFailException(aligoResponse.getMessage(),"SMS_SEND_FAIL");
 		}
 	}

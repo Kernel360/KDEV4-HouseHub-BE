@@ -2,6 +2,7 @@ package com.househub.backend.domain.sms.dto;
 
 import com.househub.backend.domain.agent.entity.Agent;
 import com.househub.backend.domain.sms.entity.Sms;
+import com.househub.backend.domain.sms.entity.SmsTemplate;
 import com.househub.backend.domain.sms.enums.MessageType;
 import com.househub.backend.domain.sms.enums.SmsStatus;
 
@@ -21,11 +22,9 @@ import lombok.Setter;
 public class SendSmsReqDto {
 
 	@NotEmpty(message = "발신번호를 입력해주세요")
-	@Pattern(regexp = "^[0-9]+$", message = "발신번호는 숫자만 입력 가능합니다")
 	private String sender;
 
 	@NotEmpty(message = "수신번호를 입력해주세요")
-	@Pattern(regexp = "^[0-9]+$", message = "수신번호는 숫자만 입력 가능합니다")
 	private String receiver;
 
 	@NotEmpty(message = "발신 내용을 입력해주세요")
@@ -43,7 +42,7 @@ public class SendSmsReqDto {
 
 	private Long templateId;
 
-	public Sms toEntity(SmsStatus status, Agent agent) {
+	public Sms toEntity(SmsStatus status, Agent agent, SmsTemplate template) {
 		return Sms.builder()
 			.sender(this.sender)
 			.receiver(this.receiver)
@@ -54,7 +53,7 @@ public class SendSmsReqDto {
 			.rdate(this.rdate)
 			.rtime(this.rtime)
 			.agent(agent)
-			.templateId(this.templateId)
+			.smsTemplate(template)
 			.build();
 	}
 
@@ -67,7 +66,6 @@ public class SendSmsReqDto {
 			.title(sms.getTitle())
 			.rdate(sms.getRdate())
 			.rtime(sms.getRtime())
-			.templateId(sms.getTemplateId())
 			.build();
 	}
 }

@@ -57,13 +57,15 @@ public class Sms {
 
 	private LocalDateTime deletedAt;
 
-	private Long templateId;
-
 	private Integer retryCount;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "agent_id", nullable = false)
 	private Agent agent;
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "sms_template_id")
+	private SmsTemplate smsTemplate;
 
 	@PrePersist
 	protected void onCreate() {
