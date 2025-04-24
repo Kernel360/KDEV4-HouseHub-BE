@@ -15,7 +15,7 @@ import com.househub.backend.domain.property.entity.Property;
 import com.househub.backend.domain.property.enums.PropertyType;
 
 @Repository
-public interface PropertyRepository extends JpaRepository<Property, Long> {
+public interface PropertyRepository extends JpaRepository<Property, Long>, PropertyRepositoryCustom {
 	Optional<Property> findByIdAndAgentId(Long propertyId, Long agentId);
 
 	// 주소와 상세주소를 결합한 값으로 중복 체크
