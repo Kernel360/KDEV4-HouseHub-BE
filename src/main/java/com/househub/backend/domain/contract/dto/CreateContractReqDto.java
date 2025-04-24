@@ -69,12 +69,12 @@ public class CreateContractReqDto {
     }
 
     @AssertTrue(message = "계약 시작일은 계약 만료일보다 이후일 수 없습니다.")
-public boolean isValidContractPeriod() {
-    if (startedAt == null || expiredAt == null) {
-        return true;
+    public boolean isValidContractPeriod() {
+        if (startedAt == null || expiredAt == null) {
+            return true;
+        }
+        return !startedAt.isAfter(expiredAt);
     }
-    return !startedAt.isAfter(expiredAt);
-}
 
     @AssertTrue(message = "거래 가능 상태일 경우, 거래 시작일과 만료일은 입력할 수 없습니다.")
     public boolean isValidContractStatus() {

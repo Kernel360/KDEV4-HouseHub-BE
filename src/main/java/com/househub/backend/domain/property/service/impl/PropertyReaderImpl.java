@@ -9,6 +9,7 @@ import com.househub.backend.common.exception.ResourceNotFoundException;
 import com.househub.backend.domain.property.dto.PropertySearchDto;
 import com.househub.backend.domain.property.entity.Property;
 import com.househub.backend.domain.property.repository.PropertyRepository;
+import com.househub.backend.domain.property.repository.PropertyRepositoryCustom;
 import com.househub.backend.domain.property.service.PropertyReader;
 
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 public class PropertyReaderImpl implements PropertyReader {
 
 	private final PropertyRepository propertyRepository;
+	private final PropertyRepositoryCustom propertyRepositoryQuerydsl;
 
 	@Override
 	public Property findByIdOrThrow(Long propertyId, Long agentId) {
@@ -27,15 +29,9 @@ public class PropertyReaderImpl implements PropertyReader {
 
 	@Override
 	public Page<Property> findPageBySearchDto(PropertySearchDto searchDto, Pageable pageable, Long agentId) {
-		Page<Property> propertyList = propertyRepository.searchProperties(
+		Page<Property> propertyList = propertyRepositoryQuerydsl.searchProperties(
 			agentId,
-			searchDto.getProvince(),
-			searchDto.getCity(),
-			searchDto.getDong(),
-			searchDto.getPropertyType(),
-			searchDto.getAgentName(),
-			searchDto.getCustomerName(),
-			searchDto.getActive(),
+			searchDto,
 			pageable
 		);
 		return propertyList;
