@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.househub.backend.common.response.SuccessResponse;
+import com.househub.backend.domain.region.dto.RegionOptionDto;
 import com.househub.backend.domain.region.service.RegionCsvImportService;
 import com.househub.backend.domain.region.service.RegionReadService;
 
@@ -52,8 +53,8 @@ public class RegionController {
 
 	@Operation(summary = "도/특별시/광역시 목록 조회")
 	@GetMapping("/provinces")
-	public ResponseEntity<SuccessResponse<List<String>>> getProvinces() {
-		List<String> provinces = regionReadService.getProvinces();
+	public ResponseEntity<SuccessResponse<List<RegionOptionDto>>> getProvinces() {
+		List<RegionOptionDto> provinces = regionReadService.getProvinces();
 		return ResponseEntity.ok(
 			SuccessResponse.success("도/특별시/광역시 목록을 성공적으로 조회했습니다.", "FIND_PROVINCES_SUCCESS", provinces));
 	}
@@ -62,8 +63,8 @@ public class RegionController {
 		@Parameter(name = "province", description = "도/특별시/광역시 이름", required = true)
 	})
 	@GetMapping("/cities")
-	public ResponseEntity<SuccessResponse<List<String>>> getCities(@RequestParam String province) {
-		List<String> cities = regionReadService.getCities(province);
+	public ResponseEntity<SuccessResponse<List<RegionOptionDto>>> getCities(@RequestParam String province) {
+		List<RegionOptionDto> cities = regionReadService.getCities(province);
 		return ResponseEntity.ok(SuccessResponse.success("시/군/구 목록을 성공적으로 조회했습니다.", "FIND_CITIES_SUCCESS", cities));
 	}
 
@@ -72,11 +73,11 @@ public class RegionController {
 		@Parameter(name = "city", description = "시/군/구 이름", required = true)
 	})
 	@GetMapping("/dongs")
-	public ResponseEntity<SuccessResponse<List<String>>> getDongs(
+	public ResponseEntity<SuccessResponse<List<RegionOptionDto>>> getDongs(
 		@RequestParam String province,
 		@RequestParam String city
 	) {
-		List<String> dongs = regionReadService.getDongs(province, city);
+		List<RegionOptionDto> dongs = regionReadService.getDongs(province, city);
 		return ResponseEntity.ok(SuccessResponse.success("읍/면/동 목록을 성공적으로 조회했습니다.", "FIND_DONGS_SUCCESS", dongs));
 	}
 

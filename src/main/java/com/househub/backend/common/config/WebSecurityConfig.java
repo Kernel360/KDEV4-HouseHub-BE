@@ -45,6 +45,7 @@ public class WebSecurityConfig {
 			.cors(cors -> cors.configurationSource(corsConfigurationSource()))
 			.authorizeHttpRequests((authz) -> authz
 				.requestMatchers(
+					"/api/regions/**",
 					"/api/inquiry-templates/share/**",
 					"/api/inquiries",
 					"/api/auth/session",
