@@ -64,7 +64,7 @@ tasks.named('test') {
 }
 
 // QueryDSL Q-Class 생성 디렉토리 설정
-def querydslDir = "src/main/generated/querydsl"
+def querydslDir = layout.buildDirectory.dir("generated/querydsl").get().asFile
 
 tasks.withType(JavaCompile) {
     options.compilerArgs << "-Xlint:deprecation"
