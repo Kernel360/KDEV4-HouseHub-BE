@@ -101,7 +101,7 @@ public class PropertyRepositoryCustomImpl implements PropertyRepositoryCustom {
 		query.orderBy(customer.createdAt.desc());
 
 		// 전체 개수 조회를 위한 쿼리
-		long total = query.fetchCount();
+		long total = query.stream().count();
 
 		// 실제 결과 조회
 		List<Property> results = query
