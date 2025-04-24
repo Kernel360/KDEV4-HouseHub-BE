@@ -1,6 +1,7 @@
 package com.househub.backend.domain.inquiryTemplate.service.impl;
 
 import java.util.Comparator;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -71,24 +72,51 @@ public class InquiryTemplateServiceImpl implements InquiryTemplateService {
 	 * @return 문의 템플릿 목록을 포함한 응답
 	 */
 	@Override
+	@Transactional(readOnly = true)
 	public InquiryTemplateListResDto getInquiryTemplates(Boolean active, String keyword, Pageable pageable,
 		Long agentId) {
 		// 1. 중개사 ID로 중개사 존재 여부 확인
 		Agent agent = findAgentById(agentId);
 
 		// 2. 문의 템플릿 목록 조회
-		Page<InquiryTemplateResDto> page = inquiryTemplateRepository.findAllByAgentIdAndFilters(agent.getId(),
-				active,
-				keyword,
-				pageable)
-			.map(template -> {
-				// 가장 최근의 활성화된 공유 토큰 조회
-				Optional<InquiryTemplateSharedToken> tokenOpt =
-					sharedTokenRepository.findTopByTemplateAndActiveIsTrueOrderByCreatedAtDesc(template);
+		Page<InquiryTemplate> templatePage = inquiryTemplateRepository.findAllByAgentIdAndFilters(agent.getId(),
+			active,
+			keyword,
+			pageable);
 
-				String shareToken = tokenOpt.map(InquiryTemplateSharedToken::getShareToken).orElse(null);
-				return InquiryTemplateResDto.fromEntity(template, shareToken);
-			});
+		// 3. 템플릿 ID 목록 추출
+		List<Long> templateIds = templatePage.getContent().stream()
+			.map(InquiryTemplate::getId)
+			.toList();
+
+		// 4. questions와 options를 함께 로딩
+		List<InquiryTemplate> templatesWithQuestions = inquiryTemplateRepository.findByIdsWithQuestions(templateIds);
+		List<Question> questionsWithOptions = inquiryTemplateRepository.findQuestionsWithOptionsByTemplateIds(templateIds);
+
+		// 5. 템플릿과 질문 매핑
+		Map<Long, InquiryTemplate> templateMap = templatesWithQuestions.stream()
+			.collect(Collectors.toMap(InquiryTemplate::getId, template -> template));
+
+		Map<Long, List<Question>> questionsByTemplateId = questionsWithOptions.stream()
+			.collect(Collectors.groupingBy(q -> q.getInquiryTemplate().getId()));
+
+		// 6. DTO 변환
+		Page<InquiryTemplateResDto> page = templatePage.map(template -> {
+			InquiryTemplate fullTemplate = templateMap.get(template.getId());
+			if (fullTemplate != null) {
+				List<Question> questions = questionsByTemplateId.getOrDefault(template.getId(), Collections.emptyList());
+				fullTemplate.getQuestions().clear();
+				fullTemplate.getQuestions().addAll(questions);
+				template = fullTemplate;
+			}
+
+			// 가장 최근의 활성화된 공유 토큰 조회
+			Optional<InquiryTemplateSharedToken> tokenOpt =
+				sharedTokenRepository.findTopByTemplateAndActiveIsTrueOrderByCreatedAtDesc(template);
+
+			String shareToken = tokenOpt.map(InquiryTemplateSharedToken::getShareToken).orElse(null);
+			return InquiryTemplateResDto.fromEntity(template, shareToken);
+		});
 
 		return InquiryTemplateListResDto.fromPage(page);
 	}
@@ -127,6 +155,7 @@ public class InquiryTemplateServiceImpl implements InquiryTemplateService {
 	 * @return 문의 템플릿 미리보기 응답
 	 */
 	@Override
+	@Transactional(readOnly = true)
 	public InquiryTemplatePreviewResDto previewInquiryTemplate(Long templateId, Long agentId) {
 		// 1. 중개사 ID로 중개사 존재 여부 확인
 		Agent agent = findAgentById(agentId);
@@ -135,7 +164,7 @@ public class InquiryTemplateServiceImpl implements InquiryTemplateService {
 		InquiryTemplate inquiryTemplate = findInquiryTemplateByIdAndAgentId(templateId, agent.getId());
 
 		// 3. 문의 템플릿에 속한 질문 목록 조회
-		List<Question> questions = questionRepository.findAllByInquiryTemplate(inquiryTemplate);
+		List<Question> questions = questionRepository.findAllByInquiryTemplateWithOptions(inquiryTemplate);
 
 		return InquiryTemplatePreviewResDto.fromEntity(inquiryTemplate, questions);
 	}
@@ -189,6 +218,7 @@ public class InquiryTemplateServiceImpl implements InquiryTemplateService {
 	 *
 	 * @param templateId 문의 템플릿 ID
 	 */
+	@Transactional
 	@Override
 	public void deleteInquiryTemplate(Long templateId, Long agentId) {
 		// 1. 중개사 ID로 중개사 존재 여부 확인
@@ -202,6 +232,7 @@ public class InquiryTemplateServiceImpl implements InquiryTemplateService {
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public InquiryTemplateSharedResDto getInquiryTemplateByShareToken(String shareToken) {
 		InquiryTemplateSharedToken shareTokenEntity = sharedTokenRepository.findByShareTokenAndActiveTrue(shareToken)
 			.orElseThrow(() -> new InvalidShareTokenException("유효하지 않거나 존재하지 않는 공유 토큰입니다."));
@@ -212,12 +243,9 @@ public class InquiryTemplateServiceImpl implements InquiryTemplateService {
 		}
 
 		// 질문 리스트 가져오기 (질문 순서 기준 정렬)
-		List<Question> questions = inquiryTemplate.getQuestions().stream()
-			.sorted(Comparator.comparingInt(Question::getQuestionOrder))
-			.toList();
+		List<Question> questions = questionRepository.findAllByInquiryTemplateWithOptions(inquiryTemplate);
 
 		return InquiryTemplateSharedResDto.fromEntity(inquiryTemplate, questions);
-
 	}
 
 	/**
