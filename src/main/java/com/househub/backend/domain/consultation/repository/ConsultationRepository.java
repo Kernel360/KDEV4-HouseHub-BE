@@ -49,11 +49,11 @@ public interface ConsultationRepository extends JpaRepository<Consultation, Long
 		    SELECT c FROM Consultation c
 		    WHERE c.agent.id = :agentId
 		    AND c.deletedAt IS NULL
-		    AND (:customerName IS NULL OR LOWER(c.customer.name) LIKE LOWER(CONCAT('%', :customerName, '%')))
+		    AND :customerId = c.customer.id
 		""")
 	Page<Consultation> searchConsultationsByCustomerName(
 		@Param("agentId") Long agentId,
-		@Param("customerName") String customerName,
+		@Param("customerId") Long customerId,
 		Pageable pageable
 	);
 

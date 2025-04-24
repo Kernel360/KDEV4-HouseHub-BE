@@ -19,7 +19,7 @@ public interface ContractService {
     public ContractListResDto findContracts(ContractSearchDto searchDto, Pageable pageable, Long agentId);
 
     // 고객 계약 내역 조회
-    public ContractListResDto findAllByCustomer(Long id, String customerName, Pageable pageable, Long agentId);
+    public ContractListResDto findAllByCustomer(Long id, Pageable pageable, Long agentId);
 
     // 매물 계약 내역 조회
     public ContractListResDto findAllByProperties(List<Property> propertyIds, Pageable pageable, Long agentId);

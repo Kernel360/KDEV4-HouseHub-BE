@@ -102,8 +102,8 @@ public class InquiryServiceImpl implements InquiryService {
 	}
 
 	@Override
-	public InquiryListResDto findAllByCustomer(Long id, String customerName, Pageable pageable, Long agentId) {
-		Page<Inquiry> inquiries = inquiryReader.findPageByAgentAndCustomerName(agentId, customerName, pageable);
+	public InquiryListResDto findAllByCustomer(Long id, Pageable pageable, Long agentId) {
+		Page<Inquiry> inquiries = inquiryReader.findPageByAgentAndCustomerId(agentId, id, pageable);
 
 		Page<InquiryListItemResDto> dtoPage = inquiries.map(InquiryListItemResDto::from);
 

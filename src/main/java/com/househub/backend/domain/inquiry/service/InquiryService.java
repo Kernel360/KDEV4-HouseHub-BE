@@ -14,5 +14,5 @@ public interface InquiryService {
 
 	InquiryDetailResDto getInquiryDetail(Long inquiryId);
 
-	InquiryListResDto findAllByCustomer(Long id, String customerName, Pageable adjustedPageable, Long agentId);
+	InquiryListResDto findAllByCustomer(Long id, Pageable adjustedPageable, Long agentId);
 }

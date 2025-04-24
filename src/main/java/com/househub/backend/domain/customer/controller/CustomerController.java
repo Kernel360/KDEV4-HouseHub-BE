@@ -98,11 +98,10 @@ public class CustomerController {
 	)
 	@GetMapping("/{id}/consultations")
 	public ResponseEntity<SuccessResponse<ConsultationListResDto>> findCustomerConsultations(@PathVariable Long id,
-	@RequestParam(name = "customerName") String customerName,
 		Pageable pageable) {
 		Pageable adjustedPageable = PageRequest.of(Math.max(pageable.getPageNumber() -1,0),pageable.getPageSize(), pageable.getSort());
 		AgentResDto agentDto = SecurityUtil.getAuthenticatedAgent();
-		ConsultationListResDto response = consultationService.findAllByCustomer(id, customerName, adjustedPageable);
+		ConsultationListResDto response = consultationService.findAllByCustomer(id, agentDto.getId(), adjustedPageable);
 		return ResponseEntity.ok(SuccessResponse.success("고객 상담 목록 조회가 완료되었습니다.", "FIND_CUSTOMER_CONSULTATIONS_SUCCESS", response));
 	}
 
@@ -112,11 +111,10 @@ public class CustomerController {
 	)
 	@GetMapping("/{id}/buy-contracts")
 	public ResponseEntity<SuccessResponse<ContractListResDto>> findCustomerBuyContracts(@PathVariable Long id,
-		@RequestParam(name = "customerName") String customerName,
 		Pageable pageable) {
 		Pageable adjustedPageable = PageRequest.of(Math.max(pageable.getPageNumber() -1,0),pageable.getPageSize(), pageable.getSort());
 		AgentResDto agentDto = SecurityUtil.getAuthenticatedAgent();
-		ContractListResDto response = contractService.findAllByCustomer(id, customerName, adjustedPageable, agentDto.getId());
+		ContractListResDto response = contractService.findAllByCustomer(id, adjustedPageable, agentDto.getId());
 		return ResponseEntity.ok(SuccessResponse.success("고객 계약 목록 조회가 완료되었습니다.", "FIND_CUSTOMER_CONTRACTS_SUCCESS", response));
 	}
 
@@ -125,7 +123,7 @@ public class CustomerController {
 		description = "특정 고객의 매도 계약 내역을 조회합니다. 삭제된 고객이거나 본인이 등록하지 않은 고객은 조회할 수 없습니다."
 	)
 	@GetMapping("/{id}/sell-contracts")
-	public ResponseEntity<SuccessResponse<ContractListResDto>> findCustomerSellContracts(@PathVariable Long id, String customerName,
+	public ResponseEntity<SuccessResponse<ContractListResDto>> findCustomerSellContracts(@PathVariable Long id,
 		Pageable pageable) {
 		Pageable adjustedPageable = PageRequest.of(Math.max(pageable.getPageNumber() -1,0),pageable.getPageSize(), pageable.getSort());
 		AgentResDto agentDto = SecurityUtil.getAuthenticatedAgent();
@@ -141,11 +139,10 @@ public class CustomerController {
 	)
 	@GetMapping("/{id}/inquiries")
 	public ResponseEntity<SuccessResponse<InquiryListResDto>> findCustomerInquiries(@PathVariable Long id,
-		@RequestParam(name = "customerName") String customerName,
 		Pageable pageable) {
 		Pageable adjustedPageable = PageRequest.of(Math.max(pageable.getPageNumber() -1,0),pageable.getPageSize(), pageable.getSort());
 		AgentResDto agentDto = SecurityUtil.getAuthenticatedAgent();
-		InquiryListResDto response = inquiryService.findAllByCustomer(id, customerName, adjustedPageable, agentDto.getId());
+		InquiryListResDto response = inquiryService.findAllByCustomer(id, adjustedPageable, agentDto.getId());
 		return ResponseEntity.ok(SuccessResponse.success("고객 문의 목록 조회가 완료되었습니다.", "FIND_CUSTOMER_INQUIRIES_SUCCESS", response));
 	}
 

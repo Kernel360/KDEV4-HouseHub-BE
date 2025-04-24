@@ -43,22 +43,17 @@ public interface InquiryRepository extends JpaRepository<Inquiry, Long> {
 		"WHERE i.id = :inquiryId")
 	Optional<Inquiry> findWithDetailsById(@Param("inquiryId") Long inquiryId);
 
-	String customer(Customer customer);
-
 	@Query("""
 			SELECT i
 			FROM Inquiry i
 			LEFT JOIN FETCH i.customer c
 			WHERE
 				(c.agent.id = :agentId)
-				AND (
-					:customerName IS NULL OR
-					LOWER(c.name) LIKE LOWER(CONCAT('%', :customerName, '%'))
-				)
+				AND (:customerId = c.id)
 		""")
 	Page<Inquiry> findInquiriesWithCustomer(
 		@Param("agentId") Long agentId,
-		@Param("customerName") String customerName,
+		@Param("customer") Long customerId,
 		Pageable pageable
 	);
 }

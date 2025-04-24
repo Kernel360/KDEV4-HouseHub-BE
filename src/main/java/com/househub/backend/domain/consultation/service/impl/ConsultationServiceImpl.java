@@ -89,14 +89,14 @@ public class ConsultationServiceImpl implements ConsultationService {
 	@Transactional
 	@Override
 	public ConsultationListResDto findAllByCustomer(
+		Long customerId,
 		Long agentId,
-		String customerName,
 		Pageable pageable
 	) {
 		Agent agent = validateAgent(agentId);
 		Page<ConsultationResDto> consultations = consultationRepository.searchConsultationsByCustomerName(
 			agentId,
-			customerName,
+			customerId,
 			pageable
 		).map(ConsultationResDto::fromEntity);
 

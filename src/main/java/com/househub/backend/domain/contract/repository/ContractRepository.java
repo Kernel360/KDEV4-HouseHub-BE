@@ -58,11 +58,11 @@ public interface ContractRepository extends JpaRepository<Contract, Long> {
 	@Query("SELECT c FROM Contract c " +
 		"JOIN c.agent a " +
 		"WHERE a.id = :agentId " +
-		"AND (:customerName IS NULL OR c.customer.name LIKE CONCAT('%', :customerName, '%')) " +
+		"AND :customerId = c.customer.id " +
 		"ORDER BY c.createdAt DESC")
 	Page<Contract> findContractsByAgentAndCustomer(
 		@Param("agentId") Long agentId,
-		@Param("customerName") String customerName,
+		@Param("customerId") Long customerId,
 		Pageable pageable
 	);
 
