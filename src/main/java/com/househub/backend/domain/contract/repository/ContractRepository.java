@@ -54,4 +54,26 @@ public interface ContractRepository extends JpaRepository<Contract, Long> {
 		LocalDateTime startDate,
 		LocalDateTime endDate
 	);
+
+	@Query("SELECT c FROM Contract c " +
+		"JOIN c.agent a " +
+		"WHERE a.id = :agentId " +
+		"AND (:customerName IS NULL OR c.customer.name LIKE CONCAT('%', :customerName, '%')) " +
+		"ORDER BY c.createdAt DESC")
+	Page<Contract> findContractsByAgentAndCustomer(
+		@Param("agentId") Long agentId,
+		@Param("customerName") String customerName,
+		Pageable pageable
+	);
+
+	@Query("SELECT c FROM Contract c " +
+		"JOIN c.agent a " +
+		"WHERE a.id = :agentId " +
+		"AND (c.property IN :properties)" +
+		"ORDER BY c.createdAt DESC")
+	Page<Contract> findContractsByProperties(
+		@Param("agentId") Long agentId,
+		@Param("properties") List<Property> propertyIds,
+		Pageable pageable
+	);
 }

@@ -1,5 +1,7 @@
 package com.househub.backend.domain.property.service.impl;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -95,6 +97,22 @@ public class PropertyServiceImpl implements PropertyService {
 		);
 		// 매물 엔티티를 dto 로 변환하여 리스트로 반환
 		return PropertyListResDto.fromPage(propertyList.map(FindPropertyResDto::toDto));
+	}
+
+	/**
+	 * 특정 고객의 매물 전체 조회 (검색 포함)
+	 * @param customerId 고객 Id
+	 * @param pageable 페이지네이션 정보
+	 * @return 매물 기본 정보 응답 DTO LIST
+	 */
+	@Transactional(readOnly = true)
+	@Override
+	public List<Property> findPropertiesByCustomer(Long customerId, Pageable pageable, Long agentId) {
+		// 페이지네이션, 검색 필터링 적용하여 매물 조회
+		return propertyRepository.searchPropertiesByCustomer(
+			agentId,
+			customerId
+		);
 	}
 
 	/**

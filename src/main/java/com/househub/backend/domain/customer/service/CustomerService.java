@@ -19,11 +19,11 @@ public interface CustomerService {
 
     List<CreateCustomerResDto> createAllByExcel(MultipartFile file, AgentResDto agentDto);
 
-    CreateCustomerResDto findById(Long id, AgentResDto agentDto);
+    CustomerListResDto findAll(String keyword, AgentResDto agentDto, Pageable pageable);
 
-    CreateCustomerResDto update(Long id, CreateCustomerReqDto reqDto, AgentResDto agentDto);
+    CreateCustomerResDto findDetailsById(Long id, AgentResDto agentDto);
+
+    CreateCustomerResDto update(Long id, CreateCustomerReqDto request, AgentResDto agentDto);
 
     CreateCustomerResDto delete(Long id, AgentResDto agentDto);
-
-    CustomerListResDto findAll(String searchDto, AgentResDto agentDto, Pageable pageable);
 }

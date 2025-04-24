@@ -14,5 +14,7 @@ public interface InquiryReader {
 
 	Page<Inquiry> findPageByAgentIdAndKeyword(Long agentId, String keyword, Pageable pageable);
 
+	Page<Inquiry> findPageByAgentAndCustomerName(Long agentId, String customerName, Pageable pageable);
+
 	Inquiry findInquiryWithDetailsOrThrow(Long inquiryId);
 }

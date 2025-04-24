@@ -1,6 +1,7 @@
 package com.househub.backend.domain.contract.service;
 
 import com.househub.backend.domain.contract.dto.*;
+import com.househub.backend.domain.property.entity.Property;
 
 import java.util.List;
 
@@ -16,6 +17,12 @@ public interface ContractService {
 
     // 계약 목록 조회
     public ContractListResDto findContracts(ContractSearchDto searchDto, Pageable pageable, Long agentId);
+
+    // 고객 계약 내역 조회
+    public ContractListResDto findAllByCustomer(Long id, String customerName, Pageable pageable, Long agentId);
+
+    // 매물 계약 내역 조회
+    public ContractListResDto findAllByProperties(List<Property> propertyIds, Pageable pageable, Long agentId);
 
     // 계약 상세 조회
     public FindContractResDto findContract(Long id);

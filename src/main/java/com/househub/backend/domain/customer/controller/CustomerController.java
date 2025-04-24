@@ -23,10 +23,19 @@ import org.springframework.web.multipart.MultipartFile;
 import com.househub.backend.common.response.SuccessResponse;
 import com.househub.backend.common.util.SecurityUtil;
 import com.househub.backend.domain.agent.dto.AgentResDto;
+import com.househub.backend.domain.consultation.dto.ConsultationListResDto;
+import com.househub.backend.domain.consultation.service.ConsultationService;
+import com.househub.backend.domain.contract.dto.ContractListResDto;
+import com.househub.backend.domain.contract.service.ContractService;
 import com.househub.backend.domain.customer.dto.CreateCustomerReqDto;
 import com.househub.backend.domain.customer.dto.CreateCustomerResDto;
 import com.househub.backend.domain.customer.dto.CustomerListResDto;
 import com.househub.backend.domain.customer.service.CustomerService;
+import com.househub.backend.domain.inquiry.dto.InquiryListResDto;
+import com.househub.backend.domain.inquiry.service.InquiryService;
+import com.househub.backend.domain.property.dto.PropertyListResDto;
+import com.househub.backend.domain.property.entity.Property;
+import com.househub.backend.domain.property.service.PropertyService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
@@ -38,6 +47,10 @@ import lombok.RequiredArgsConstructor;
 public class CustomerController {
 
     private final CustomerService customerService;
+	private final ConsultationService consultationService;
+	private final ContractService contractService;
+	private final InquiryService inquiryService;
+	private final PropertyService propertyService;
 
 	@Operation(
 		summary = "고객 등록",
@@ -70,14 +83,71 @@ public class CustomerController {
 
 	@Operation(
 		summary = "고객 상세 정보 조회",
-		description = "특정 고객의 상세 정보를 조회합니다. 삭제된 고객이거나 본인이 등록하지 않은 고객은 조회할 수 없습니다."
+		description = "특정 고객의 상세 정보 조회합니다. 삭제된 고객이거나 본인이 등록하지 않은 고객은 조회할 수 없습니다."
 	)
 	@GetMapping("/{id}")
 	public ResponseEntity<SuccessResponse<CreateCustomerResDto>> findOneCustomer(@PathVariable Long id) {
 		AgentResDto agentDto = SecurityUtil.getAuthenticatedAgent();
-		CreateCustomerResDto response = customerService.findById(id,agentDto);
-        return ResponseEntity.ok(SuccessResponse.success("고객 상세 조회가 완료되었습니다.", "FIND_CUSTOMER_SUCCESS", response));
-    }
+		CreateCustomerResDto response = customerService.findDetailsById(id, agentDto);
+		return ResponseEntity.ok(SuccessResponse.success("고객 상세 조회가 완료되었습니다.", "FIND_CUSTOMER_SUCCESS", response));
+	}
+
+	@Operation(
+		summary = "고객 상담 내역 조회",
+		description = "특정 고객의 상담 내역을 조회합니다. 삭제된 고객이거나 본인이 등록하지 않은 고객은 조회할 수 없습니다."
+	)
+	@GetMapping("/{id}/consultations")
+	public ResponseEntity<SuccessResponse<ConsultationListResDto>> findCustomerConsultations(@PathVariable Long id,
+	@RequestParam(name = "customerName") String customerName,
+		Pageable pageable) {
+		Pageable adjustedPageable = PageRequest.of(Math.max(pageable.getPageNumber() -1,0),pageable.getPageSize(), pageable.getSort());
+		AgentResDto agentDto = SecurityUtil.getAuthenticatedAgent();
+		ConsultationListResDto response = consultationService.findAllByCustomer(id, customerName, adjustedPageable);
+		return ResponseEntity.ok(SuccessResponse.success("고객 상담 목록 조회가 완료되었습니다.", "FIND_CUSTOMER_CONSULTATIONS_SUCCESS", response));
+	}
+
+	@Operation(
+		summary = "고객 매수 계약 내역 조회",
+		description = "특정 고객의 매수 계약 내역을 조회합니다. 삭제된 고객이거나 본인이 등록하지 않은 고객은 조회할 수 없습니다."
+	)
+	@GetMapping("/{id}/buy-contracts")
+	public ResponseEntity<SuccessResponse<ContractListResDto>> findCustomerBuyContracts(@PathVariable Long id,
+		@RequestParam(name = "customerName") String customerName,
+		Pageable pageable) {
+		Pageable adjustedPageable = PageRequest.of(Math.max(pageable.getPageNumber() -1,0),pageable.getPageSize(), pageable.getSort());
+		AgentResDto agentDto = SecurityUtil.getAuthenticatedAgent();
+		ContractListResDto response = contractService.findAllByCustomer(id, customerName, adjustedPageable, agentDto.getId());
+		return ResponseEntity.ok(SuccessResponse.success("고객 계약 목록 조회가 완료되었습니다.", "FIND_CUSTOMER_CONTRACTS_SUCCESS", response));
+	}
+
+	@Operation(
+		summary = "고객 매도 계약 내역 조회",
+		description = "특정 고객의 매도 계약 내역을 조회합니다. 삭제된 고객이거나 본인이 등록하지 않은 고객은 조회할 수 없습니다."
+	)
+	@GetMapping("/{id}/sell-contracts")
+	public ResponseEntity<SuccessResponse<ContractListResDto>> findCustomerSellContracts(@PathVariable Long id, String customerName,
+		Pageable pageable) {
+		Pageable adjustedPageable = PageRequest.of(Math.max(pageable.getPageNumber() -1,0),pageable.getPageSize(), pageable.getSort());
+		AgentResDto agentDto = SecurityUtil.getAuthenticatedAgent();
+		List<Property> properties = propertyService.findPropertiesByCustomer(id, adjustedPageable, agentDto.getId());
+		ContractListResDto response = contractService.findAllByProperties(properties,adjustedPageable, agentDto.getId());
+
+		return ResponseEntity.ok(SuccessResponse.success("고객 계약 목록 조회가 완료되었습니다.", "FIND_CUSTOMER_CONTRACTS_SUCCESS", response));
+	}
+
+	@Operation(
+		summary = "고객 문의 내역 조회",
+		description = "특정 고객의 문의 내역을 조회합니다. 삭제된 고객이거나 본인이 등록하지 않은 고객은 조회할 수 없습니다."
+	)
+	@GetMapping("/{id}/inquiries")
+	public ResponseEntity<SuccessResponse<InquiryListResDto>> findCustomerInquiries(@PathVariable Long id,
+		@RequestParam(name = "customerName") String customerName,
+		Pageable pageable) {
+		Pageable adjustedPageable = PageRequest.of(Math.max(pageable.getPageNumber() -1,0),pageable.getPageSize(), pageable.getSort());
+		AgentResDto agentDto = SecurityUtil.getAuthenticatedAgent();
+		InquiryListResDto response = inquiryService.findAllByCustomer(id, customerName, adjustedPageable, agentDto.getId());
+		return ResponseEntity.ok(SuccessResponse.success("고객 문의 목록 조회가 완료되었습니다.", "FIND_CUSTOMER_INQUIRIES_SUCCESS", response));
+	}
 
 	@Operation(
 		summary = "고객 정보 수정",

@@ -44,6 +44,16 @@ public interface PropertyRepository extends JpaRepository<Property, Long> {
 		Pageable pageable
 	);
 
+	@Query("SELECT p FROM Property p " +
+		"JOIN p.agent a " +
+		"JOIN p.customer c " +
+		"WHERE a.id = :agentId " +
+		"AND c.id = :customerId " +
+		"ORDER BY c.createdAt DESC")
+	List<Property> searchPropertiesByCustomer(
+		@Param("agentId") Long agentId,
+		@Param("customerId") Long customerId);
+
 	@Query("SELECT COUNT(p) FROM Property p WHERE p.agent.id = :agentId")
 	long countByAgentId(@Param("agentId") Long agentId);
 

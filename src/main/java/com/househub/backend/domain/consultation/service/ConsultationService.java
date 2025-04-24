@@ -19,6 +19,10 @@ public interface ConsultationService {
 	ConsultationListResDto findAll(Long agentId, String keyword, LocalDate startDate, LocalDate endDate,
 		ConsultationType type, ConsultationStatus status, Pageable pageable);
 
+	ConsultationListResDto findAllByCustomer(Long agentId,
+		String customerName,
+		Pageable pageable);
+
 	ConsultationResDto update(Long id, ConsultationReqDto consultationReqDto, Long agentId);
 
 	ConsultationResDto delete(Long id, Long agentId);

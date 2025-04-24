@@ -87,6 +87,23 @@ public class ConsultationServiceImpl implements ConsultationService {
 	}
 
 	@Transactional
+	@Override
+	public ConsultationListResDto findAllByCustomer(
+		Long agentId,
+		String customerName,
+		Pageable pageable
+	) {
+		Agent agent = validateAgent(agentId);
+		Page<ConsultationResDto> consultations = consultationRepository.searchConsultationsByCustomerName(
+			agentId,
+			customerName,
+			pageable
+		).map(ConsultationResDto::fromEntity);
+
+		return ConsultationListResDto.fromPage(consultations);
+	}
+
+	@Transactional
 	public ConsultationResDto update(
 		Long id,
 		ConsultationReqDto consultationReqDto,

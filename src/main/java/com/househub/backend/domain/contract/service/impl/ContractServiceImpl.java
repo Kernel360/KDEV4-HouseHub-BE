@@ -117,6 +117,35 @@ public class ContractServiceImpl implements ContractService {
 		return ContractListResDto.fromPage(response);
 	}
 
+	@Override
+	public ContractListResDto findAllByCustomer(Long id, String customerName, Pageable pageable, Long agentId) {
+		Agent agent = findAgentById(agentId);
+		// 페이지네이션 적용하여 계약 조회
+		// 해당 공인중개사가 체결한 계약만 조회
+		Page<Contract> contractPage = contractRepository.findContractsByAgentAndCustomer(
+			agentId,
+			customerName,
+			pageable
+		);
+		// 계약 엔티티를 dto 로 변환하여 리스트로 반환
+		Page<FindContractResDto> response = contractPage.map(FindContractResDto::toDto);
+		return ContractListResDto.fromPage(response);
+	}
+
+	@Override
+	public ContractListResDto findAllByProperties(List<Property> properties, Pageable pageable, Long agentId) {
+		Agent agent = findAgentById(agentId);
+
+		Page<Contract> contractPage = contractRepository.findContractsByProperties(
+			agentId,
+			properties,
+			pageable
+		);
+
+		Page<FindContractResDto> response = contractPage.map(FindContractResDto::toDto);
+		return ContractListResDto.fromPage(response);
+	}
+
 	/**
 	 * 계약 상세 정보 조회
 	 * @param id 계약 ID

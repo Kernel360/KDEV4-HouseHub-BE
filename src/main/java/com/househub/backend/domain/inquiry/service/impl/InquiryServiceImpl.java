@@ -83,6 +83,7 @@ public class InquiryServiceImpl implements InquiryService {
 	 * @param pageable 페이지네이션 정보
 	 * @return 문의 목록 응답 DTO
 	 */
+	@Transactional
 	@Override
 	public InquiryListResDto getInquiries(Long agentId, String keyword, Pageable pageable) {
 		// 1. 문의 목록 검색
@@ -98,5 +99,14 @@ public class InquiryServiceImpl implements InquiryService {
 	public InquiryDetailResDto getInquiryDetail(Long inquiryId) {
 		Inquiry inquiry = inquiryReader.findInquiryWithDetailsOrThrow(inquiryId);
 		return InquiryDetailResDto.fromEntity(inquiry);
+	}
+
+	@Override
+	public InquiryListResDto findAllByCustomer(Long id, String customerName, Pageable pageable, Long agentId) {
+		Page<Inquiry> inquiries = inquiryReader.findPageByAgentAndCustomerName(agentId, customerName, pageable);
+
+		Page<InquiryListItemResDto> dtoPage = inquiries.map(InquiryListItemResDto::from);
+
+		return InquiryListResDto.fromPage(dtoPage);
 	}
 }

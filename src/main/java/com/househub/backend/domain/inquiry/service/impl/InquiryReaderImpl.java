@@ -31,9 +31,18 @@ public class InquiryReaderImpl implements InquiryReader {
 
 	@Override
 	public Page<Inquiry> findPageByAgentIdAndKeyword(Long agentId, String keyword, Pageable pageable) {
-		return inquiryRepository.findInquiriesWithCustomer(
+		return inquiryRepository.findInquiriesWithKeyword(
 			agentId,
 			keyword,
+			pageable
+		);
+	}
+
+	@Override
+	public Page<Inquiry> findPageByAgentAndCustomerName(Long agentId, String customerName, Pageable pageable) {
+		return inquiryRepository.findInquiriesWithCustomer(
+			agentId,
+			customerName,
 			pageable
 		);
 	}
