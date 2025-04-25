@@ -160,4 +160,15 @@ public class GlobalExceptionHandler {
 			.build();
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
 	}
+
+	@ExceptionHandler(SmsSendFailException.class)
+	public ResponseEntity<ErrorResponse> handleSmsSendFailError(SmsSendFailException e) {
+		ErrorResponse response = ErrorResponse.builder()
+			.success(false)
+			.message(e.getMessage())
+			.code(e.getCode())
+			.errors(null)
+			.build();
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+	}
 }

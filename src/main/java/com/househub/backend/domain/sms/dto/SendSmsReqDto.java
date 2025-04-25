@@ -2,6 +2,7 @@ package com.househub.backend.domain.sms.dto;
 
 import com.househub.backend.domain.agent.entity.Agent;
 import com.househub.backend.domain.sms.entity.Sms;
+import com.househub.backend.domain.sms.entity.SmsTemplate;
 import com.househub.backend.domain.sms.enums.MessageType;
 import com.househub.backend.domain.sms.enums.SmsStatus;
 
@@ -21,11 +22,9 @@ import lombok.Setter;
 public class SendSmsReqDto {
 
 	@NotEmpty(message = "발신번호를 입력해주세요")
-	@Pattern(regexp = "^[0-9]+$", message = "발신번호는 숫자만 입력 가능합니다")
 	private String sender;
 
 	@NotEmpty(message = "수신번호를 입력해주세요")
-	@Pattern(regexp = "^[0-9]+$", message = "수신번호는 숫자만 입력 가능합니다")
 	private String receiver;
 
 	@NotEmpty(message = "발신 내용을 입력해주세요")
@@ -43,7 +42,7 @@ public class SendSmsReqDto {
 
 	private Long templateId;
 
-	public Sms toEntity(SmsStatus status, Agent agent) {
+	public Sms toEntity(SmsStatus status, Agent agent, SmsTemplate template) {
 		return Sms.builder()
 			.sender(this.sender)
 			.receiver(this.receiver)
@@ -54,15 +53,19 @@ public class SendSmsReqDto {
 			.rdate(this.rdate)
 			.rtime(this.rtime)
 			.agent(agent)
-			.templateId(this.templateId)
+			.smsTemplate(template)
 			.build();
 	}
 
-	public void setSender(String sender) {
-		this.sender = sender != null ? sender.replaceAll("-", "") : null;
-	}
-
-	public void setReceiver(String receiver) {
-		this.receiver = receiver != null ? receiver.replaceAll("-", "") : null;
+	public static SendSmsReqDto fromEntity(Sms sms){
+		return SendSmsReqDto.builder()
+			.sender(sms.getSender())
+			.receiver(sms.getReceiver())
+			.msg(sms.getMsg())
+			.msgType(sms.getMsgType())
+			.title(sms.getTitle())
+			.rdate(sms.getRdate())
+			.rtime(sms.getRtime())
+			.build();
 	}
 }

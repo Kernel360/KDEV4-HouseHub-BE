@@ -1,5 +1,7 @@
 package com.househub.backend.domain.sms.repository;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -7,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import com.househub.backend.domain.sms.entity.Sms;
+import com.househub.backend.domain.sms.enums.SmsStatus;
 
 public interface SmsRepository extends JpaRepository<Sms, Long> {
 
@@ -23,4 +26,6 @@ public interface SmsRepository extends JpaRepository<Sms, Long> {
 		") " +
 		"ORDER BY s.createdAt DESC")
 	Page<Sms> findAllSmsByAgentIdAndFiltersAndDeletedAtIsNull(@Param("agentId") Long agentId,@Param("receiver") String receiver,@Param("msg") String msg, Pageable pageable);
+
+	List<Sms> findSmsByStatus(SmsStatus status);
 }
