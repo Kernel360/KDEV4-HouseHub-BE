@@ -1,5 +1,7 @@
 package com.househub.backend.domain.contract.service.impl;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
@@ -53,5 +55,23 @@ public class ContractReaderImpl implements ContractReader {
 			throw new AlreadyExistsException("해당 고객은 본 매물에 대해 진행중인 계약이 존재합니다.",
 				"CONTRACT_ALREADY_EXISTS");
 		}
+	}
+
+	@Override
+	public Page<Contract> findContractsByAgentAndCustomer(Long agentId, Long customerId, Pageable pageable) {
+		return contractRepository.findContractsByAgentAndCustomer(
+			agentId,
+			customerId,
+			pageable
+		);
+	}
+
+	@Override
+	public Page<Contract> findContractsByProperties(Long agentId, List<Property> propertyIds, Pageable pageable) {
+		return contractRepository.findContractsByProperties(
+			agentId,
+			propertyIds,
+			pageable
+		);
 	}
 }

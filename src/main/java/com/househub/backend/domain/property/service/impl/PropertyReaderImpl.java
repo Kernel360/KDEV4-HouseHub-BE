@@ -1,5 +1,7 @@
 package com.househub.backend.domain.property.service.impl;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
@@ -41,5 +43,13 @@ public class PropertyReaderImpl implements PropertyReader {
 			if (isExist) {
 			throw new AlreadyExistsException("해당 고객이 동일 주소로 등록한 매물이 존재합니다.", "PROPERTY_ALREADY_EXISTS");
 		}
+	}
+
+	@Override
+	public List<Property> searchPropertiesByCustomer(Long agentId, Long customerId) {
+		return propertyRepository.searchPropertiesByCustomer(
+			agentId,
+			customerId
+		);
 	}
 }
