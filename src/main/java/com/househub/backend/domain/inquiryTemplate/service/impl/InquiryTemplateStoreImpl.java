@@ -27,6 +27,16 @@ public class InquiryTemplateStoreImpl implements InquiryTemplateStore {
 	}
 
 	@Override
+	public InquiryTemplate updateTemplate(InquiryTemplate inquiryTemplate) {
+		return inquiryTemplateRepository.save(inquiryTemplate);
+	}
+
+	@Override
+	public InquiryTemplate deleteTemplate(InquiryTemplate inquiryTemplate) {
+		return inquiryTemplateRepository.save(inquiryTemplate);
+	}
+
+	@Override
 	public void createQuestions(List<Question> questions) {
 		questionRepository.saveAll(questions);
 	}

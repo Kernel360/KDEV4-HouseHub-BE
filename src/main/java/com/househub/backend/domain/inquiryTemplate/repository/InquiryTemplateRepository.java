@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import com.househub.backend.domain.inquiryTemplate.entity.InquiryTemplate;
+import com.househub.backend.domain.inquiryTemplate.enums.InquiryType;
 
 import io.lettuce.core.dynamic.annotation.Param;
 
@@ -21,15 +22,22 @@ public interface InquiryTemplateRepository extends JpaRepository<InquiryTemplate
 		"AND it.agent.id = :agentId")
 	Optional<InquiryTemplate> findByIdAndAgentId(@Param("id") Long id, @Param("agentId") Long agentId);
 
-	@Query("SELECT it FROM InquiryTemplate it " +
-		"WHERE it.deletedAt IS NULL " +
-		"AND it.agent.id = :agentId " +
-		"AND (:#{#active == null} = true OR it.active = :active) " +
-		"AND (:#{#keyword == null or #keyword.isEmpty()} = true OR LOWER(it.name) LIKE %:keyword%)")
-	Page<InquiryTemplate> findAllByAgentIdAndFilters(@Param("agentId") Long agentId,
+	@Query("""
+		SELECT it FROM InquiryTemplate it
+		WHERE it.deletedAt IS NULL
+		AND it.agent.id = :agentId
+		AND (:#{#active == null} = true OR it.active = :active)
+		AND (:#{#keyword == null or #keyword.isEmpty()} = true OR LOWER(it.name) LIKE %:keyword%)
+		AND (:#{#type == null} = true OR it.type = :type)
+		"""
+	)
+	Page<InquiryTemplate> findAllByAgentIdAndFilters(
+		@Param("agentId") Long agentId,
 		@Param("active") Boolean active,
 		@Param("keyword") String keyword,
-		Pageable pageable);
+		@Param("type") InquiryType type,
+		Pageable pageable
+	);
 
 	@Query("SELECT it FROM InquiryTemplate it " +
 		"WHERE it.deletedAt IS NULL " +
@@ -45,4 +53,27 @@ public interface InquiryTemplateRepository extends JpaRepository<InquiryTemplate
 		"AND it.name = :name " +
 		"AND it.deletedAt IS NULL")
 	boolean existsByAgentIdAndName(@Param("agentId") Long agentId, @Param("name") String name);
+
+	@Query(
+		"""
+			SELECT DISTINCT it FROM InquiryTemplate it
+			LEFT JOIN FETCH it.questions q
+			WHERE it.deletedAt IS NULL
+			AND it.id = :templateId
+			AND it.agent.id = :agentId
+			"""
+	)
+	Optional<InquiryTemplate> findWithQuestionsByIdAndAgentId(@Param("templateId") Long templateId,
+		@Param("agentId") Long agentId);
+
+	@Query(
+		"""
+			SELECT DISTINCT it FROM InquiryTemplate it
+			LEFT JOIN FETCH it.questions q
+			WHERE it.deletedAt IS NULL
+			AND it.id = :templateId
+			"""
+	)
+	Optional<InquiryTemplate> findActiveTemplateWithQuestionsById(@Param("templateId") Long templateId);
+
 }

@@ -13,6 +13,7 @@ import lombok.Getter;
 @Builder
 public class InquiryTemplateResDto {
 	private Long id;
+	private String type;
 	private String name;
 	private String description;
 	private List<InquiryQuestionResDto> questions;
@@ -25,6 +26,7 @@ public class InquiryTemplateResDto {
 	public static InquiryTemplateResDto fromEntity(InquiryTemplate entity, String shareToken) {
 		return InquiryTemplateResDto.builder()
 			.id(entity.getId())
+			.type(entity.getType().getKoreanName())
 			.name(entity.getName())
 			.description(entity.getDescription())
 			.questions(InquiryQuestionResDto.fromEntities(entity.getQuestions()))

@@ -4,6 +4,7 @@ import java.util.Collections;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.househub.backend.common.response.ErrorResponse;
 import com.househub.backend.common.response.SuccessResponse;
 import com.househub.backend.common.util.SecurityUtil;
+import com.househub.backend.domain.agent.dto.AgentResDto;
 import com.househub.backend.domain.inquiryTemplate.dto.CreateInquiryTemplateReqDto;
 import com.househub.backend.domain.inquiryTemplate.dto.InquiryTemplateListResDto;
 import com.househub.backend.domain.inquiryTemplate.dto.InquiryTemplatePreviewResDto;
@@ -64,7 +66,7 @@ public class InquiryTemplateController {
 	@PostMapping("")
 	public ResponseEntity<SuccessResponse<Void>> createNewInquiryTemplate(
 		@Valid @RequestBody CreateInquiryTemplateReqDto reqDto) {
-		inquiryTemplateService.createNewInquiryTemplate(reqDto, getSignInAgentId());
+		inquiryTemplateService.createNewInquiryTemplate(reqDto, getSignInAgent());
 		return ResponseEntity.status(HttpStatus.CREATED).body(
 			SuccessResponse.success(
 				"새로운 문의 템플릿 등록 성공",
@@ -94,7 +96,9 @@ public class InquiryTemplateController {
 		Boolean isActive,
 		@RequestParam(required = false, defaultValue = "")
 		String keyword,
-		@PageableDefault(size = 10) Pageable pageable
+		@RequestParam(required = false)
+		String type,
+		@PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
 	) {
 		// 💡 page를 1-based에서 0-based로 변경
 		int page = Math.max(pageable.getPageNumber() - 1, 0);
@@ -102,9 +106,12 @@ public class InquiryTemplateController {
 
 		Pageable adjustedPageable = PageRequest.of(page, size, pageable.getSort());
 
-		InquiryTemplateListResDto response = inquiryTemplateService.getInquiryTemplates(isActive, keyword,
+		InquiryTemplateListResDto response = inquiryTemplateService.getInquiryTemplates(
+			isActive,
+			keyword,
+			type,
 			adjustedPageable,
-			getSignInAgentId());
+			getSignInAgent());
 		return ResponseEntity.ok(SuccessResponse.success("문의 템플릿 목록 조회 성공", "GET_INQUIRY_TEMPLATES_SUCCESS", response));
 	}
 
@@ -128,7 +135,7 @@ public class InquiryTemplateController {
 		Long templateId
 	) {
 		InquiryTemplatePreviewResDto response = inquiryTemplateService.previewInquiryTemplate(templateId,
-			getSignInAgentId());
+			getSignInAgent());
 		return ResponseEntity.ok(
 			SuccessResponse.success("문의 템플릿 미리보기 성공", "PREVIEW_INQUIRY_TEMPLATE_SUCCESS", response));
 	}
@@ -157,7 +164,7 @@ public class InquiryTemplateController {
 		@RequestBody
 		UpdateInquiryTemplateReqDto reqDto
 	) {
-		inquiryTemplateService.updateInquiryTemplate(templateId, reqDto, getSignInAgentId());
+		inquiryTemplateService.updateInquiryTemplate(templateId, reqDto, getSignInAgent());
 		return ResponseEntity.ok(
 			SuccessResponse.success("문의 템플릿 수정 성공", "UPDATE_INQUIRY_TEMPLATE_SUCCESS", null));
 	}
@@ -180,7 +187,7 @@ public class InquiryTemplateController {
 		@Min(value = 1, message = "템플릿 ID는 1 이상이어야 합니다.")
 		Long templateId
 	) {
-		inquiryTemplateService.deleteInquiryTemplate(templateId, getSignInAgentId());
+		inquiryTemplateService.deleteInquiryTemplate(templateId, getSignInAgent());
 		return ResponseEntity.ok(
 			SuccessResponse.success("문의 템플릿 삭제 성공", "DELETE_INQUIRY_TEMPLATE_SUCCESS", null));
 	}
@@ -221,11 +228,11 @@ public class InquiryTemplateController {
 	}
 
 	/**
-	 * 현재 로그인한 에이전트의 ID를 반환합니다.
+	 * 현재 로그인한 에이전트를 반환합니다.
 	 *
-	 * @return 현재 로그인한 에이전트의 ID
+	 * @return 현재 로그인한 에이전트
 	 */
-	private Long getSignInAgentId() {
-		return SecurityUtil.getAuthenticatedAgent().getId();
+	private AgentResDto getSignInAgent() {
+		return SecurityUtil.getAuthenticatedAgent();
 	}
 }

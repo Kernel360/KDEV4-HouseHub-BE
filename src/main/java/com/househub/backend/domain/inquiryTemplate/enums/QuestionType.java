@@ -1,4 +1,4 @@
-package com.househub.backend.domain.inquiryTemplate.entity;
+package com.househub.backend.domain.inquiryTemplate.enums;
 
 public enum QuestionType {
 	TEXT,
@@ -9,5 +9,6 @@ public enum QuestionType {
 	FILE,
 	EMAIL,
 	PHONE,
-	DATE
+	DATE,
+	REGION
 }
