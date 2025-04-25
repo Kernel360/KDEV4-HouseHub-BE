@@ -28,6 +28,7 @@ public class FindContractResDto {
     private String memo; // 계약 관련 메모
     private LocalDate startedAt; // 계약 시작 일시
     private LocalDate expiredAt; // 계약 만료 일시
+    private LocalDate completedAt; // 계약 완료 일시
 
     // Contract 엔티티를 DTO로 변환
     public static FindContractResDto toDto(Contract contract) {
@@ -35,7 +36,8 @@ public class FindContractResDto {
                 .id(contract.getId())
                 .agent(GetMyInfoResDto.from(contract.getAgent()))
                 .property(FindPropertyResDto.toDto(contract.getProperty()))
-                .customer(CreateCustomerResDto.fromEntity(contract.getCustomer()))
+                .customer(contract.getCustomer() != null ?
+                        CreateCustomerResDto.fromEntity(contract.getCustomer()) : null)
                 .contractType(contract.getContractType())
                 .salePrice(contract.getSalePrice())
                 .jeonsePrice(contract.getJeonsePrice())
@@ -45,6 +47,7 @@ public class FindContractResDto {
                 .memo(contract.getMemo())
                 .startedAt(contract.getStartedAt())
                 .expiredAt(contract.getExpiredAt())
+                .completedAt(contract.getCompletedAt())
                 .build();
     }
 }
