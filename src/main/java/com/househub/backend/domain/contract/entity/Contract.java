@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 import org.hibernate.annotations.SQLRestriction;
 
 import com.househub.backend.domain.agent.entity.Agent;
-import com.househub.backend.domain.contract.dto.ContractReqDto;
+import com.househub.backend.domain.contract.dto.UpdateContractReqDto;
 import com.househub.backend.domain.contract.enums.ContractStatus;
 import com.househub.backend.domain.contract.enums.ContractType;
 import com.househub.backend.domain.customer.entity.Customer;
@@ -46,7 +46,7 @@ public class Contract {
 	private Agent agent; // 담당 공인중개사
 
 	@ManyToOne
-	@JoinColumn(name = "customerId", nullable = false)
+	@JoinColumn(name = "customerId")
 	private Customer customer; // 임차인 또는 매수인
 
 	@ManyToOne
@@ -64,12 +64,15 @@ public class Contract {
 
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
-	private ContractStatus status; // 상태 (판매 중, 판매 완료)
+	private ContractStatus status; // 상태 (계약 가능, 계약 중, 계약 완료, 계약 취소)
 
 	private String memo; // 참고 설명
 
 	private LocalDate startedAt; // 계약 시작일
 	private LocalDate expiredAt; // 계약 만료일
+	private LocalDate completedAt; // 계약 완료일시
+
+	private Boolean active; // 활성화 여부
 
 	@Column(nullable = false, updatable = false)
 	private LocalDateTime createdAt; // 등록일시
@@ -78,9 +81,6 @@ public class Contract {
 	private LocalDateTime updatedAt; // 수정일시
 
 	private LocalDateTime deletedAt; // 삭제일시 (소프트 삭제)
-
-	@Column(nullable = true)
-	private LocalDate completedAt; // 계약 완료일시
 
 	@PrePersist
 	protected void onCreate() {
@@ -93,19 +93,31 @@ public class Contract {
 		updatedAt = LocalDateTime.now();
 	}
 
-	// 수정 메서드 (setter 대신 사용)
-	public void updateContract(ContractReqDto updateDto) {
-		if (updateDto.getContractStatus() == ContractStatus.COMPLETED)
-			this.completedAt = updateDto.getCompletedAt();
-		else
-			this.completedAt = null; // 거래 완료 상태가 아닌 경우에는 null 로 설정
+	public void enable() {
+		this.active = true;
+	}
 
+	public void disable() {
+		this.active = false;
+	}
+
+	public void updateContract(UpdateContractReqDto updateDto) {
+		if (updateDto.getContractStatus() != null) {
+			if (updateDto.getContractStatus() != ContractStatus.COMPLETED) {
+				this.completedAt = null; // 거래 완료 상태가 아닌 경우에는 null 로 설정
+			}
+			if (updateDto.getContractStatus() == ContractStatus.AVAILABLE) {
+				this.startedAt = null;
+				this.expiredAt = null;
+			}
+			this.status = updateDto.getContractStatus();
+		}
 		if (updateDto.getContractType() != null)
 			this.contractType = updateDto.getContractType();
-		if (updateDto.getContractStatus() != null)
-			this.status = updateDto.getContractStatus();
 		if (updateDto.getMemo() != null)
 			this.memo = updateDto.getMemo();
+
+		// 가격 정보
 		if (updateDto.getSalePrice() != null)
 			this.salePrice = updateDto.getSalePrice();
 		if (updateDto.getJeonsePrice() != null)
@@ -114,11 +126,20 @@ public class Contract {
 			this.monthlyRentDeposit = updateDto.getMonthlyRentDeposit();
 		if (updateDto.getMonthlyRentFee() != null)
 			this.monthlyRentFee = updateDto.getMonthlyRentFee();
-		this.updatedAt = LocalDateTime.now();
+
+		// 날짜 정보
+		if (updateDto.getStartedAt() != null)
+			this.startedAt = updateDto.getStartedAt();
+		if (updateDto.getExpiredAt() != null)
+			this.expiredAt = updateDto.getExpiredAt();
+		if (updateDto.getCompletedAt() != null)
+			this.completedAt = updateDto.getCompletedAt();
+		if (updateDto.getActive() != null)
+			this.active = updateDto.getActive();
 	}
 
 	// 삭제 메서드
-	public void deleteContract() {
+	public void softDelete() {
 		this.deletedAt = LocalDateTime.now();
 	}
 }
