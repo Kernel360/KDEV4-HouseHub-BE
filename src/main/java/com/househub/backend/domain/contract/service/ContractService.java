@@ -4,6 +4,8 @@ import com.househub.backend.domain.agent.dto.AgentResDto;
 import com.househub.backend.domain.contract.dto.*;
 import com.househub.backend.domain.property.entity.Property;
 
+import java.util.List;
+
 import org.springframework.data.domain.Pageable;
 
 public interface ContractService {
