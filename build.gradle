@@ -52,12 +52,44 @@ dependencies {
     runtimeOnly 'org.apache.logging.log4j:log4j-core:2.20.0'
 
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+
+    // querydsl
+    implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
+    annotationProcessor 'com.querydsl:querydsl-apt:5.0.0:jakarta'
+    annotationProcessor "jakarta.persistence:jakarta.persistence-api"
 }
 
 tasks.named('test') {
     useJUnitPlatform()
 }
 
+// QueryDSL Q-Class 생성 디렉토리 설정
+def querydslDir = layout.buildDirectory.dir("generated/querydsl").get().asFile
+
 tasks.withType(JavaCompile) {
     options.compilerArgs << "-Xlint:deprecation"
+    // JavaCompile Task를 수행하는 경우 생성될 소스코드의 출력 디렉토리를 queryDsLSrcDr로 설정
+    options.getGeneratedSourceOutputDirectory().set(file(querydslDir))
 }
+
+// 소스 코드로 인식할 디렉토리에 경로에 Q-Class 파일 추가
+// Q-Class가 일반 Java 클래스처럼 취급되어 컴파일과 실행 시 클래스패스에 포함
+sourceSets {
+    main {
+        java {
+            srcDirs += [querydslDir]
+        }
+    }
+}
+
+// clean Task 수행하는 경우 지정한 디렉토리를 삭제하도록 설정 : 자동 생성된 Q-Class 제거
+clean {
+    delete file(querydslDir)
+}
+
+//querydsl {
+//    jpa = true
+//    querydslSourcesDir = querydslDir
+//    includedPackages = ['com.example.domain.query'] // 특정 패키지만 지정
+//}
+

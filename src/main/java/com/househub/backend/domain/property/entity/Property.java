@@ -9,10 +9,10 @@ import org.hibernate.annotations.SQLRestriction;
 import com.househub.backend.domain.agent.entity.Agent;
 import com.househub.backend.domain.contract.entity.Contract;
 import com.househub.backend.domain.customer.entity.Customer;
-import com.househub.backend.domain.property.dto.PropertyReqDto;
+import com.househub.backend.domain.property.dto.UpdatePropertyReqDto;
+import com.househub.backend.domain.property.enums.PropertyDirection;
 import com.househub.backend.domain.property.enums.PropertyType;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -43,7 +43,7 @@ public class Property {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id; // 매물 고유 식별자 (PK)
 
-    @OneToMany(mappedBy = "property", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "property")
     private List<Contract> contracts;
 
     @ManyToOne
@@ -66,6 +66,13 @@ public class Property {
     private String detailAddress; // 상세 주소
     private String roadAddress; // 전체 도로명 주소
     private String jibunAddress; // 지번 주소
+
+    private Double area; // 면적 (평수)
+    private Integer floor; // 층수
+    private Integer allFloors; // 총 층수
+    private PropertyDirection direction; // 방향 (남, 북, 동, 서, 남동, 남서, 북동, 북서)
+    private Integer bathroomCnt; // 화장실 개수
+    private Integer roomCnt; // 방 개수
 
     @Column(nullable = false)
     private Boolean active; // 매물이 계약 가능한지 여부 default : true (계약이 없는 경우 true)
@@ -94,7 +101,6 @@ public class Property {
 
     @PrePersist
     protected void onCreate() {
-        active = true;
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
     }
@@ -104,26 +110,39 @@ public class Property {
         updatedAt = LocalDateTime.now();
     }
 
-    // active 상태 변경 메서드
-    public void changeActiveStatus(boolean active) {
-        this.active = active;
+    public void enable() {
+        this.active = true;
     }
 
-    // 수정 메서드 (setter 대신 사용)
-    public void updateProperty(PropertyReqDto updateDto, Customer customer) {
+    public void disable() {
+        this.active = false;
+    }
+
+    public void update(UpdatePropertyReqDto updateDto, Customer customer) {
         if (updateDto.getCustomerId() != null) this.customer = customer;
         if (updateDto.getPropertyType() != null) this.propertyType = updateDto.getPropertyType();
         if (updateDto.getMemo() != null) this.memo = updateDto.getMemo();
+
+        if (updateDto.getArea() != null) this.area = updateDto.getArea();
+        if (updateDto.getFloor() != null) this.floor = updateDto.getFloor();
+        if (updateDto.getAllFloors() != null) this.allFloors = updateDto.getAllFloors();
+        if (updateDto.getDirection() != null) this.direction = updateDto.getDirection();
+        if (updateDto.getBathroomCnt() != null) this.bathroomCnt = updateDto.getBathroomCnt();
+        if (updateDto.getRoomCnt() != null) this.roomCnt = updateDto.getRoomCnt();
+        if (updateDto.getActive() != null) this.active = updateDto.getActive();
+
         if (updateDto.getRoadAddress() != null) this.roadAddress = updateDto.getRoadAddress();
+        if (updateDto.getJibunAddress() != null) {
+            this.jibunAddress = updateDto.getJibunAddress();
+            parseJibunAddress(updateDto.getJibunAddress());
+        }
         if (updateDto.getDetailAddress() != null) this.detailAddress = updateDto.getDetailAddress();
-        if (updateDto.getLatitude() != null) this.latitude = updateDto.getLatitude();
-        if (updateDto.getLongitude() != null) this.longitude = updateDto.getLongitude();
-        this.updatedAt = LocalDateTime.now();
-        parseJibunAddress(updateDto.getJibunAddress());
     }
 
     // 삭제 메서드
-    public void deleteProperty() {
+    public void softDelete() {
         this.deletedAt = LocalDateTime.now();
+        // 매물 삭제 시, 해당 계약도 모두 소프트 딜리트 해야함
+        contracts.forEach(Contract::softDelete);
     }
 }

@@ -11,6 +11,7 @@ import com.househub.backend.domain.property.entity.Property;
 
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -22,19 +23,22 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ContractReqDto {
+public class CreateContractReqDto {
     @NotNull(message = "매물 id를 입력해 주세요.")
     private Long propertyId; // 매물 ID
-    @NotNull(message = "고객 id를 입력해 주세요.")
     private Long customerId; // 고객 ID
     @NotNull(message = "거래 유형은 필수입니다.")
     private ContractType contractType; // 거래 유형 (매매, 전세, 월세)
     @NotNull(message = "거래 상태는 필수입니다.")
     private ContractStatus contractStatus; // 거래 상태 ( 거래 가능, 진행중, 완료 )
 
+    @Positive(message = "매매가는 0보다 큰 값이어야 합니다.")
     private Long salePrice; // 매매가 (매매 계약일 경우 필요)
+    @Positive(message = "전세가는 0보다 큰 값이어야 합니다.")
     private Long jeonsePrice; // 전세가 (전세 계약일 경우 필요)
+    @Positive(message = "월세는 0보다 큰 값이어야 합니다.")
     private Integer monthlyRentFee; // 월세 금액 (월세 계약일 경우 필요)
+    @Positive(message = "보증금은 0보다 큰 값이어야 합니다.")
     private Integer monthlyRentDeposit; // 월세 보증금 (월세 계약일 경우 필요)
 
     private String memo; // 참고 설명 (예: 계약 기간 등)
@@ -66,16 +70,27 @@ public class ContractReqDto {
 
     @AssertTrue(message = "계약 시작일은 계약 만료일보다 이후일 수 없습니다.")
     public boolean isValidContractPeriod() {
+        if (startedAt == null || expiredAt == null) {
+            return true;
+        }
         return !startedAt.isAfter(expiredAt);
     }
-    // 자동 실행
-    // @AssertTrue(message = "거래 가능 상태일 경우, 거래 시작일과 만료일은 입력할 수 없습니다.")
-    // public boolean isValidContractStatus() {
-    //     if (contractStatus == ContractStatus.AVAILABLE) { // 거래가능일 경우
-    //         return startedAt == null && expiredAt == null;
-    //     }
-    //     return true;
-    // }
+
+    @AssertTrue(message = "거래 가능 상태일 경우, 거래 시작일과 만료일은 입력할 수 없습니다.")
+    public boolean isValidContractStatus() {
+        if (contractStatus == ContractStatus.AVAILABLE) { // 거래가능일 경우
+            return startedAt == null && expiredAt == null;
+        }
+        return true;
+    }
+
+    @AssertTrue(message = "의뢰인의 존재 여부에 따라 계약 상태가 일관되어야 합니다.")
+    public boolean isCustomerStatusConsistent() {
+        if (customerId == null) {
+            return contractStatus == ContractStatus.AVAILABLE;
+        }
+        return contractStatus != ContractStatus.AVAILABLE;
+    }
 
     public Contract toEntity(Property property, Customer customer, Agent agent) {
         return Contract.builder()
@@ -91,6 +106,7 @@ public class ContractReqDto {
                 .memo(this.memo)
                 .startedAt(this.startedAt)
                 .expiredAt(this.expiredAt)
+                .completedAt(this.completedAt)
                 .build();
     }
 }
