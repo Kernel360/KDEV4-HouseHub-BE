@@ -46,6 +46,7 @@ public class WebSecurityConfig {
 			.csrf(AbstractHttpConfigurer::disable) // REST API 서버이므로 CSRF 비활성화
 			.authorizeHttpRequests((authz) -> authz
 				.requestMatchers(
+					"/api/regions/**",
 					"/api/inquiry-templates/share/**",
 					"/api/inquiries",
 					"/api/auth/session",
