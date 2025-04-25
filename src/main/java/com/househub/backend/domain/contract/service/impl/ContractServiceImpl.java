@@ -25,6 +25,8 @@ import com.househub.backend.domain.customer.service.CustomerReader;
 import com.househub.backend.domain.property.entity.Property;
 import com.househub.backend.domain.property.service.PropertyReader;
 
+import java.util.List;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
