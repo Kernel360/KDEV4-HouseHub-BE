@@ -28,11 +28,12 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
 		"AND c.agent.id = :agentId " +
 		"AND (" +
 		"   (:name IS NULL OR :name = '' OR c.name LIKE CONCAT('%', :name, '%')) OR " +
-		"   (:contact IS NULL OR :contact = '' OR c.contact LIKE CONCAT('%', :contact, '%')) OR " +
+		"   (:contact IS NULL OR :contact = '' OR " +
+		"       REPLACE(REPLACE(c.contact, '-', ''), ' ', '') " +
+		"       LIKE CONCAT('%', REPLACE(REPLACE(:contact, '-', ''), ' ', ''), '%')) OR " +
 		"   (:email IS NULL OR :email = '' OR c.email LIKE CONCAT('%', :email, '%'))" +
 		") " +
-		"ORDER BY c.createdAt DESC"
-	)
+		"ORDER BY c.createdAt DESC")
 	Page<Customer> findAllByAgentIdAndFiltersAndDeletedAtIsNull(
 		@Param("agentId") Long agentId,
 		@Param("name") String name,

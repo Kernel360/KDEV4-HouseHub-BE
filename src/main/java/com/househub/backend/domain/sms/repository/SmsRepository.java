@@ -21,7 +21,9 @@ public interface SmsRepository extends JpaRepository<Sms, Long> {
 		"WHERE s.deletedAt IS NULL " +
 		"AND s.agent.id = :agentId " +
 		"AND (" +
-		"   (:receiver IS NULL OR :receiver = '' OR s.receiver LIKE CONCAT('%', :receiver, '%')) OR " +
+		"   (:receiver IS NULL OR :receiver = '' OR " +
+		"       REPLACE(REPLACE(s.receiver, '-', ''), ' ', '') " +
+		"       LIKE CONCAT('%', REPLACE(REPLACE(:receiver, '-', ''), ' ', ''), '%')) OR " +
 		"   (:msg IS NULL OR :msg = '' OR s.msg LIKE CONCAT('%', :msg, '%'))" +
 		") " +
 		"ORDER BY s.createdAt DESC")
