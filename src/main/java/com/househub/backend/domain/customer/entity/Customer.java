@@ -1,6 +1,7 @@
 package com.househub.backend.domain.customer.entity;
 
 import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.Optional;
 
 import com.househub.backend.common.enums.Gender;
@@ -44,7 +45,8 @@ public class Customer {
 	@Column(length = 50)
 	private String name;
 
-	private Integer ageGroup;
+	@Column
+	private LocalDate birthDate;
 
 	@Column(nullable = false)
 	private String contact;
@@ -89,7 +91,7 @@ public class Customer {
 		this.name = reqDto.getName();
 		this.email = reqDto.getEmail();
 		Optional.ofNullable(reqDto.getContact()).ifPresent(contact -> this.contact = contact);
-		this.ageGroup = reqDto.getAgeGroup(); // null 허용
+		this.birthDate = reqDto.getBirthDate(); // null 허용
 		this.gender = reqDto.getGender(); // null 허용
 		this.memo = reqDto.getMemo(); // null 허용
 	}

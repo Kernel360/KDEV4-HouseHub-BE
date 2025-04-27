@@ -14,6 +14,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+
 @Data
 @Builder
 @AllArgsConstructor
@@ -22,7 +24,7 @@ public class CreateCustomerReqDto {
 
     private String name;
 
-	private Integer ageGroup;
+	private LocalDate birthDate;
 
 	@NotBlank(message = "연락처는 필수입니다.")
 	@Pattern(regexp = "^\\d{2,3}-\\d{3,4}-\\d{4}$", message = "올바른 전화번호 형식이 아닙니다.")
@@ -38,7 +40,7 @@ public class CreateCustomerReqDto {
 	public Customer toEntity(Agent agent) {
 		return Customer.builder()
 			.name(this.name)
-			.ageGroup(this.ageGroup != null ? this.ageGroup : null)
+			.birthDate(this.birthDate != null ? this.birthDate : null)
 			.contact(this.contact)
 			.email(this.email)
 			.memo(this.memo)
