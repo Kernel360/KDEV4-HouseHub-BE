@@ -53,7 +53,7 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
 	List<Customer> findByBirthDate(LocalDate birthDate);
 
 	@Query("SELECT DISTINCT c FROM Customer c " +
-		"JOIN c.contracts contract " + // Customer의 contracts 필드 (현재 코드에 없음!)
+		"JOIN c.contracts contract " +
 		"WHERE contract.expiredAt = :today " +
 		"AND contract.deletedAt IS NULL")
 	List<Customer> findCustomersWithExpiringContracts(@Param("today") LocalDate today);

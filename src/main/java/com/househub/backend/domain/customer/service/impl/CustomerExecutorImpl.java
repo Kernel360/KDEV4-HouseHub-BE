@@ -9,6 +9,7 @@ import com.househub.backend.domain.customer.entity.Customer;
 import com.househub.backend.domain.customer.service.CustomerExecutor;
 import com.househub.backend.domain.customer.service.CustomerReader;
 import com.househub.backend.domain.customer.service.CustomerStore;
+import com.househub.backend.domain.sms.entity.Sms;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;

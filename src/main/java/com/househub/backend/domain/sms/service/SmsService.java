@@ -23,5 +23,5 @@ public interface SmsService {
 
 	SendSmsResDto findById(Long id, AgentResDto agentDto);
 
-	SmsListResDto findAllByKeyword(String keyword, AgentResDto agentDto, Pageable pageable);
+	SmsListResDto findAllByKeyword(String keyword, AgentResDto agentDto, Pageable pageable,Long templateId);
 }

@@ -26,8 +26,9 @@ public interface SmsRepository extends JpaRepository<Sms, Long> {
 		"       LIKE CONCAT('%', REPLACE(REPLACE(:receiver, '-', ''), ' ', ''), '%')) OR " +
 		"   (:msg IS NULL OR :msg = '' OR s.msg LIKE CONCAT('%', :msg, '%'))" +
 		") " +
+		"AND (:templateId IS NULL OR s.smsTemplate.id = :templateId) "+
 		"ORDER BY s.createdAt DESC")
-	Page<Sms> findAllSmsByAgentIdAndFiltersAndDeletedAtIsNull(@Param("agentId") Long agentId,@Param("receiver") String receiver,@Param("msg") String msg, Pageable pageable);
+	Page<Sms> findAllSmsByAgentIdAndFiltersAndDeletedAtIsNull(@Param("agentId") Long agentId,@Param("receiver") String receiver,@Param("msg") String msg, @Param("templateId")Long templateId, Pageable pageable);
 
 	List<Sms> findSmsByStatus(SmsStatus status);
 }

@@ -68,7 +68,7 @@ public class CustomerReaderImpl implements CustomerReader {
 	}
 
 	@Override
-	public List<Customer> findAllByBirthDate(LocalDate birthDate) {
+	public List<Customer> findAllByBirthDate(LocalDate birthDate, Long agentId) {
 		return customerRepository.findByBirthDate(birthDate);
 	}
 
