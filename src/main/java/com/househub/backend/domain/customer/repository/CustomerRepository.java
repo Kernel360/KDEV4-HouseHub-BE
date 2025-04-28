@@ -16,7 +16,7 @@ import com.househub.backend.domain.consultation.entity.Consultation;
 import com.househub.backend.domain.customer.entity.Customer;
 
 @Repository
-public interface CustomerRepository extends JpaRepository<Customer, Long> {
+public interface CustomerRepository extends JpaRepository<Customer, Long>, CustomerRepositoryCustom {
 
 	Optional<Customer> findByContactAndAgentIdAndDeletedAtIsNull(String contact, Long agentId);
 
@@ -25,24 +25,6 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
 	Optional<Customer> findByIdAndAgentIdAndDeletedAtIsNull(Long id, Long agentId);
 
 	Optional<Customer> findByEmailAndContact(String email, String phone);
-
-	@Query(value = "SELECT c FROM Customer c " +
-		"WHERE c.deletedAt IS NULL " +
-		"AND c.agent.id = :agentId " +
-		"AND (" +
-		"   (:name IS NULL OR :name = '' OR c.name LIKE CONCAT('%', :name, '%')) OR " +
-		"   (:contact IS NULL OR :contact = '' OR " +
-		"       REPLACE(REPLACE(c.contact, '-', ''), ' ', '') " +
-		"       LIKE CONCAT('%', REPLACE(REPLACE(:contact, '-', ''), ' ', ''), '%')) OR " +
-		"   (:email IS NULL OR :email = '' OR c.email LIKE CONCAT('%', :email, '%'))" +
-		") " +
-		"ORDER BY c.createdAt DESC")
-	Page<Customer> findAllByAgentIdAndFiltersAndDeletedAtIsNull(
-		@Param("agentId") Long agentId,
-		@Param("name") String name,
-		@Param("contact") String contact,
-		@Param("email") String email,
-		Pageable pageable);
 
 	@Query("SELECT COUNT(c) FROM Customer c WHERE c.agent.id = :agentId AND c.createdAt >= :sevenDaysAgo")
 	long countNewCustomersInLast7DaysByAgentId(@Param("agentId") Long agentId,
@@ -57,4 +39,6 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
 		"WHERE contract.expiredAt = :today " +
 		"AND contract.deletedAt IS NULL")
 	List<Customer> findCustomersWithExpiringContracts(@Param("today") LocalDate today);
+
+	Customer findByIdAndAgentId(Long id, Long agentId);
 }

@@ -32,6 +32,12 @@ public class CustomerExecutorImpl implements CustomerExecutor {
 	}
 
 	@Override
+	public Customer validateAndRestore(Long id, Agent agent) {
+		Customer customer = customerReader.findById(id, agent.getId());
+		return customerStore.restore(customer);
+	}
+
+	@Override
 	public Customer validateAndUpdate(Long id, CreateCustomerReqDto request, Agent agent) {
 		Customer customer = customerReader.findByIdOrThrow(id, agent.getId());
 		if (!customer.getContact().equals(request.getContact())) {

@@ -117,4 +117,8 @@ public class Customer {
 	public void softDelete() {
 		this.deletedAt = LocalDateTime.now();
 	}
+
+	public void restore() {
+		this.deletedAt = null;
+	}
 }

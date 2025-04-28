@@ -1,6 +1,7 @@
 package com.househub.backend.domain.customer.dto;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import com.househub.backend.common.enums.Gender;
 import com.househub.backend.domain.customer.entity.Customer;
@@ -22,6 +23,9 @@ public class CreateCustomerResDto {
 	private String email;
 	private String memo;
 	private Gender gender;
+	private LocalDateTime createdAt;
+	private LocalDateTime updatedAt;
+	private LocalDateTime deletedAt;
 
 	public static CreateCustomerResDto fromEntity(Customer customer) {
 		return CreateCustomerResDto.builder()
@@ -32,6 +36,9 @@ public class CreateCustomerResDto {
 			.email(customer.getEmail())
 			.memo(customer.getMemo())
 			.gender(customer.getGender())
+			.createdAt(customer.getCreatedAt())
+			.updatedAt(customer.getUpdatedAt())
+			.deletedAt(customer.getDeletedAt())
 			.build();
 	}
 }

@@ -11,4 +11,6 @@ public interface CustomerExecutor {
 	Customer validateAndDelete(Long id, Agent agent);
 
 	Customer findOrCreateCustomer(CreateCustomerReqDto request, Agent agent);
+
+	Customer validateAndRestore(Long id, Agent agent);
 }

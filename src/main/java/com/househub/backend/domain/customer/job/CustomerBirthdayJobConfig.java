@@ -61,7 +61,8 @@
 // 	@StepScope
 // 	public ItemReader<Customer> customerReader(CustomerReader customerReader) {
 // 		LocalDate today = LocalDate.now();
-// 		List<Customer> data = customerReader.findAllByBirthDate(today,);
+// 		List<Customer> data = customerReader.findAllByBirthDate(today);
+// 		// 고객을 담당하는 Agent를 확인
 // 		log.info("총 생일자 수: {}",data.size());
 // 		return new ListItemReader<>(data);
 // 	}

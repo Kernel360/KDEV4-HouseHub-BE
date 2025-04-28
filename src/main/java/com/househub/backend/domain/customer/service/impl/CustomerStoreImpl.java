@@ -41,5 +41,11 @@ public class CustomerStoreImpl implements CustomerStore {
 		customer.softDelete();
 		return customer;
 	}
+
+	@Override
+	public Customer restore(Customer customer) {
+		customer.restore();
+		return customer;
+	}
 }
 
