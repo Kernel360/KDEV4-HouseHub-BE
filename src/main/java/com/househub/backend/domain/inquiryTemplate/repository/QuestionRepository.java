@@ -12,6 +12,9 @@ import com.househub.backend.domain.inquiryTemplate.entity.Question;
 
 @Repository
 public interface QuestionRepository extends JpaRepository<Question, Long> {
+	@Query("SELECT q FROM Question q WHERE q.inquiryTemplate.id = :templateId and q.inquiryTemplate.deletedAt is null")
+	List<Question> findAllByInquiryTemplateId(Long templateId);
+
 	List<Question> findAllByInquiryTemplate(InquiryTemplate inquiryTemplate);
 
 	@Query("SELECT DISTINCT q FROM Question q " +

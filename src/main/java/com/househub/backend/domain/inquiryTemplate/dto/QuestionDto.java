@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.househub.backend.common.validation.ValidQuestionType;
-import com.househub.backend.domain.inquiryTemplate.entity.QuestionType;
+import com.househub.backend.domain.inquiryTemplate.enums.QuestionType;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

@@ -4,7 +4,6 @@ import java.util.List;
 
 import com.househub.backend.domain.customer.dto.CreateCustomerReqDto;
 
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
@@ -20,12 +19,6 @@ public class CreateInquiryReqDto {
 
 	@NotBlank
 	private String templateToken;
-
-	@NotBlank
-	private String name;
-
-	@Email
-	private String email;
 
 	@NotBlank
 	private String phone;
@@ -44,8 +37,6 @@ public class CreateInquiryReqDto {
 
 	public CreateCustomerReqDto toCustomerReqDto() {
 		return CreateCustomerReqDto.builder()
-			.name(this.name)
-			.email(this.email)
 			.contact(this.phone)
 			.build();
 	}

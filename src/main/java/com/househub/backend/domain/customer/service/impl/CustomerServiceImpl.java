@@ -81,9 +81,9 @@ public class CustomerServiceImpl implements CustomerService {
 		}
 	}
 
-	public CustomerListResDto findAll(String keyword, AgentResDto agentDto, Pageable pageable) {
+	public CustomerListResDto findAll(String keyword, AgentResDto agentDto, Pageable pageable, boolean includeDeleted) {
 		Agent agent = agentDto.toEntity();
-		Page<Customer> customerPage = customerReader.findAllByKeyword(keyword, agent.getId(), pageable);
+		Page<Customer> customerPage = customerReader.findAllByKeyword(keyword, agent.getId(), pageable, includeDeleted);
 		Page<CreateCustomerResDto> response = customerPage.map(CreateCustomerResDto::fromEntity);
 		return CustomerListResDto.fromPage(response);
 	}
@@ -106,5 +106,12 @@ public class CustomerServiceImpl implements CustomerService {
 		Agent agent = agentDto.toEntity();
 		Customer deletedCustomer = customerExecutor.validateAndDelete(id, agent);
 		return CreateCustomerResDto.fromEntity(deletedCustomer);
+	}
+
+	@Transactional
+	public CreateCustomerResDto restore(Long id, AgentResDto agentDto) {
+		Agent agent = agentDto.toEntity();
+		Customer restoredCustomer = customerExecutor.validateAndRestore(id,agent);
+		return CreateCustomerResDto.fromEntity(restoredCustomer);
 	}
 }

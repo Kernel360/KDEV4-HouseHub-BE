@@ -35,6 +35,8 @@ public class AligoServiceImpl implements AligoService {
 	private String apiKey;
 	@Value("${aligo.id}")
 	private String userId;
+	@Value("${aligo.commonSender}")
+	private String commonSender;
 
 	/**
 	 * Aligo API 요청을 처리하는 공통 메서드
@@ -89,9 +91,9 @@ public class AligoServiceImpl implements AligoService {
 		String url = "https://apis.aligo.in/send/";
 
 		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-		params.add("sender", request.getSender());
+		params.add("sender", commonSender);
 		params.add("receiver", request.getReceiver());
-		params.add("msg", request.getMsg());
+		params.add("msg", request.getSender() + "\n" + request.getMsg());
 
 		// LMS/MMS 처리
 		if (request.getMsg().length() > 90 || request.getTitle() != null) {

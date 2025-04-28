@@ -22,9 +22,9 @@ public class SmsReaderImpl implements SmsReader {
 	private final SmsRepository smsRepository;
 
 	@Override
-	public Page<Sms> findAllByKeyword(Long agentId, String receiver, String msg, Pageable pageable) {
+	public Page<Sms> findAllByKeyword(Long agentId, String receiver, String msg,Long templateId, Pageable pageable) {
 		receiver = receiver!=null?receiver.replace("-",""):null;
-		return smsRepository.findAllSmsByAgentIdAndFiltersAndDeletedAtIsNull(agentId, receiver, msg, pageable);
+		return smsRepository.findAllSmsByAgentIdAndFiltersAndDeletedAtIsNull(agentId, receiver, msg, templateId, pageable);
 	}
 
 	@Override

@@ -72,12 +72,13 @@ public class CustomerController {
 	@GetMapping("")
 	public ResponseEntity<SuccessResponse<CustomerListResDto>> findAllCustomer(
 		@RequestParam(name = "keyword", required = false) String keyword,
-		Pageable pageable
+		Pageable pageable,
+		@RequestParam(name = "includeDeleted", required = false) boolean includeDeleted
 	) {
 		Pageable adjustedPageable = PageRequest.of(Math.max(pageable.getPageNumber() -1,0),pageable.getPageSize(), pageable.getSort());
 		AgentResDto agentDto = SecurityUtil.getAuthenticatedAgent();
 
-		CustomerListResDto response = customerService.findAll(keyword, agentDto, adjustedPageable);
+		CustomerListResDto response = customerService.findAll(keyword, agentDto, adjustedPageable, includeDeleted);
         return ResponseEntity.ok(SuccessResponse.success("고객 목록 조회에 성공했습니다.", "FIND_ALL_CUSTOMER_SUCCESS", response));
     }
 
@@ -171,6 +172,19 @@ public class CustomerController {
 
         return ResponseEntity.ok(SuccessResponse.success("해당 고객의 삭제가 완료되었습니다.", "DELETE_CUSTOMER_SUCCESS", response));
     }
+
+	// 고객 복구
+	@Operation(
+		summary = "고객 복구",
+		description = "특정 고객을 복구합니다."
+	)
+	@PutMapping("/restore/{id}")
+	public ResponseEntity<SuccessResponse<CreateCustomerResDto>> restoreCustomer(@PathVariable Long id) {
+		AgentResDto agentDto = SecurityUtil.getAuthenticatedAgent();
+		CreateCustomerResDto response = customerService.restore(id,agentDto);
+
+		return ResponseEntity.ok(SuccessResponse.success("해당 고객의 복구가 완료되었습니다.", "RESTORE_CUSTOMER_SUCCESS",response));
+	}
 
 	@Operation(
 		summary = "엑셀 업로드",

@@ -95,10 +95,14 @@ public class CustomerExcelProcessor {
 		return cell != null ? emptyToNull(cell.getStringCellValue()) : null;
 	}
 
-	// 숫자 셀 값 가져오기
-	private Integer getIntegerCell(Row row, CustomerExcelColumn col) {
+	// 생년월일 셀 값 가져오기
+	private java.time.LocalDate getBirthDateCell(Row row, CustomerExcelColumn col) {
 		Cell cell = row.getCell(col.ordinal());
-		return cell != null ? (int) cell.getNumericCellValue() : null;
+		if (cell == null || cell.getCellType() == CellType.BLANK) {
+			return null;
+		}
+		String value = cell.getStringCellValue();
+		return value != null && !value.trim().isEmpty() ? java.time.LocalDate.parse(value) : null;
 	}
 
 	private String emptyToNull(String value) {
@@ -108,7 +112,7 @@ public class CustomerExcelProcessor {
 	private CreateCustomerReqDto buildCustomerDto(Row row) {
 		return CreateCustomerReqDto.builder()
 			.name(getStringCell(row, CustomerExcelColumn.NAME))
-			.ageGroup(getIntegerCell(row, CustomerExcelColumn.AGE_GROUP))
+			.birthDate(getBirthDateCell(row, CustomerExcelColumn.BIRTH_DATE))
 			.contact(getStringCell(row, CustomerExcelColumn.CONTACT))
 			.email(getStringCell(row, CustomerExcelColumn.EMAIL))
 			.memo(getStringCell(row, CustomerExcelColumn.MEMO))
