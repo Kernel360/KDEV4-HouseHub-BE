@@ -42,9 +42,9 @@ public class PropertyRepositoryCustomImpl implements PropertyRepositoryCustom {
 			.leftJoin(property.contracts, contract)  // 계약 정보와 조인
 			.where(
 				agent.id.eq(agentId),
-				provinceEq(searchDto.getProvince()),
-				cityEq(searchDto.getCity()),
-				dongEq(searchDto.getDong()),
+				provinceContains(searchDto.getProvince()),
+				cityContains(searchDto.getCity()),
+				dongContains(searchDto.getDong()),
 				propertyTypeEq(searchDto.getPropertyType()),
 				agentNameContains(searchDto.getAgentName()),
 				customerNameContains(searchDto.getCustomerName()),
@@ -123,6 +123,19 @@ public class PropertyRepositoryCustomImpl implements PropertyRepositoryCustom {
 
 	private BooleanExpression dongEq(String dong) {
 		return dong != null ? QProperty.property.dong.eq(dong) : null;
+	}
+
+	private BooleanExpression provinceContains(String province) {
+		// return province != null ? QProperty.property.province.eq(province) : null;
+		return province != null ? QProperty.property.province.contains(province) : null;
+	}
+
+	private BooleanExpression cityContains(String city) {
+		return city != null ? QProperty.property.city.contains(city) : null;
+	}
+
+	private BooleanExpression dongContains(String dong) {
+		return dong != null ? QProperty.property.dong.contains(dong) : null;
 	}
 
 	private BooleanExpression propertyTypeEq(PropertyType propertyType) {
