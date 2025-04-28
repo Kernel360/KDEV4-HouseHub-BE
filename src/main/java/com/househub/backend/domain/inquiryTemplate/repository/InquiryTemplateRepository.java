@@ -35,6 +35,7 @@ public interface InquiryTemplateRepository extends JpaRepository<InquiryTemplate
 	)
 	Page<InquiryTemplate> findAllByAgentIdAndFilters(
 		@Param("agentId") Long agentId,
+		@Param("active") Boolean active,
 		@Param("keyword") String keyword,
 		@Param("type") InquiryType type,
 		Pageable pageable
