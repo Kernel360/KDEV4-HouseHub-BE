@@ -3,6 +3,7 @@ package com.househub.backend.domain.customer.service.impl;
 import org.springframework.stereotype.Component;
 
 import com.househub.backend.domain.agent.entity.Agent;
+import com.househub.backend.domain.consultation.service.ConsultationService;
 import com.househub.backend.domain.customer.dto.CreateCustomerReqDto;
 import com.househub.backend.domain.customer.entity.Customer;
 import com.househub.backend.domain.customer.service.CustomerExecutor;
@@ -17,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 public class CustomerExecutorImpl implements CustomerExecutor {
 	private final CustomerReader customerReader;
 	private final CustomerStore customerStore;
+	private final ConsultationService consultationService;
 
 	@Transactional
 	@Override
@@ -27,6 +29,7 @@ public class CustomerExecutorImpl implements CustomerExecutor {
 				request.toEntity(agent)
 			));
 	}
+
 	@Override
 	public Customer validateAndUpdate(Long id, CreateCustomerReqDto request, Agent agent) {
 		Customer customer = customerReader.findByIdOrThrow(id, agent.getId());

@@ -17,6 +17,7 @@ import com.househub.backend.domain.contract.dto.FindContractResDto;
 import com.househub.backend.domain.contract.dto.UpdateContractReqDto;
 import com.househub.backend.domain.contract.entity.Contract;
 import com.househub.backend.domain.contract.enums.ContractStatus;
+import com.househub.backend.domain.contract.repository.ContractRepository;
 import com.househub.backend.domain.contract.service.ContractReader;
 import com.househub.backend.domain.contract.service.ContractService;
 import com.househub.backend.domain.contract.service.ContractStore;
@@ -24,6 +25,8 @@ import com.househub.backend.domain.customer.entity.Customer;
 import com.househub.backend.domain.customer.service.CustomerReader;
 import com.househub.backend.domain.property.entity.Property;
 import com.househub.backend.domain.property.service.PropertyReader;
+
+import java.util.List;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -127,6 +130,35 @@ public class ContractServiceImpl implements ContractService {
 		// 계약 엔티티를 dto 로 변환하여 리스트로 반환
 		Page<FindContractResDto> response = contractPage.map(FindContractResDto::toDto);
 		log.info("findContracts response size: {}", response.getContent().size());
+		return ContractListResDto.fromPage(response);
+	}
+
+	@Transactional(readOnly = true)
+	@Override
+	public ContractListResDto findAllByCustomer(Long id, Pageable pageable, Long agentId) {
+		// 페이지네이션 적용하여 계약 조회
+		// 해당 공인중개사가 체결한 계약만 조회
+		Page<Contract> contractPage = contractReader.findContractsByAgentAndCustomer(
+			agentId,
+			id,
+			pageable
+		);
+		// 계약 엔티티를 dto 로 변환하여 리스트로 반환
+		Page<FindContractResDto> response = contractPage.map(FindContractResDto::toDto);
+		return ContractListResDto.fromPage(response);
+	}
+
+	@Transactional(readOnly = true)
+	@Override
+	public ContractListResDto findAllByProperties(List<Property> properties, Pageable pageable, Long agentId) {
+
+		Page<Contract> contractPage = contractReader.findContractsByProperties(
+			agentId,
+			properties,
+			pageable
+		);
+
+		Page<FindContractResDto> response = contractPage.map(FindContractResDto::toDto);
 		return ContractListResDto.fromPage(response);
 	}
 

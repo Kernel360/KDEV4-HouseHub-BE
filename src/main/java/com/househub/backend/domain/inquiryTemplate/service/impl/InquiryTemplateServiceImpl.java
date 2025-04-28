@@ -79,8 +79,6 @@ public class InquiryTemplateServiceImpl implements InquiryTemplateService {
 	 * @param keyword 검색 키워드 (선택 사항)
 	 * @param type 템플릿 타입 (선택 사항)
 	 * @param pageable 페이지네이션 정보
-	 * @param agent 문의 템플릿을 조회하는 중개사
-	 *
 	 * @return 문의 템플릿 목록을 포함한 응답
 	 */
 	@Transactional(readOnly = true)
