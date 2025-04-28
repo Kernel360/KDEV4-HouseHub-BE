@@ -91,6 +91,23 @@ public class AuthController {
 		return ResponseEntity.ok(SuccessResponse.success("세션 정보 조회 성공", "GET_SESSION_SUCCESS", response));
 	}
 
+	@PostMapping("/email/send")
+	public ResponseEntity<SuccessResponse<SendEmailResDto>> sendEmail(@Valid @RequestBody SendEmailReqDto request) {
+		// 이미 가입된 사용자인지 확인
+		authService.checkEmailAlreadyExists(request.getEmail());
+		String authCode = authService.generateAndSaveAuthCode(request.getEmail());
+		emailService.sendVerificationCode(request.getEmail(), authCode);
+		log.info("인증 코드: {}", authCode);
+		return ResponseEntity.ok(SuccessResponse.success("이메일 발송 성공", "EMAIL_SEND_SUCCESS",
+			SendEmailResDto.builder().expiresIn(180).build()));
+	}
+
+	@PostMapping("/email/verify")
+	public ResponseEntity<SuccessResponse<Void>> verifyEmail(@Valid @RequestBody VerifyEmailReqDto request) {
+		authService.verifyCode(request.getEmail(), request.getCode());
+		return ResponseEntity.ok(SuccessResponse.success("이메일 인증 성공", "EMAIL_VERIFY_SUCCESS", null));
+	}
+
 	@ExceptionHandler({
 		ResourceNotFoundException.class,
 		EmailVerifiedException.class,
@@ -121,22 +138,5 @@ public class AuthController {
 				.status(HttpStatus.INTERNAL_SERVER_ERROR)
 				.body(ErrorResponse.builder().message("로그인 중 알 수 없는 오류가 발생했습니다.").code("LOGIN_ERROR").build());
 		}
-	}
-
-	@PostMapping("/email/send")
-	public ResponseEntity<SuccessResponse<SendEmailResDto>> sendEmail(@Valid @RequestBody SendEmailReqDto request) {
-		// 이미 가입된 사용자인지 확인
-		authService.checkEmailAlreadyExists(request.getEmail());
-		String authCode = authService.generateAndSaveAuthCode(request.getEmail());
-		emailService.sendVerificationCode(request.getEmail(), authCode);
-		log.info("인증 코드: {}", authCode);
-		return ResponseEntity.ok(SuccessResponse.success("이메일 발송 성공", "EMAIL_SEND_SUCCESS",
-			SendEmailResDto.builder().expiresIn(180).build()));
-	}
-
-	@PostMapping("/email/verify")
-	public ResponseEntity<SuccessResponse<Void>> verifyEmail(@Valid @RequestBody VerifyEmailReqDto request) {
-		authService.verifyCode(request.getEmail(), request.getCode());
-		return ResponseEntity.ok(SuccessResponse.success("이메일 인증 성공", "EMAIL_VERIFY_SUCCESS", null));
 	}
 }

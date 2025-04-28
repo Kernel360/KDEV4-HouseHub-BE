@@ -4,7 +4,6 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.househub.backend.domain.inquiryTemplate.entity.InquiryTemplate;
-import com.househub.backend.domain.inquiryTemplate.entity.Question;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,13 +24,13 @@ public class InquiryTemplatePreviewResDto {
 	private Boolean active;
 	private List<InquiryQuestionResDto> questions;
 
-	public static InquiryTemplatePreviewResDto fromEntity(InquiryTemplate inquiryTemplate, List<Question> questions) {
+	public static InquiryTemplatePreviewResDto fromEntity(InquiryTemplate inquiryTemplate) {
 		return InquiryTemplatePreviewResDto.builder()
 			.id(inquiryTemplate.getId())
 			.name(inquiryTemplate.getName())
 			.description(inquiryTemplate.getDescription())
 			.active(inquiryTemplate.getActive())
-			.questions(InquiryQuestionResDto.fromEntities(questions))
+			.questions(InquiryQuestionResDto.fromEntities(inquiryTemplate.getQuestions()))
 			.build();
 	}
 }
