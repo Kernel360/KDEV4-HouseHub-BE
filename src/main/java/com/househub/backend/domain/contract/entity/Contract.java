@@ -101,8 +101,13 @@ public class Contract {
 		this.active = false;
 	}
 
-	public void updateContract(UpdateContractReqDto updateDto) {
+	public void update(UpdateContractReqDto updateDto) {
 		if (updateDto.getContractStatus() != null) {
+			if(updateDto.getContractStatus() == ContractStatus.COMPLETED) {
+				// 해당 매물에 대한 모든 계약 disable, 해당 매물 disable
+				property.getContracts().forEach(Contract::disable);
+				property.disable();
+			}
 			if (updateDto.getContractStatus() != ContractStatus.COMPLETED) {
 				this.completedAt = null; // 거래 완료 상태가 아닌 경우에는 null 로 설정
 			}
@@ -136,6 +141,10 @@ public class Contract {
 			this.completedAt = updateDto.getCompletedAt();
 		if (updateDto.getActive() != null)
 			this.active = updateDto.getActive();
+	}
+
+	public void updateCustomer(Customer customer) {
+		this.customer = customer;
 	}
 
 	// 삭제 메서드

@@ -17,7 +17,6 @@ import com.househub.backend.domain.contract.dto.FindContractResDto;
 import com.househub.backend.domain.contract.dto.UpdateContractReqDto;
 import com.househub.backend.domain.contract.entity.Contract;
 import com.househub.backend.domain.contract.enums.ContractStatus;
-import com.househub.backend.domain.contract.repository.ContractRepository;
 import com.househub.backend.domain.contract.service.ContractReader;
 import com.househub.backend.domain.contract.service.ContractService;
 import com.househub.backend.domain.contract.service.ContractStore;
@@ -96,7 +95,8 @@ public class ContractServiceImpl implements ContractService {
 	public void updateContract(Long id, UpdateContractReqDto dto, AgentResDto agentDto) {
 		Contract contract = contractReader.findByIdOrThrow(id, agentDto.getId());
 		// 매물 조회
-		Property property = propertyReader.findByIdOrThrow(dto.getPropertyId(), agentDto.getId());
+		Property property = contract.getProperty();
+		// Property property = propertyReader.findByIdOrThrow(dto.getPropertyId(), agentDto.getId());
 		// 고객을 설정한 경우, 검증
 		if(dto.getCustomerId() != null) {
 			// 고객 조회
@@ -105,6 +105,7 @@ public class ContractServiceImpl implements ContractService {
 			validateCustomerIsNotPropertyOwner(customer, property);
 			// 같은 계약자가 동일한 매물에 대해 진행중인 계약이 있는지 확인
 			contractReader.validateNoInProgressContract(customer, property);
+			contractStore.updateCustomer(contract, customer);
 		}
 		// 계약 정보 수정
 		contractStore.update(contract, dto);

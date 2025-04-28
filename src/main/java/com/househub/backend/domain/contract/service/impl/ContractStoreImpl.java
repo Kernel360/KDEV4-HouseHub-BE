@@ -6,6 +6,7 @@ import com.househub.backend.domain.contract.dto.UpdateContractReqDto;
 import com.househub.backend.domain.contract.entity.Contract;
 import com.househub.backend.domain.contract.repository.ContractRepository;
 import com.househub.backend.domain.contract.service.ContractStore;
+import com.househub.backend.domain.customer.entity.Customer;
 
 import lombok.RequiredArgsConstructor;
 
@@ -21,9 +22,13 @@ public class ContractStoreImpl implements ContractStore {
 	}
 
 	@Override
-	public Contract update(Contract contract, UpdateContractReqDto dto) {
-		contract.updateContract(dto);
-		return contract;
+	public void update(Contract contract, UpdateContractReqDto dto) {
+		contract.update(dto);
+	}
+
+	@Override
+	public void updateCustomer(Contract contract, Customer customer) {
+		contract.updateCustomer(customer);
 	}
 
 	@Override
