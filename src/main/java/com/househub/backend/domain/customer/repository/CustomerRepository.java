@@ -1,6 +1,8 @@
 package com.househub.backend.domain.customer.repository;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -10,6 +12,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import com.househub.backend.domain.consultation.entity.Consultation;
 import com.househub.backend.domain.customer.entity.Customer;
 
 @Repository
@@ -46,4 +49,12 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
 		@Param("sevenDaysAgo") LocalDateTime sevenDaysAgo);
 
 	Optional<Customer> findByEmailAndAgentIdAndDeletedAtIsNull(String email, Long agentId);
+
+	List<Customer> findByBirthDate(LocalDate birthDate);
+
+	@Query("SELECT DISTINCT c FROM Customer c " +
+		"JOIN c.contracts contract " + // Customer의 contracts 필드 (현재 코드에 없음!)
+		"WHERE contract.expiredAt = :today " +
+		"AND contract.deletedAt IS NULL")
+	List<Customer> findCustomersWithExpiringContracts(@Param("today") LocalDate today);
 }

@@ -2,10 +2,15 @@ package com.househub.backend.domain.customer.entity;
 
 import java.time.LocalDateTime;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import com.househub.backend.common.enums.Gender;
+import com.househub.backend.common.validation.ValidBirthDate;
 import com.househub.backend.domain.agent.entity.Agent;
+import com.househub.backend.domain.consultation.entity.Consultation;
+import com.househub.backend.domain.contract.entity.Contract;
 import com.househub.backend.domain.customer.dto.CreateCustomerReqDto;
 import com.househub.backend.domain.customer.enums.CustomerStatus;
 
@@ -19,6 +24,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
@@ -45,7 +51,7 @@ public class Customer {
 	@Column(length = 50)
 	private String name;
 
-	@Column
+	@ValidBirthDate
 	private LocalDate birthDate;
 
 	@Column(nullable = false)
@@ -75,6 +81,14 @@ public class Customer {
 	@JoinColumn(name = "agent_id", nullable = false)
 	private Agent agent;
 
+	@OneToMany(mappedBy = "customer")
+	@Builder.Default
+	private List<Consultation> consultations = new ArrayList<>();
+
+	@OneToMany(mappedBy = "customer")
+	@Builder.Default
+	private List<Contract> contracts = new ArrayList<>();
+
 	@PrePersist
 	protected void onCreate() {
 		createdAt = LocalDateTime.now();
@@ -90,8 +104,12 @@ public class Customer {
 	public void update(CreateCustomerReqDto reqDto) {
 		this.name = reqDto.getName();
 		this.email = reqDto.getEmail();
-		Optional.ofNullable(reqDto.getContact()).ifPresent(contact -> this.contact = contact);
-		this.birthDate = reqDto.getBirthDate(); // null 허용
+		if (reqDto.getContact() != null && !reqDto.getContact().isEmpty()) {
+			this.contact = reqDto.getContact();
+		}
+		if (reqDto.getBirthDate() != null) {
+			this.birthDate = reqDto.getBirthDate();
+		}
 		this.gender = reqDto.getGender(); // null 허용
 		this.memo = reqDto.getMemo(); // null 허용
 	}

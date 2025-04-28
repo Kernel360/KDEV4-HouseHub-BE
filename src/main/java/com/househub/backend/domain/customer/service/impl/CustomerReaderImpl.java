@@ -1,5 +1,8 @@
 package com.househub.backend.domain.customer.service.impl;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -62,5 +65,15 @@ public class CustomerReaderImpl implements CustomerReader {
 	@Override
 	public Optional<Customer> findByContactAndAgentId(String contact, Long agentId) {
 		return customerRepository.findByContactAndAgentId(contact, agentId);
+	}
+
+	@Override
+	public List<Customer> findAllByBirthDate(LocalDate birthDate) {
+		return customerRepository.findByBirthDate(birthDate);
+	}
+
+	@Override
+	public List<Customer> findAllByContractEndDate(LocalDateTime consultationDate) {
+		return customerRepository.findCustomersWithExpiringContracts(consultationDate.toLocalDate());
 	}
 }

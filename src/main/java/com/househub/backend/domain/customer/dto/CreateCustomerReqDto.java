@@ -1,6 +1,7 @@
 package com.househub.backend.domain.customer.dto;
 
 import com.househub.backend.common.enums.Gender;
+import com.househub.backend.common.validation.ValidBirthDate;
 import com.househub.backend.domain.agent.entity.Agent;
 import com.househub.backend.domain.customer.entity.Customer;
 import com.househub.backend.domain.customer.enums.CustomerStatus;
@@ -24,6 +25,7 @@ public class CreateCustomerReqDto {
 
     private String name;
 
+	@ValidBirthDate
 	private LocalDate birthDate;
 
 	@NotBlank(message = "연락처는 필수입니다.")
