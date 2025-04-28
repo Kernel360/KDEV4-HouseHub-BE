@@ -1,116 +1,96 @@
 // package com.househub.backend.domain.customer.service;
 //
-// import static org.assertj.core.api.Assertions.*;
+// import static org.junit.jupiter.api.Assertions.*;
+// import static org.mockito.ArgumentMatchers.any;
 // import static org.mockito.Mockito.*;
 //
+// import java.time.LocalDate;
+// import java.util.Optional;
+//
 // import org.junit.jupiter.api.BeforeEach;
-// import org.junit.jupiter.api.DisplayName;
 // import org.junit.jupiter.api.Test;
 // import org.junit.jupiter.api.extension.ExtendWith;
 // import org.mockito.InjectMocks;
 // import org.mockito.Mock;
 // import org.mockito.junit.jupiter.MockitoExtension;
-// import org.springframework.web.multipart.MultipartFile;
 //
 // import com.househub.backend.common.enums.Gender;
 // import com.househub.backend.domain.agent.entity.Agent;
 // import com.househub.backend.domain.customer.dto.CreateCustomerReqDto;
 // import com.househub.backend.domain.customer.entity.Customer;
 // import com.househub.backend.domain.customer.repository.CustomerRepository;
-// import com.househub.backend.domain.customer.service.impl.CustomerStoreImpl;
 //
 // @ExtendWith(MockitoExtension.class)
-// public class CustomerStoreImplTest {
+// class CustomerStoreImplTest {
 //
 // 	@Mock
 // 	private CustomerRepository customerRepository;
-//
-// 	@Mock
-// 	private CustomerReader customerReader;
-//
-// 	@Mock
-// 	private MultipartFile file;
 //
 // 	@InjectMocks
 // 	private CustomerStoreImpl customerStore;
 //
 // 	private Agent agent;
-// 	private CreateCustomerReqDto validRequest;
+// 	private CreateCustomerReqDto reqDto;
 //
 // 	@BeforeEach
 // 	void setUp() {
 // 		agent = Agent.builder()
 // 			.id(1L)
+// 			.name("테스트 에이전트")
 // 			.build();
 //
-// 		validRequest = CreateCustomerReqDto.builder()
-// 			.name("김철수")
-// 			.ageGroup(30)
-// 			.contact("010-1234-1234")
-// 			.email("test@example.com")
-// 			.memo("특이사항 없음")
+// 		reqDto = CreateCustomerReqDto.builder()
+// 			.name("테스트 고객")
+// 			.birthDate(LocalDate.of(1990, 1, 1))
+// 			.contact("010-1234-5678")
+// 			.email("test@test.com")
+// 			.memo("테스트 메모")
 // 			.gender(Gender.M)
 // 			.build();
 // 	}
 //
 // 	@Test
-// 	@DisplayName("고객 생성 성공")
-// 	void create_success() {
+// 	void createCustomer_성공() {
 // 		// given
-// 		Customer expectedCustomer = validRequest.toEntity(agent);
-// 		when(customerRepository.save(any(Customer.class))).thenReturn(expectedCustomer);
+// 		Customer customer = reqDto.toEntity(agent);
+// 		when(customerRepository.save(any(Customer.class))).thenReturn(customer);
 //
 // 		// when
-// 		Customer result = customerStore.create(expectedCustomer);
+// 		Customer result = customerStore.createCustomer(reqDto, agent);
 //
 // 		// then
-// 		assertThat(result).isEqualTo(expectedCustomer);
-//
-// 		// verify
+// 		assertNotNull(result);
+// 		assertEquals(reqDto.getName(), result.getName());
+// 		assertEquals(reqDto.getBirthDate(), result.getBirthDate());
+// 		assertEquals(reqDto.getContact(), result.getContact());
+// 		assertEquals(reqDto.getEmail(), result.getEmail());
+// 		assertEquals(reqDto.getMemo(), result.getMemo());
+// 		assertEquals(reqDto.getGender(), result.getGender());
 // 		verify(customerRepository, times(1)).save(any(Customer.class));
 // 	}
 //
-// 	// 2. updateCustomer 테스트
 // 	@Test
-// 	@DisplayName("고객 정보 업데이트 성공")
-// 	void update_success() {
+// 	void findById_성공() {
 // 		// given
-// 		Customer existingCustomer = Customer.builder()
-// 			.id(1L)
-// 			.contact("010-0000-0000")
-// 			.agent(agent)
-// 			.build();
-// 		when(customerRepository.save(any(Customer.class))).thenReturn(existingCustomer);
+// 		Customer customer = reqDto.toEntity(agent);
+// 		when(customerRepository.findById(1L)).thenReturn(Optional.of(customer));
 //
 // 		// when
-// 		Customer result = customerStore.update(existingCustomer, validRequest);
+// 		Customer result = customerStore.findById(1L);
 //
 // 		// then
-// 		assertThat(result.getContact()).isEqualTo(validRequest.getContact());
+// 		assertNotNull(result);
+// 		assertEquals(customer.getName(), result.getName());
+// 		verify(customerRepository, times(1)).findById(1L);
 // 	}
 //
-// 	// 3. deleteCustomer 테스트
 // 	@Test
-// 	@DisplayName("고객 소프트 삭제 성공")
-// 	void softDelete_success() {
+// 	void findById_실패() {
 // 		// given
-// 		Customer customer = Customer.builder()
-// 			.id(1L)
-// 			.deletedAt(null)
-// 			.build();
+// 		when(customerRepository.findById(1L)).thenReturn(Optional.empty());
 //
-// 		when(customerRepository.save(any(Customer.class))).thenAnswer(invocation -> {
-// 			Customer saved = invocation.getArgument(0);
-// 			saved.softDelete(); // ✅ 실제 구현체의 동작 방식 반영
-// 			return saved;
-// 		});
-//
-// 		// when
-// 		Customer result = customerStore.delete(customer); // 파라미터 수정
-//
-// 		// then
-// 		assertThat(result.getDeletedAt()).isNotNull();
-// 		verify(customerRepository).save(customer);
+// 		// when & then
+// 		assertThrows(IllegalArgumentException.class, () -> customerStore.findById(1L));
+// 		verify(customerRepository, times(1)).findById(1L);
 // 	}
-//
 // }

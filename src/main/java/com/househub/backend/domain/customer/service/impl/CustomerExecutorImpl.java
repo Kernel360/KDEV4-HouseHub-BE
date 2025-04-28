@@ -9,6 +9,7 @@ import com.househub.backend.domain.customer.entity.Customer;
 import com.househub.backend.domain.customer.service.CustomerExecutor;
 import com.househub.backend.domain.customer.service.CustomerReader;
 import com.househub.backend.domain.customer.service.CustomerStore;
+import com.househub.backend.domain.sms.entity.Sms;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +29,12 @@ public class CustomerExecutorImpl implements CustomerExecutor {
 			.orElseGet(() -> customerStore.create(
 				request.toEntity(agent)
 			));
+	}
+
+	@Override
+	public Customer validateAndRestore(Long id, Agent agent) {
+		Customer customer = customerReader.findById(id, agent.getId());
+		return customerStore.restore(customer);
 	}
 
 	@Override

@@ -85,7 +85,8 @@ public class SmsController {
 	@GetMapping("")
 	public ResponseEntity<SuccessResponse<SmsListResDto>> getAll(
 		@RequestParam(required = false) String keyword,
-		Pageable pageable
+		Pageable pageable,
+		@RequestParam(required = false) Long templateId
 	){
 		int page = Math.max(pageable.getPageNumber()-1,0);
 		int size = pageable.getPageSize();
@@ -93,7 +94,7 @@ public class SmsController {
 		Pageable adjustedPageable = PageRequest.of(page,size, pageable.getSort());
 
 		AgentResDto agentDto = SecurityUtil.getAuthenticatedAgent();
-		SmsListResDto response = smsService.findAllByKeyword(keyword, agentDto, adjustedPageable);
+		SmsListResDto response = smsService.findAllByKeyword(keyword, agentDto, adjustedPageable,templateId);
 		return ResponseEntity.ok(SuccessResponse.success("문자 전체 조회에 성공했습니다.", "ALL_SMS_READ_SUCCESS",response));
 	}
 

@@ -13,4 +13,6 @@ public interface CustomerStore {
 	Customer update(Customer customer, CreateCustomerReqDto request);
 
 	Customer delete(Customer customer);
+
+	Customer restore(Customer customer);
 }
