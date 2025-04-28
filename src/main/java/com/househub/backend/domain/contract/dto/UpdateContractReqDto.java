@@ -10,7 +10,7 @@ import lombok.Getter;
 
 @Getter
 public class UpdateContractReqDto {
-	private Long propertyId; // 매물 ID
+	// private Long propertyId; // 매물 ID
 	private Long customerId; // 고객 ID
 	private ContractType contractType; // 거래 유형 (매매, 전세, 월세)
 	private ContractStatus contractStatus; // 거래 상태 ( 거래 가능, 진행중, 완료 )
@@ -30,6 +30,4 @@ public class UpdateContractReqDto {
 
 	private LocalDate completedAt; // 거래 완료일
 	private Boolean active; // 활성화 여부
-
-
 }
