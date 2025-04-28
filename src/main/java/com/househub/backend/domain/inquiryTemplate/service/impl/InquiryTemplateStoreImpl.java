@@ -45,4 +45,9 @@ public class InquiryTemplateStoreImpl implements InquiryTemplateStore {
 	public void createToken(InquiryTemplateSharedToken token) {
 		tokenRepository.save(token);
 	}
+
+	@Override
+	public void updateToken(InquiryTemplateSharedToken token) {
+		tokenRepository.save(token);
+	}
 }

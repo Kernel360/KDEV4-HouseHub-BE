@@ -1,5 +1,6 @@
 package com.househub.backend.domain.inquiryTemplate.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -14,4 +15,5 @@ public interface InquiryTemplateSharedTokenRepository extends JpaRepository<Inqu
 
 	Optional<InquiryTemplateSharedToken> findTopByTemplateAndActiveIsTrueOrderByCreatedAtDesc(InquiryTemplate template);
 
+	List<InquiryTemplateSharedToken> findAllByTemplateIdAndActiveTrue(Long templateId);
 }

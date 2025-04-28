@@ -40,6 +40,7 @@ public class ConsultationServiceImpl implements ConsultationService {
 		ConsultationReqDto consultationReqDto,
 		Long agentId
 	) {
+		//
 		Agent agent = validateAgent(agentId);
 		Long customerId = consultationReqDto.getCustomerId();
 		Customer customer = customerRepository.findByIdAndAgentIdAndDeletedAtIsNull(customerId, agent.getId())

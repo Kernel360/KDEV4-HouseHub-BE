@@ -19,7 +19,17 @@ public enum ErrorCode {
 	INVALID_SHARED_TOKEN(HttpStatus.BAD_REQUEST, "INVALID_SHARED_TOKEN", "유효하지 않은 링크입니다."),
 	CONTACT_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "CONTACT_ALREADY_EXISTS", "이 전화번호로 등록된 고객이 이미 있어요."),
 	INVALID_NOTIFICATION_FILTER(HttpStatus.BAD_REQUEST, "INVALID_NOTIFICATION_FILTER", "유효하지 않은 알림 필터 값입니다."),
-	INVALID_INQUIRY_TYPE(HttpStatus.BAD_REQUEST, "INVALID_INQUIRY_TYPE", "유효하지 않은 문의 유형입니다.");
+	INVALID_INQUIRY_TYPE(HttpStatus.BAD_REQUEST, "INVALID_INQUIRY_TYPE", "유효하지 않은 문의 유형입니다."),
+	INVALID_INQUIRY_TEMPLATE_TITLE_MODIFICATION(
+		HttpStatus.BAD_REQUEST,
+		"INVALID_INQUIRY_TEMPLATE_TITLE_MODIFICATION",
+		"기존 템플릿의 제목은 수정할 수 없습니다."
+	),
+	INVALID_INQUIRY_TEMPLATE_TYPE_MODIFICATION(
+		HttpStatus.BAD_REQUEST,
+		"INVALID_INQUIRY_TEMPLATE_TYPE_MODIFICATION",
+		"기존 템플릿의 유형은 수정할 수 없습니다."
+	);
 
 	private final HttpStatus httpStatus;
 	private final String code;   // 프론트에서 오류 코드 구분용 (예: AUTH_CODE_INVALID)

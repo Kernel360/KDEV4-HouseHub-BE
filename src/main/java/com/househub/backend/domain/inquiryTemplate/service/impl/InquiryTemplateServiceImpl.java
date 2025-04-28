@@ -1,8 +1,8 @@
 package com.househub.backend.domain.inquiryTemplate.service.impl;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.househub.backend.common.exception.AlreadyExistsException;
+import com.househub.backend.common.exception.BusinessException;
+import com.househub.backend.common.exception.ErrorCode;
 import com.househub.backend.domain.agent.dto.AgentResDto;
 import com.househub.backend.domain.inquiryTemplate.dto.CreateInquiryTemplateReqDto;
 import com.househub.backend.domain.inquiryTemplate.dto.InquiryTemplateListResDto;
@@ -123,39 +125,62 @@ public class InquiryTemplateServiceImpl implements InquiryTemplateService {
 	@Transactional
 	@Override
 	public void updateInquiryTemplate(Long templateId, UpdateInquiryTemplateReqDto reqDto, AgentResDto agent) {
-		// 1. 문의 템플릿 ID로 문의 템플릿 조회
+		// 1. 기존 문의 템플릿 조회
 		InquiryTemplate inquiryTemplate = inquiryTemplateReader.findInquiryTemplateByIdAndAgentId(templateId,
 			agent.getId());
 
-		// 2. 문의 템플릿 수정
-		if (reqDto.getQuestions() != null) {
-			// 기존 질문들을 순서(questionOrder)를 키로 하는 맵으로 변환
-			Map<Integer, Question> existingQuestionsMap = inquiryTemplate.getQuestions().stream()
-				.collect(Collectors.toMap(Question::getQuestionOrder, q -> q));
-
-			List<Question> updatedQuestions = reqDto.getQuestions().stream()
-				.map(questionDto -> {
-					int questionOrder = questionDto.getQuestionOrder();
-					Question existingQuestion = existingQuestionsMap.get(questionOrder);
-
-					if (existingQuestion != null) {
-						// 기존 질문 업데이트
-						existingQuestion.update(questionDto);
-						return existingQuestion;
-					} else {
-						// 새로 추가된 질문 생성 및 연결
-						return Question.fromDto(questionDto, inquiryTemplate);
-					}
-				})
-				.toList();
-
-			// 기존 질문 목록을 업데이트된 질문 목록으로 교체
-			inquiryTemplate.getQuestions().clear();
-			inquiryTemplate.getQuestions().addAll(updatedQuestions);
+		// 문의 템플릿 제목 수정 불가
+		if (!inquiryTemplate.getName().equals(reqDto.getName())) {
+			throw new BusinessException(ErrorCode.INVALID_INQUIRY_TEMPLATE_TITLE_MODIFICATION);
 		}
 
-		inquiryTemplate.update(reqDto);
+		// 템플릿 유형 수정 불가
+		if (!inquiryTemplate.getType().equals(reqDto.getInquiryType())) {
+			throw new BusinessException(ErrorCode.INVALID_INQUIRY_TEMPLATE_TYPE_MODIFICATION);
+		}
+
+		// 2. 새로운 버전 생성: 기존 템플릿 복제 후 새로운 버전으로 저장
+		String newVersion = generateNextVersion(inquiryTemplate.getVersion());
+		log.info("New version generated: {}", newVersion);
+
+		InquiryTemplate newInquiryTemplate = InquiryTemplate.builder()
+			.name(inquiryTemplate.getName())
+			.type(inquiryTemplate.getType())
+			.version(newVersion) // 새로운 버전 설정
+			.questions(new ArrayList<>()) // 새로운 질문 목록 초기화
+			.agent(inquiryTemplate.getAgent()) // 기존 에이전트 정보 그대로
+			.active(true) // 새로운 템플릿 활성화
+			.build();
+
+		// 3. 기존 질문 목록을 업데이트된 질문 목록으로 교체
+		if (reqDto.getQuestions() != null) {
+			List<Question> updatedQuestions = reqDto.getQuestions().stream()
+				.map(questionDto -> Question.fromDto(questionDto, newInquiryTemplate))
+				.toList();
+
+			// 새로운 문의 템플릿에 질문 추가
+			newInquiryTemplate.getQuestions().addAll(updatedQuestions);
+		}
+
+		// 4. 새로운 템플릿 저장
+		inquiryTemplateStore.createTemplate(newInquiryTemplate);
+
+		InquiryTemplateSharedToken token = InquiryTemplateSharedToken.create(newInquiryTemplate);
+		token.setActive(newInquiryTemplate.getActive());
+		inquiryTemplateStore.createToken(token);
+
+		// 5. 기존 템플릿 비활성화 처리
+		inquiryTemplate.inactivate();
 		inquiryTemplateStore.updateTemplate(inquiryTemplate);
+
+		// 기존 템플릿과 연결된 활성화된 토큰들을 조회하여 비활성화 처리
+		List<InquiryTemplateSharedToken> existingTokens =
+			inquiryTemplateReader.findAllActiveTokensByTemplateId(inquiryTemplate.getId());
+		existingTokens.forEach(existingToken -> {
+			log.info("{}", existingToken.getShareToken());
+			existingToken.inactivate();
+			inquiryTemplateStore.updateToken(existingToken);
+		});
 	}
 
 	/**
@@ -172,6 +197,15 @@ public class InquiryTemplateServiceImpl implements InquiryTemplateService {
 		// 2. 문의 템플릿 삭제
 		inquiryTemplate.softDelete();
 		inquiryTemplateStore.deleteTemplate(inquiryTemplate);
+
+		// 3. 기존 템플릿과 연결된 활성화된 토큰들을 조회하여 비활성화 처리
+		List<InquiryTemplateSharedToken> existingTokens =
+			inquiryTemplateReader.findAllActiveTokensByTemplateId(inquiryTemplate.getId());
+		existingTokens.forEach(existingToken -> {
+			log.info("{}", existingToken.getShareToken());
+			existingToken.inactivate();
+			inquiryTemplateStore.updateToken(existingToken);
+		});
 	}
 
 	@Transactional(readOnly = true)
@@ -186,5 +220,17 @@ public class InquiryTemplateServiceImpl implements InquiryTemplateService {
 			.toList();
 
 		return InquiryTemplateSharedResDto.fromEntity(inquiryTemplate, questions);
+	}
+
+	// 새로운 버전 생성 로직 (주 버전 및 부 버전 증가)
+	private String generateNextVersion(String currentVersion) {
+		String[] versionParts = currentVersion.split("\\.");
+		int major = Integer.parseInt(versionParts[0].substring(1));  // "v1" -> 1
+		int minor = Integer.parseInt(versionParts[1]);
+
+		// 부 버전 증가
+		minor++;
+
+		return "v" + major + "." + minor;
 	}
 }

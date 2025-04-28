@@ -16,4 +16,6 @@ public interface InquiryTemplateStore {
 	void createQuestions(List<Question> questions);
 
 	void createToken(InquiryTemplateSharedToken token);
+
+	void updateToken(InquiryTemplateSharedToken token);
 }

@@ -1,5 +1,6 @@
 package com.househub.backend.domain.inquiryTemplate.service.impl;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -78,6 +79,11 @@ public class InquiryTemplateReaderImpl implements InquiryTemplateReader {
 	public InquiryTemplate findInquiryTemplateByIdAndAgentId(Long templateId, Long agentId) {
 		return inquiryTemplateRepository.findByIdAndAgentId(templateId, agentId)
 			.orElseThrow(() -> new ResourceNotFoundException("해당 문의 템플릿을 찾을 수 없습니다.", "INQUIRY_TEMPLATE_NOT_FOUND"));
+	}
+
+	@Override
+	public List<InquiryTemplateSharedToken> findAllActiveTokensByTemplateId(Long templateId) {
+		return sharedTokenRepository.findAllByTemplateIdAndActiveTrue(templateId);
 	}
 
 	@Override
