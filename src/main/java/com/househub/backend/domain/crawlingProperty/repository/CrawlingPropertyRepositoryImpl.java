@@ -19,6 +19,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import com.querydsl.core.Tuple;
 
+import static com.househub.backend.domain.crawlingProperty.entity.QCrawlingProperty.crawlingProperty;
+
 @Repository
 @RequiredArgsConstructor
 public class CrawlingPropertyRepositoryImpl implements CrawlingPropertyRepositoryCustom {
@@ -27,7 +29,7 @@ public class CrawlingPropertyRepositoryImpl implements CrawlingPropertyRepositor
 
     // 태그 및 조건 조회
     public Page<CrawlingPropertyTagResDto> findByTags(List<String> propertyIds, List<Long> tagIds, Pageable pageable) {
-        QCrawlingProperty cp = QCrawlingProperty.crawlingProperty;
+        QCrawlingProperty cp = crawlingProperty;
         QCrawlingPropertyTagMap cptm = QCrawlingPropertyTagMap.crawlingPropertyTagMap;
         QTag tag = QTag.tag;
 
@@ -99,7 +101,7 @@ public class CrawlingPropertyRepositoryImpl implements CrawlingPropertyRepositor
             Float maxMonthlyRentFee,
             Pageable pageable
     ) {
-        QCrawlingProperty cp = QCrawlingProperty.crawlingProperty;
+        QCrawlingProperty cp = crawlingProperty;
         QCrawlingPropertyTagMap cptm = QCrawlingPropertyTagMap.crawlingPropertyTagMap;
         QTag tag = QTag.tag;
 
@@ -158,5 +160,37 @@ public class CrawlingPropertyRepositoryImpl implements CrawlingPropertyRepositor
                 .fetchOne();
 
         return new PageImpl<>(contents, pageable, total == null ? 0 : total);
+    }
+
+    @Override
+    public List<CrawlingProperty> findByDto(
+            TransactionType transactionType,
+            PropertyType propertyType,
+            String province,
+            String city,
+            String dong,
+            Float minSalePrice,
+            Float maxSalePrice,
+            Float minDeposit,
+            Float maxDeposit,
+            Float minMonthlyRentFee,
+            Float maxMonthlyRentFee
+    ) {
+        return queryFactory
+                .selectFrom(crawlingProperty)
+                .where(
+                        transactionType != null ? crawlingProperty.transactionType.eq(transactionType) : null,
+                        propertyType != null ? crawlingProperty.propertyType.eq(propertyType) : null,
+                        province != null ? crawlingProperty.province.eq(province) : null,
+                        city != null ? crawlingProperty.city.eq(city) : null,
+                        dong != null ? crawlingProperty.dong.contains(dong) : null,
+                        minSalePrice != null ? crawlingProperty.salePrice.goe(minSalePrice) : null,
+                        maxSalePrice != null ? crawlingProperty.salePrice.loe(maxSalePrice) : null,
+                        minDeposit != null ? crawlingProperty.deposit.goe(minDeposit) : null,
+                        maxDeposit != null ? crawlingProperty.deposit.loe(maxDeposit) : null,
+                        minMonthlyRentFee != null ? crawlingProperty.monthlyRentFee.goe(minMonthlyRentFee) : null,
+                        maxMonthlyRentFee != null ? crawlingProperty.monthlyRentFee.loe(maxMonthlyRentFee) : null
+                )
+                .fetch();
     }
 }

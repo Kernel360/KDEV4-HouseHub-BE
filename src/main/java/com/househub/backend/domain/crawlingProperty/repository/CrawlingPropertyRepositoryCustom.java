@@ -13,6 +13,7 @@ import java.util.List;
 public interface CrawlingPropertyRepositoryCustom {
 
     Page<CrawlingPropertyTagResDto> findByTags(List<String> propertyIds, List<Long> tagIds, Pageable pageable);
+
     Page<CrawlingProperty> findAllWithTags(
             TransactionType transactionType,
             PropertyType propertyType,
@@ -26,5 +27,19 @@ public interface CrawlingPropertyRepositoryCustom {
             Float minMonthlyRentFee,
             Float maxMonthlyRentFee,
             Pageable pageable
+    );
+
+    List<CrawlingProperty> findByDto(
+            TransactionType transactionType,
+            PropertyType propertyType,
+            String province,
+            String city,
+            String dong,
+            Float minSalePrice,
+            Float maxSalePrice,
+            Float minDeposit,
+            Float maxDeposit,
+            Float minMonthlyRentFee,
+            Float maxMonthlyRentFee
     );
 }
