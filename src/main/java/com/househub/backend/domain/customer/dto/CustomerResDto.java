@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class CreateCustomerResDto {
+public class CustomerResDto {
 	private Long id;
 	private String name;
 	private LocalDate birthDate;
@@ -27,8 +27,18 @@ public class CreateCustomerResDto {
 	private LocalDateTime updatedAt;
 	private LocalDateTime deletedAt;
 
-	public static CreateCustomerResDto fromEntity(Customer customer) {
-		return CreateCustomerResDto.builder()
+	public static CustomerResDto fromEntity(Customer customer) {
+		if (customer.getDeletedAt() != null) {
+			return CustomerResDto.builder()
+				.id(customer.getId())
+				.name("삭제된 고객")
+				.contact(customer.getContact())
+				.createdAt(customer.getCreatedAt())
+				.updatedAt(customer.getUpdatedAt())
+				.deletedAt(customer.getDeletedAt())
+				.build();
+		}
+		return CustomerResDto.builder()
 			.id(customer.getId())
 			.name(customer.getName())
 			.birthDate(customer.getBirthDate())
@@ -41,4 +51,5 @@ public class CreateCustomerResDto {
 			.deletedAt(customer.getDeletedAt())
 			.build();
 	}
+
 }

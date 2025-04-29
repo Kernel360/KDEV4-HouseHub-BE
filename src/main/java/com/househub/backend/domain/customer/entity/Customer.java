@@ -4,14 +4,13 @@ import java.time.LocalDateTime;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import com.househub.backend.common.enums.Gender;
 import com.househub.backend.common.validation.ValidBirthDate;
 import com.househub.backend.domain.agent.entity.Agent;
 import com.househub.backend.domain.consultation.entity.Consultation;
 import com.househub.backend.domain.contract.entity.Contract;
-import com.househub.backend.domain.customer.dto.CreateCustomerReqDto;
+import com.househub.backend.domain.customer.dto.CustomerReqDto;
 import com.househub.backend.domain.customer.enums.CustomerStatus;
 
 import jakarta.persistence.Column;
@@ -101,7 +100,7 @@ public class Customer {
 		updatedAt = LocalDateTime.now();
 	}
 
-	public void update(CreateCustomerReqDto reqDto) {
+	public void update(CustomerReqDto reqDto) {
 		this.name = reqDto.getName();
 		this.email = reqDto.getEmail();
 		if (reqDto.getContact() != null && !reqDto.getContact().isEmpty()) {

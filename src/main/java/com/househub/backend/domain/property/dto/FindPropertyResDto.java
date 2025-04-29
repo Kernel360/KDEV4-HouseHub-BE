@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.househub.backend.domain.contract.entity.Contract;
 import com.househub.backend.domain.contract.enums.ContractType;
-import com.househub.backend.domain.customer.dto.CreateCustomerResDto;
+import com.househub.backend.domain.customer.dto.CustomerResDto;
 import com.househub.backend.domain.property.entity.Property;
 import com.househub.backend.domain.property.enums.PropertyType;
 
@@ -16,7 +16,7 @@ import lombok.Getter;
 public class FindPropertyResDto {
 
 	private Long id; // 매물 고유 식별자
-	private CreateCustomerResDto customer;
+	private CustomerResDto customer;
 	private PropertyType propertyType; // 매물 유형
 	private String detailAddress; // 상세 주소
 	private String roadAddress; // 전체 도로명 주소
@@ -29,7 +29,7 @@ public class FindPropertyResDto {
 	public static FindPropertyResDto toDto(Property property) {
 		return FindPropertyResDto.builder()
 			.id(property.getId())
-			.customer(CreateCustomerResDto.fromEntity(property.getCustomer()))
+			.customer(CustomerResDto.fromEntity(property.getCustomer()))
 			.propertyType(property.getPropertyType())
 			.detailAddress(property.getDetailAddress())
 			.roadAddress(property.getRoadAddress())

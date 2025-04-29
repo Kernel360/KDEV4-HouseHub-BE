@@ -12,10 +12,10 @@ import lombok.Getter;
 @Getter
 @Builder
 public class CustomerListResDto {
-	private List<CreateCustomerResDto> content;
+	private List<CustomerResDto> content;
 	private PaginationDto pagination;
 
-	public static CustomerListResDto fromPage(Page<CreateCustomerResDto> page) {
+	public static CustomerListResDto fromPage(Page<CustomerResDto> page) {
 		return CustomerListResDto.builder()
 			.content(page.getContent())
 			.pagination(PaginationDto.fromPage(page))

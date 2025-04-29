@@ -1,5 +1,7 @@
 package com.househub.backend.domain.sms.service.impl;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.batch.item.ItemReader;
@@ -8,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
+import com.househub.backend.domain.sms.dto.SmsTypeCountDto;
 import com.househub.backend.domain.sms.entity.Sms;
 import com.househub.backend.domain.sms.enums.SmsStatus;
 import com.househub.backend.domain.sms.repository.SmsRepository;
@@ -35,5 +38,11 @@ public class SmsReaderImpl implements SmsReader {
 	@Override
 	public List<Sms> findFailLogsForResend() {
 		return smsRepository.findSmsByStatus(SmsStatus.FAIL);
+	}
+
+	@Override
+	public List<SmsTypeCountDto> countSmsByMessageType(Long agentId) {
+		LocalDateTime startOfMonth = LocalDate.now().withDayOfMonth(1).atStartOfDay();
+		return smsRepository.countSmsByMessageType(agentId, startOfMonth);
 	}
 }
