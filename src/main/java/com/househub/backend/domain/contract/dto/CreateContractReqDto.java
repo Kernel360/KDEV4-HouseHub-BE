@@ -46,7 +46,7 @@ public class CreateContractReqDto {
     private LocalDate expiredAt; // 계약 만료일 (매매일 경우 시작일과 동일)
 
     private LocalDate completedAt; // 거래 완료일
-    // private Boolean active; // 계약 활성화 여부
+    private Boolean active; // 계약 활성화 여부
 
     // 자동 실행
     @AssertTrue(message = "거래 유형에 따라 적절한 가격 정보가 필요합니다.")
