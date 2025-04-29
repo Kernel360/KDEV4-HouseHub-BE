@@ -6,6 +6,7 @@ import lombok.Getter;
 
 @Getter
 public enum ErrorCode {
+	CONTRACT_CUSTOMER_ALREADY_DELETED(HttpStatus.BAD_REQUEST, "CONTRACT_CUSTOMER_ALREADY_DELETED", "삭제된 고객이 연결된 계약은 수정할 수 없습니다."),
 	CONTRACT_PROPERTY_CUSTOMER_SAME(HttpStatus.BAD_REQUEST, "CONTRACT_PROPERTY_CUSTOMER_SAME", "매물 등록자와 계약 고객이 동일합니다."),
 
 	AUTH_CODE_MISMATCH(HttpStatus.BAD_REQUEST, "AUTH_CODE_MISMATCH", "인증번호가 일치하지 않습니다."),
@@ -19,6 +20,10 @@ public enum ErrorCode {
 	INVALID_SHARED_TOKEN(HttpStatus.BAD_REQUEST, "INVALID_SHARED_TOKEN", "유효하지 않은 링크입니다."),
 	CONTACT_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "CONTACT_ALREADY_EXISTS", "이 전화번호로 등록된 고객이 이미 있어요."),
 	INVALID_NOTIFICATION_FILTER(HttpStatus.BAD_REQUEST, "INVALID_NOTIFICATION_FILTER", "유효하지 않은 알림 필터 값입니다."),
+	MISSING_CUSTOMER_INFORMATION(HttpStatus.BAD_REQUEST, "MISSING_CUSTOMER_INFORMATION",
+		"기존 고객 ID 또는 신규 고객 정보 중 하나는 필수입니다."),
+	CONFLICT_CUSTOMER_CONTACT(HttpStatus.CONFLICT,
+		"CONFLICT_CUSTOMER_CONTACT", "이미 등록된 연락처입니다. 기존 고객을 찾아 선택하세요."),
 	INVALID_INQUIRY_TYPE(HttpStatus.BAD_REQUEST, "INVALID_INQUIRY_TYPE", "유효하지 않은 문의 유형입니다."),
 	INVALID_INQUIRY_TEMPLATE_TITLE_MODIFICATION(
 		HttpStatus.BAD_REQUEST,
