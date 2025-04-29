@@ -96,7 +96,6 @@ public class ContractServiceImpl implements ContractService {
 		Contract contract = contractReader.findByIdOrThrow(id, agentDto.getId());
 		// 매물 조회
 		Property property = contract.getProperty();
-		// Property property = propertyReader.findByIdOrThrow(dto.getPropertyId(), agentDto.getId());
 		// 고객을 설정한 경우, 검증
 		if(dto.getCustomerId() != null) {
 			// 고객 조회
