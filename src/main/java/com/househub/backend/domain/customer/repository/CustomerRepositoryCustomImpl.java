@@ -23,7 +23,7 @@ public class CustomerRepositoryCustomImpl implements CustomerRepositoryCustom {
 	private final JPAQueryFactory queryFactory;
 
 	@Override
-	public Page<Customer> findAllByAgentIdAndFiltersAndDeletedAtIsNull(Long agentId, String name, String contact,
+	public Page<Customer> findAllByAgentIdAndFiltersAndDeletedOnly(Long agentId, String name, String contact,
 		String email, boolean includeDeleted, Pageable pageable) {
 
 		QCustomer customer = QCustomer.customer;
@@ -31,7 +31,9 @@ public class CustomerRepositoryCustomImpl implements CustomerRepositoryCustom {
 		BooleanBuilder predicate = new BooleanBuilder();
 		predicate.and(customer.agent.id.eq(agentId));
 
-		if (!includeDeleted) {
+		if (includeDeleted) {
+			predicate.and(customer.deletedAt.isNotNull());
+		} else {
 			predicate.and(customer.deletedAt.isNull());
 		}
 
@@ -64,7 +66,6 @@ public class CustomerRepositoryCustomImpl implements CustomerRepositoryCustom {
 
 	}
 
-	// ✅ 반환 타입 Predicate로 변경
 	private Predicate anyFilter(
 		String name, String contact, String email, QCustomer customer
 	) {
@@ -86,7 +87,6 @@ public class CustomerRepositoryCustomImpl implements CustomerRepositoryCustom {
 			builder.or(customer.email.contains(email));
 		}
 
-		// ✅ 캐스팅 제거
 		return builder.hasValue() ? builder.getValue() : null;
 	}
 

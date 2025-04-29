@@ -49,40 +49,31 @@ public class ContractServiceImpl implements ContractService {
 	@Override
 	@Transactional
 	public CreateContractResDto createContract(CreateContractReqDto dto, AgentResDto agentDto) {
-		try {
-			log.info("createContract: {}", dto);
-			// 계약할 매물 조회
-			Property property = propertyReader.findByIdOrThrow(dto.getPropertyId(), agentDto.getId());
-			Customer customer = null;
+		// 계약할 매물 조회
+		Property property = propertyReader.findByIdOrThrow(dto.getPropertyId(), agentDto.getId());
+		Customer customer = null;
 
-			log.info("계약할 고객이 설정된 경우, 검증");
-			if (dto.getCustomerId() != null) {
-				// 계약자 존재할 경우 고객 조회
-				customer = customerReader.findByIdOrThrow(dto.getCustomerId(), agentDto.getId());
-				// 매물을 등록한 고객과 계약할 고객이 동일한 경우 예외 처리
-				validateCustomerIsNotPropertyOwner(customer, property);
-				// 같은 계약자가 동일한 매물에 대해 진행중인 계약이 있는지 확인
-				contractReader.validateNoInProgressContract(customer, property);
-			}
-			log.info("dto → entity 변환 후 저장");
-			// dto → entity 변환 후 저장
-			Agent agent = agentDto.toEntity();
-			Contract contract = dto.toEntity(property, customer, agent);
-			log.info("계약 가능 상태로 등록할 경우, 매물과 계약 상태 enable");
-			// 계약 가능 상태로 등록할 경우, 매물과 계약 상태 enable
-			if(dto.getContractStatus() == ContractStatus.AVAILABLE) {
-				property.enable();
-				contract.enable();
-			} else {
-				contract.disable();
-			}
-			contract = contractStore.create(contract);
-			// 응답 객체 리턴
-			return CreateContractResDto.toDto(contract.getId());
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw e;
+		if (dto.getCustomerId() != null) {
+			// 계약자 존재할 경우 고객 조회
+			customer = customerReader.findByIdOrThrow(dto.getCustomerId(), agentDto.getId());
+			// 매물을 등록한 고객과 계약할 고객이 동일한 경우 예외 처리
+			validateCustomerIsNotPropertyOwner(customer, property);
+			// 같은 계약자가 동일한 매물에 대해 진행중인 계약이 있는지 확인
+			contractReader.validateNoInProgressContract(customer, property);
 		}
+		// dto → entity 변환 후 저장
+		Agent agent = agentDto.toEntity();
+		Contract contract = dto.toEntity(property, customer, agent);
+		// 계약 가능 상태로 등록할 경우, 매물과 계약 상태 enable
+		if(dto.getContractStatus() == ContractStatus.AVAILABLE) {
+			property.enable();
+			contract.enable();
+		} else {
+			contract.disable();
+		}
+		contract = contractStore.create(contract);
+		// 응답 객체 리턴
+		return CreateContractResDto.toDto(contract.getId());
 	}
 
 	/**
@@ -94,9 +85,12 @@ public class ContractServiceImpl implements ContractService {
 	@Override
 	public void updateContract(Long id, UpdateContractReqDto dto, AgentResDto agentDto) {
 		Contract contract = contractReader.findByIdOrThrow(id, agentDto.getId());
+		// 해당 계약의 고객이 삭제된 고객일 경우 수정 불가
+		if(contract.getCustomer() != null && contract.getCustomer().getDeletedAt() != null) {
+			throw new BusinessException(ErrorCode.CONTRACT_CUSTOMER_ALREADY_DELETED);
+		}
 		// 매물 조회
 		Property property = contract.getProperty();
-		// Property property = propertyReader.findByIdOrThrow(dto.getPropertyId(), agentDto.getId());
 		// 고객을 설정한 경우, 검증
 		if(dto.getCustomerId() != null) {
 			// 고객 조회
@@ -198,7 +192,7 @@ public class ContractServiceImpl implements ContractService {
 	 * @param customer 계약할 고객
 	 * @param property 계약할 매물
 	 */
-	public void validateCustomerIsNotPropertyOwner(Customer customer, Property property) {
+	private void validateCustomerIsNotPropertyOwner(Customer customer, Property property) {
 		if (property.getCustomer().getId().equals(customer.getId())) {
 			throw new BusinessException(ErrorCode.CONTRACT_PROPERTY_CUSTOMER_SAME);
 		}

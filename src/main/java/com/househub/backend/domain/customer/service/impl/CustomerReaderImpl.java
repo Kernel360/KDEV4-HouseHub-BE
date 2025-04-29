@@ -57,7 +57,7 @@ public class CustomerReaderImpl implements CustomerReader {
 
 	@Override
 	public Page<Customer> findAllByKeyword(String keyword, Long agentId, Pageable pageable, boolean includeDeleted) {
-		return customerRepository.findAllByAgentIdAndFiltersAndDeletedAtIsNull(
+		return customerRepository.findAllByAgentIdAndFiltersAndDeletedOnly(
 			agentId,
 			keyword,
 			keyword,

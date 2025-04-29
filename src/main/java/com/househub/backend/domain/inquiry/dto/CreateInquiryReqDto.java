@@ -2,7 +2,7 @@ package com.househub.backend.domain.inquiry.dto;
 
 import java.util.List;
 
-import com.househub.backend.domain.customer.dto.CreateCustomerReqDto;
+import com.househub.backend.domain.customer.dto.CustomerReqDto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -35,8 +35,8 @@ public class CreateInquiryReqDto {
 		private Object answerText; // String, List<String> 모두 가능
 	}
 
-	public CreateCustomerReqDto toCustomerReqDto() {
-		return CreateCustomerReqDto.builder()
+	public CustomerReqDto toCustomerReqDto() {
+		return CustomerReqDto.builder()
 			.contact(this.phone)
 			.build();
 	}

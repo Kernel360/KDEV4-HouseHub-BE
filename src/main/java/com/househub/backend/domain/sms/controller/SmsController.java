@@ -99,6 +99,17 @@ public class SmsController {
 	}
 
 	@Operation(
+		summary = "문자 사용 금액 조회",
+		description = "중개사의 한달간의 문자 서비스 사용 금액을 조회합니다."
+	)
+	@GetMapping("/cost")
+	public ResponseEntity<SuccessResponse<Float>> getCost(){
+		AgentResDto agentDto = SecurityUtil.getAuthenticatedAgent();
+		float response = smsService.findSmsCostByAgentId(agentDto.getId());
+		return ResponseEntity.ok(SuccessResponse.success("문자 사용 금액 조회에 성공했습니다.","SMS_COST_READ_SUCCESS",response));
+	}
+
+	@Operation(
 		summary = "문자 발송 템플릿 생성",
 		description = "문자 발송에 사용할 템플릿을 생성합니다."
 	)
