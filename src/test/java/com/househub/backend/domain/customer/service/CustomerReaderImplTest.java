@@ -174,7 +174,7 @@ class CustomerReaderImplTest {
 			Page<Customer> mockPage = new PageImpl<>(Collections.singletonList(customer));
 
 			// ✅ includeDeleted 파라미터 추가
-			when(customerRepository.findAllByAgentIdAndFiltersAndDeletedAtIsNull(
+			when(customerRepository.findAllByAgentIdAndFiltersAndDeletedOnly(
 				agentId, keyword, keyword, keyword, includeDeleted, pageable))
 				.thenReturn(mockPage);
 
@@ -187,7 +187,7 @@ class CustomerReaderImplTest {
 
 			// verify (파라미터 개수 일치 확인)
 			verify(customerRepository, times(1))
-				.findAllByAgentIdAndFiltersAndDeletedAtIsNull(agentId, keyword, keyword, keyword, includeDeleted,
+				.findAllByAgentIdAndFiltersAndDeletedOnly(agentId, keyword, keyword, keyword, includeDeleted,
 					pageable);
 		}
 	}
