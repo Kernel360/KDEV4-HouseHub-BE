@@ -14,6 +14,4 @@ public interface CrawlingPropertyService {
     CrawlingPropertyResDto findOne(String id);
 
     CrawlingPropertyTagListResDto findAll(CrawlingPropertyReqDto crawlingPropertyReqDto, Pageable pageable);
-
-    CrawlingPropertyTagListResDto findPropertiesByTags(List<Long> tagIds, CrawlingPropertyReqDto crawlingPropertyReqDto, Pageable pageable);
 }
