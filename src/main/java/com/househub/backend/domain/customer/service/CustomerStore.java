@@ -2,7 +2,7 @@ package com.househub.backend.domain.customer.service;
 
 import java.util.List;
 
-import com.househub.backend.domain.customer.dto.CreateCustomerReqDto;
+import com.househub.backend.domain.customer.dto.CustomerReqDto;
 import com.househub.backend.domain.customer.entity.Customer;
 
 public interface CustomerStore {
@@ -10,7 +10,7 @@ public interface CustomerStore {
 
 	List<Customer> createAll(List<Customer> customers);
 
-	Customer update(Customer customer, CreateCustomerReqDto request);
+	Customer update(Customer customer, CustomerReqDto request);
 
 	Customer delete(Customer customer);
 

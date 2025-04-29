@@ -27,13 +27,12 @@ import com.househub.backend.domain.consultation.dto.ConsultationListResDto;
 import com.househub.backend.domain.consultation.service.ConsultationService;
 import com.househub.backend.domain.contract.dto.ContractListResDto;
 import com.househub.backend.domain.contract.service.ContractService;
-import com.househub.backend.domain.customer.dto.CreateCustomerReqDto;
-import com.househub.backend.domain.customer.dto.CreateCustomerResDto;
+import com.househub.backend.domain.customer.dto.CustomerReqDto;
+import com.househub.backend.domain.customer.dto.CustomerResDto;
 import com.househub.backend.domain.customer.dto.CustomerListResDto;
 import com.househub.backend.domain.customer.service.CustomerService;
 import com.househub.backend.domain.inquiry.dto.InquiryListResDto;
 import com.househub.backend.domain.inquiry.service.InquiryService;
-import com.househub.backend.domain.property.dto.PropertyListResDto;
 import com.househub.backend.domain.property.entity.Property;
 import com.househub.backend.domain.property.service.PropertyService;
 
@@ -57,10 +56,10 @@ public class CustomerController {
 		description = "새로운 고객을 등록합니다. 이메일이 중복되는 경우 등록이 불가합니다. 로그인한 공인중개사 정보도 함께 저장됩니다."
 	)
 	@PostMapping("")
-	public ResponseEntity<SuccessResponse<CreateCustomerResDto>> createCustomer(
-		@Valid @RequestBody CreateCustomerReqDto request) {
+	public ResponseEntity<SuccessResponse<CustomerResDto>> createCustomer(
+		@Valid @RequestBody CustomerReqDto request) {
 		AgentResDto agentDto = SecurityUtil.getAuthenticatedAgent();
-		CreateCustomerResDto response = customerService.create(request,agentDto);
+		CustomerResDto response = customerService.create(request,agentDto);
 		return ResponseEntity.ok(SuccessResponse.success("고객 등록이 완료되었습니다.", "CUSTOMER_REGISTER_SUCCESS", response));
 	}
 
@@ -87,9 +86,9 @@ public class CustomerController {
 		description = "특정 고객의 상세 정보 조회합니다. 삭제된 고객이거나 본인이 등록하지 않은 고객은 조회할 수 없습니다."
 	)
 	@GetMapping("/{id}")
-	public ResponseEntity<SuccessResponse<CreateCustomerResDto>> findOneCustomer(@PathVariable Long id) {
+	public ResponseEntity<SuccessResponse<CustomerResDto>> findOneCustomer(@PathVariable Long id) {
 		AgentResDto agentDto = SecurityUtil.getAuthenticatedAgent();
-		CreateCustomerResDto response = customerService.findDetailsById(id, agentDto);
+		CustomerResDto response = customerService.findDetailsById(id, agentDto);
 		return ResponseEntity.ok(SuccessResponse.success("고객 상세 조회가 완료되었습니다.", "FIND_CUSTOMER_SUCCESS", response));
 	}
 
@@ -152,10 +151,10 @@ public class CustomerController {
 		description = "특정 고객의 정보를 수정합니다. 이메일이 중복되거나 본인이 담당하지 않은 고객은 수정할 수 없습니다."
 	)
 	@PutMapping("/{id}")
-	public ResponseEntity<SuccessResponse<CreateCustomerResDto>> updateCustomer(@PathVariable Long id,
-		@Valid @RequestBody CreateCustomerReqDto request) {
+	public ResponseEntity<SuccessResponse<CustomerResDto>> updateCustomer(@PathVariable Long id,
+		@Valid @RequestBody CustomerReqDto request) {
 		AgentResDto agentDto = SecurityUtil.getAuthenticatedAgent();
-		CreateCustomerResDto response = customerService.update(id, request, agentDto);
+		CustomerResDto response = customerService.update(id, request, agentDto);
 
         return ResponseEntity.ok(SuccessResponse.success("고객 정보 수정이 완료되었습니다.", "UPDATE_CUSTOMER_SUCCESS", response));
     }
@@ -166,9 +165,9 @@ public class CustomerController {
 		description = "특정 고객을 삭제합니다. 이미 삭제된 고객은 삭제할 수 없습니다."
 	)
 	@DeleteMapping("/{id}")
-	public ResponseEntity<SuccessResponse<CreateCustomerResDto>> deleteCustomer(@PathVariable Long id) {
+	public ResponseEntity<SuccessResponse<CustomerResDto>> deleteCustomer(@PathVariable Long id) {
 		AgentResDto agentDto = SecurityUtil.getAuthenticatedAgent();
-		CreateCustomerResDto response = customerService.delete(id,agentDto);
+		CustomerResDto response = customerService.delete(id,agentDto);
 
         return ResponseEntity.ok(SuccessResponse.success("해당 고객의 삭제가 완료되었습니다.", "DELETE_CUSTOMER_SUCCESS", response));
     }
@@ -179,9 +178,9 @@ public class CustomerController {
 		description = "특정 고객을 복구합니다."
 	)
 	@PutMapping("/restore/{id}")
-	public ResponseEntity<SuccessResponse<CreateCustomerResDto>> restoreCustomer(@PathVariable Long id) {
+	public ResponseEntity<SuccessResponse<CustomerResDto>> restoreCustomer(@PathVariable Long id) {
 		AgentResDto agentDto = SecurityUtil.getAuthenticatedAgent();
-		CreateCustomerResDto response = customerService.restore(id,agentDto);
+		CustomerResDto response = customerService.restore(id,agentDto);
 
 		return ResponseEntity.ok(SuccessResponse.success("해당 고객의 복구가 완료되었습니다.", "RESTORE_CUSTOMER_SUCCESS",response));
 	}
@@ -191,13 +190,13 @@ public class CustomerController {
 		description = "엑셀 파일을 업로드하여 여러 고객 정보를 한 번에 등록합니다."
 	)
 	@PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	public ResponseEntity<SuccessResponse<List<CreateCustomerResDto>>> createCustomersByExcel(
+	public ResponseEntity<SuccessResponse<List<CustomerResDto>>> createCustomersByExcel(
 		@RequestParam("file") MultipartFile file) {
 		AgentResDto agentDto = SecurityUtil.getAuthenticatedAgent();
 		if (file.isEmpty()) {
 			throw new IllegalArgumentException("업로드할 파일이 없습니다.");
 		}
-		List<CreateCustomerResDto> response = customerService.createAllByExcel(file,agentDto);
+		List<CustomerResDto> response = customerService.createAllByExcel(file,agentDto);
 		return ResponseEntity.ok(SuccessResponse.success("고객 정보 등록 완료", "CUSTOMER_REGISTER_SUCCESS", response));
 	}
 

@@ -19,4 +19,6 @@ public class ContractSearchDto {
 	private String customerName;  // 고객 이름
 	private ContractType contractType;  // 거래 유형 (매매, 전세, 월세)
 	private ContractStatus status;     // 계약 상태 (거래 가능, 거래 중, 거래 완료)
+
+	// private Boolean active;         // 계약 활성화 여부
 }

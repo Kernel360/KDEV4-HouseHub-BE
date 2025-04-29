@@ -20,14 +20,14 @@ public class UpdateContractReqDto {
 	@Positive(message = "전세가는 0보다 큰 값이어야 합니다.")
 	private Long jeonsePrice; // 전세가 (전세 계약일 경우 필요)
 	@Positive(message = "월세는 0보다 큰 값이어야 합니다.")
-	private Integer monthlyRentFee; // 월세 금액 (월세 계약일 경우 필요)
+	private Long monthlyRentFee; // 월세 금액 (월세 계약일 경우 필요)
 	@Positive(message = "보증금은 0보다 큰 값이어야 합니다.")
-	private Integer monthlyRentDeposit; // 월세 보증금 (월세 계약일 경우 필요)
+	private Long monthlyRentDeposit; // 월세 보증금 (월세 계약일 경우 필요)
 
 	private String memo; // 참고 설명 (예: 계약 기간 등)
 	private LocalDate startedAt; // 계약 시작일 (매매일 경우 만료일과 동일)
 	private LocalDate expiredAt; // 계약 만료일 (매매일 경우 시작일과 동일)
 
 	private LocalDate completedAt; // 거래 완료일
-	private Boolean active; // 활성화 여부
+	// private Boolean active; // 활성화 여부
 }

@@ -4,12 +4,11 @@ import org.springframework.stereotype.Component;
 
 import com.househub.backend.domain.agent.entity.Agent;
 import com.househub.backend.domain.consultation.service.ConsultationService;
-import com.househub.backend.domain.customer.dto.CreateCustomerReqDto;
+import com.househub.backend.domain.customer.dto.CustomerReqDto;
 import com.househub.backend.domain.customer.entity.Customer;
 import com.househub.backend.domain.customer.service.CustomerExecutor;
 import com.househub.backend.domain.customer.service.CustomerReader;
 import com.househub.backend.domain.customer.service.CustomerStore;
-import com.househub.backend.domain.sms.entity.Sms;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +22,7 @@ public class CustomerExecutorImpl implements CustomerExecutor {
 
 	@Transactional
 	@Override
-	public Customer findOrCreateCustomer(CreateCustomerReqDto request, Agent agent) {
+	public Customer findOrCreateCustomer(CustomerReqDto request, Agent agent) {
 		// 전화번호로 고객 조회해서 존재하지 않으면 고객 생성
 		return customerReader.findByContactAndAgentId(request.getContact(), agent.getId())
 			.orElseGet(() -> customerStore.create(
@@ -38,7 +37,7 @@ public class CustomerExecutorImpl implements CustomerExecutor {
 	}
 
 	@Override
-	public Customer validateAndUpdate(Long id, CreateCustomerReqDto request, Agent agent) {
+	public Customer validateAndUpdate(Long id, CustomerReqDto request, Agent agent) {
 		Customer customer = customerReader.findByIdOrThrow(id, agent.getId());
 		if (!customer.getContact().equals(request.getContact())) {
 			customerReader.checkDuplicatedByContact(request.getContact(), agent.getId());
