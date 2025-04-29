@@ -30,7 +30,7 @@ public interface CrawlingPropertyRepository extends JpaRepository<CrawlingProper
                     "AND (:minMonthlyRentFee IS NULL OR cp.monthlyRentFee >= :minMonthlyRentFee) " +
                     "AND (:maxMonthlyRentFee IS NULL OR cp.monthlyRentFee <= :maxMonthlyRentFee) "
     )
-    Page<CrawlingProperty> findByDto(
+    List<CrawlingProperty> findByDto(
             @Param("transactionType") TransactionType transactionType,
             @Param("propertyType") PropertyType propertyType,
             @Param("province") String province,
@@ -41,19 +41,18 @@ public interface CrawlingPropertyRepository extends JpaRepository<CrawlingProper
             @Param("minDeposit") Float minDeposit,
             @Param("maxDeposit") Float maxDeposit,
             @Param("minMonthlyRentFee") Float minMonthlyRentFee,
-            @Param("maxMonthlyRentFee") Float maxMonthlyRentFee,
-            Pageable pageable
+            @Param("maxMonthlyRentFee") Float maxMonthlyRentFee
     );
 
     // findOne
     Optional<CrawlingProperty> findById(String id);
 
-
-
-    // 임시로 만든 검색 코드
+    // findAllWithTags
     @Query(
-            "SELECT cp " +
+            "SELECT DISTINCT cp " +
                     "FROM CrawlingProperty cp " +
+                    "LEFT JOIN FETCH cp.crawlingPropertyTagMaps cptm " +
+                    "LEFT JOIN FETCH cptm.tag tag " +
                     "WHERE (:transactionType IS NULL OR cp.transactionType = :transactionType) " +
                     "AND (:propertyType IS NULL OR cp.propertyType = :propertyType) " +
                     "AND (:province IS NULL OR cp.province = :province) " +
@@ -66,7 +65,7 @@ public interface CrawlingPropertyRepository extends JpaRepository<CrawlingProper
                     "AND (:minMonthlyRentFee IS NULL OR cp.monthlyRentFee >= :minMonthlyRentFee) " +
                     "AND (:maxMonthlyRentFee IS NULL OR cp.monthlyRentFee <= :maxMonthlyRentFee) "
     )
-    List<CrawlingProperty> findByDto2(
+    Page<CrawlingProperty> findAllWithTags(
             @Param("transactionType") TransactionType transactionType,
             @Param("propertyType") PropertyType propertyType,
             @Param("province") String province,
@@ -77,6 +76,7 @@ public interface CrawlingPropertyRepository extends JpaRepository<CrawlingProper
             @Param("minDeposit") Float minDeposit,
             @Param("maxDeposit") Float maxDeposit,
             @Param("minMonthlyRentFee") Float minMonthlyRentFee,
-            @Param("maxMonthlyRentFee") Float maxMonthlyRentFee
+            @Param("maxMonthlyRentFee") Float maxMonthlyRentFee,
+            Pageable pageable
     );
 }

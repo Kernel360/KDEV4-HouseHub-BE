@@ -1,6 +1,8 @@
 package com.househub.backend.domain.crawlingProperty.repository;
 
 import com.househub.backend.domain.crawlingProperty.dto.CrawlingPropertyResDto;
+import com.househub.backend.domain.crawlingProperty.dto.CrawlingPropertyTagListResDto;
+import com.househub.backend.domain.crawlingProperty.dto.CrawlingPropertyTagResDto;
 import com.househub.backend.domain.crawlingProperty.entity.*;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -20,14 +22,17 @@ public class CrawlingPropertyRepositoryImpl implements CrawlingPropertyRepositor
 
     private final JPAQueryFactory queryFactory;
 
-    public Page<CrawlingProperty> findByAnyMatchingTags(List<String> propertyIds, List<Long> tagIds, Pageable pageable) {
+    // 태그 및 조건 조회
+    public Page<CrawlingPropertyTagResDto> findByTags(List<String> propertyIds, List<Long> tagIds, Pageable pageable) {
         QCrawlingProperty cp = QCrawlingProperty.crawlingProperty;
         QCrawlingPropertyTagMap cptm = QCrawlingPropertyTagMap.crawlingPropertyTagMap;
         QTag tag = QTag.tag;
 
-        // content 쿼리
+        List<CrawlingProperty> crawlingProperties;
+
+        // 1. tuple 조회
         List<Tuple> tupleContent = queryFactory
-                .select(cp, cptm.count().as("matchingTagCount"))
+                .select(cp, cptm.count())
                 .from(cp)
                 .join(cp.crawlingPropertyTagMaps, cptm)
                 .join(cptm.tag, tag)
@@ -41,80 +46,39 @@ public class CrawlingPropertyRepositoryImpl implements CrawlingPropertyRepositor
                 .limit(pageable.getPageSize())
                 .fetch();
 
-        // 매물만 추출
-        List<CrawlingProperty> content = tupleContent.stream()
-                .map(tuple -> tuple.get(cp))   // 여기 cp는 QCrawlingProperty 타입 그대로
-                .collect(Collectors.toList());
+        if (tupleContent.isEmpty()) {
+            return Page.empty(pageable);
+        }
 
-        // total 쿼리
-        Long total = queryFactory
-                .select(cp.crawlingPropertiesId.countDistinct())
-                .from(cp)
-                .join(cp.crawlingPropertyTagMaps, cptm)
-                .where(
-                        cptm.tag.tagId.in(tagIds),
-                        cp.crawlingPropertiesId.in(propertyIds)
-                )
-                .fetchOne();
+        // 2. CrawlingProperty 리스트 추출
+        crawlingProperties = tupleContent.stream()
+                .map(tuple -> tuple.get(0, CrawlingProperty.class))
+                .toList();
 
-        return new PageImpl<>(content, pageable, total != null ? total : 0L);
+        // 3. CrawlingProperty ID 리스트 추출
+        List<String> crawlingPropertiesIds = crawlingProperties.stream()
+                .map(CrawlingProperty::getCrawlingPropertiesId)
+                .toList();
+
+        // 4. 매물 ID로 태그 매핑 조회
+        List<CrawlingPropertyTagMap> tagMappings = queryFactory
+                .selectFrom(cptm)
+                .where(cptm.crawlingProperty.crawlingPropertiesId.in(crawlingPropertiesIds))
+                .fetch();
+
+        // 5. 매물별로 태그 리스트 묶기
+        Map<String, List<Tag>> propertyTagsMap = tagMappings.stream()
+                .collect(Collectors.groupingBy(
+                        mapping -> mapping.getCrawlingProperty().getCrawlingPropertiesId(), // 여기 이름 충돌 수정
+                        Collectors.mapping(CrawlingPropertyTagMap::getTag, Collectors.toList())
+                ));
+
+        // 6. DTO로 변환
+        List<CrawlingPropertyTagResDto> dtoList = crawlingProperties.stream()
+                .map(crawlingProperty -> CrawlingPropertyTagResDto.fromEntity(crawlingProperty, propertyTagsMap))
+                .toList();
+
+        // 7. Page로 변환
+        return new PageImpl<>(dtoList, pageable, propertyIds.size());
     }
-
-
-//    public Page<CrawlingPropertyResDto> findByAnyMatchingTags2(List<String> propertyIds, List<Long> tagIds, Pageable pageable) {
-//        QCrawlingProperty cp = QCrawlingProperty.crawlingProperty;
-//        QCrawlingPropertyTagMap cptm = QCrawlingPropertyTagMap.crawlingPropertyTagMap;
-//        QTag tag = QTag.tag;
-//
-//        // 1. tuple 조회
-//        List<Tuple> tupleContent = queryFactory
-//                .select(cp, cptm.count())
-//                .from(cp)
-//                .join(cp.crawlingPropertyTagMaps, cptm)
-//                .join(cptm.tag, tag)
-//                .where(
-//                        tag.tagId.in(tagIds),
-//                        cp.crawlingPropertiesId.in(propertyIds)
-//                )
-//                .groupBy(cp.crawlingPropertiesId)
-//                .orderBy(cptm.count().desc())
-//                .offset(pageable.getOffset())
-//                .limit(pageable.getPageSize())
-//                .fetch();
-//
-//        if (tupleContent.isEmpty()) {
-//            return Page.empty(pageable);
-//        }
-//
-//        // 2. CrawlingProperty 리스트 추출
-//        List<CrawlingProperty> crawlingProperties = tupleContent.stream()
-//                .map(tuple -> tuple.get(0, CrawlingProperty.class))
-//                .toList();
-//
-//        // 3. CrawlingProperty ID 리스트 추출
-//        List<String> crawlingPropertiesIds = crawlingProperties.stream()
-//                .map(CrawlingProperty::getCrawlingPropertiesId)
-//                .toList();
-//
-//        // 4. 매물 ID로 태그 매핑 조회
-//        List<CrawlingPropertyTagMap> tagMappings = queryFactory
-//                .selectFrom(cptm)
-//                .where(cptm.crawlingProperty.crawlingPropertiesId.in(crawlingPropertiesIds))
-//                .fetch();
-//
-//        // 5. 매물별로 태그 리스트 묶기
-//        Map<String, List<Tag>> propertyTagsMap = tagMappings.stream()
-//                .collect(Collectors.groupingBy(
-//                        mapping -> mapping.getCrawlingProperty().getCrawlingPropertiesId(), // 여기 이름 충돌 수정
-//                        Collectors.mapping(CrawlingPropertyTagMap::getTag, Collectors.toList())
-//                ));
-//
-//        // 6. DTO로 변환
-//        List<CrawlingPropertyResDto> dtoList = crawlingProperties.stream()
-//                .map(crawlingProperty -> CrawlingPropertyResDto.fromEntity(crawlingProperty, propertyTagsMap))
-//                .toList();
-//
-//        // 7. Page로 변환
-//        return new PageImpl<>(dtoList, pageable, propertyIds.size());
-//    }
 }
