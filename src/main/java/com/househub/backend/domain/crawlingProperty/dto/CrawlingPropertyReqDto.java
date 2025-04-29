@@ -4,6 +4,8 @@ import com.househub.backend.domain.crawlingProperty.enums.PropertyType;
 import com.househub.backend.domain.crawlingProperty.enums.TransactionType;
 import lombok.*;
 
+import java.util.List;
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -39,22 +41,6 @@ public class CrawlingPropertyReqDto {
 
     private Float maxMonthlyRent;
 
-    public Object[] searchArgs() {
-        return new Object[] {
-            this.propertyType,
-            this.transactionType,
-            this.province,
-            this.city,
-            this.dong,
-            this.detailAddress,
-            this.minArea,
-            this.maxArea,
-            this.minSalePrice,
-            this.maxSalePrice,
-            this.minDeposit,
-            this.maxDeposit,
-            this.minMonthlyRent,
-            this.maxMonthlyRent
-        };
-    }
+    private List<Long> tagIds;
+
 }
