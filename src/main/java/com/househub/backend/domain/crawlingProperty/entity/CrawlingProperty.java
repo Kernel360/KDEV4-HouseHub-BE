@@ -9,6 +9,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "crawling_properties")
 @AllArgsConstructor
@@ -68,4 +71,7 @@ public class CrawlingProperty {
     private Integer bathRoomCnt;
 
     private Integer roomCnt;
+
+    @OneToMany(mappedBy = "crawlingProperty")
+    private List<CrawlingPropertyTagMap> crawlingPropertyTagMaps = new ArrayList<>();
 }
