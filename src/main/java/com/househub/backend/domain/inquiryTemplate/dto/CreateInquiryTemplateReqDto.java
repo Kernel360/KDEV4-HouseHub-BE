@@ -3,6 +3,7 @@ package com.househub.backend.domain.inquiryTemplate.dto;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.househub.backend.domain.inquiryTemplate.enums.InquiryType;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -20,6 +21,9 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 public class CreateInquiryTemplateReqDto {
+	@NotNull(message = "문의 템플릿 유형은 필수입니다.")
+	private String type;
+
 	@NotBlank(message = "템플릿 이름은 필수입니다.")
 	@Size(max = 255, message = "템플릿 이름은 255자를 초과할 수 없습니다.")
 	private String name;
@@ -34,5 +38,9 @@ public class CreateInquiryTemplateReqDto {
 
 	@JsonProperty("isActive")
 	private Boolean active;
+
+	public InquiryType getInquiryType() {
+		return InquiryType.fromKorean(this.type);
+	}
 
 }

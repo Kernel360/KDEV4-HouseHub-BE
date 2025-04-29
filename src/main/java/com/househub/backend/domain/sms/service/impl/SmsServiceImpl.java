@@ -58,13 +58,14 @@ public class SmsServiceImpl implements SmsService {
 	}
 
 	@Override
-	public SmsListResDto findAllByKeyword(String keyword, AgentResDto agentDto, Pageable pageable) {
+	public SmsListResDto findAllByKeyword(String keyword, AgentResDto agentDto, Pageable pageable, Long templateId) {
 		Agent agent = agentDto.toEntity();
 
 		Page<Sms> smsPage = smsReader.findAllByKeyword(
 			agent.getId(),
 			keyword,
 			keyword,
+			templateId,
 			pageable
 		);
 		Page<SendSmsResDto> response = smsPage.map(SendSmsResDto::fromEntity);

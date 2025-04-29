@@ -47,7 +47,8 @@ class CustomerReaderImplTest {
 				.id(id)
 				.agent(Agent.builder().id(agentId).build())
 				.build();
-			when(customerRepository.findByIdAndAgentIdAndDeletedAtIsNull(id, agentId)).thenReturn(Optional.of(customer));
+			when(customerRepository.findByIdAndAgentIdAndDeletedAtIsNull(id, agentId)).thenReturn(
+				Optional.of(customer));
 
 			// when
 			Customer result = customerReader.findByIdOrThrow(id, agentId);
@@ -76,7 +77,7 @@ class CustomerReaderImplTest {
 	class getCustomerByContactTest {
 		@Test
 		@DisplayName("고객이 존재할 때 정상 반환")
-		void getCustomerByContact_success(){
+		void getCustomerByContact_success() {
 			// given
 			String contact = "010-1234-1234";
 			Long agentId = 2L;
@@ -84,7 +85,8 @@ class CustomerReaderImplTest {
 				.contact(contact)
 				.agent(Agent.builder().id(agentId).build())
 				.build();
-			when(customerRepository.findByContactAndAgentIdAndDeletedAtIsNull(contact, agentId)).thenReturn(Optional.of(customer));
+			when(customerRepository.findByContactAndAgentIdAndDeletedAtIsNull(contact, agentId)).thenReturn(
+				Optional.of(customer));
 
 			// when
 			Customer result = customerReader.findByContactOrThrow(contact, agentId);
@@ -95,11 +97,12 @@ class CustomerReaderImplTest {
 
 		@Test
 		@DisplayName("고객이 없을 때 예외 발생")
-		void getCustomerByContact_notFound(){
+		void getCustomerByContact_notFound() {
 			// given
 			String contact = "010-1234-1234";
 			Long agentId = 2L;
-			when(customerRepository.findByContactAndAgentIdAndDeletedAtIsNull(contact, agentId)).thenReturn(Optional.empty());
+			when(customerRepository.findByContactAndAgentIdAndDeletedAtIsNull(contact, agentId)).thenReturn(
+				Optional.empty());
 
 			// when,then
 			assertThatThrownBy(() -> customerReader.findByContactOrThrow(contact, agentId))
@@ -113,7 +116,7 @@ class CustomerReaderImplTest {
 	class checkCustomerTest {
 		@Test
 		@DisplayName("고객이 존재하는 경우")
-		void checkCustomer_success(){
+		void checkCustomer_success() {
 			// given
 			String contact = "010-1234-1234";
 			Long agentId = 2L;
@@ -135,7 +138,6 @@ class CustomerReaderImplTest {
 			verify(customerRepository, times(1))
 				.findByContactAndAgentIdAndDeletedAtIsNull(contact, agentId);
 		}
-
 
 		@Test
 		@DisplayName("존재하지 않는 고객 전화번호인 경우 예외 없음")
@@ -166,22 +168,28 @@ class CustomerReaderImplTest {
 			// given
 			String keyword = "홍길동";
 			Long agentId = 2L;
-			Pageable pageable = PageRequest.of(0,10);
+			Pageable pageable = PageRequest.of(0, 10);
+			boolean includeDeleted = false; // ✅ 추가된 파라미터
 			Customer customer = Customer.builder().id(1L).agent(Agent.builder().id(agentId).build()).build();
 			Page<Customer> mockPage = new PageImpl<>(Collections.singletonList(customer));
 
-			when(customerRepository.findAllByAgentIdAndFiltersAndDeletedAtIsNull(agentId,keyword,keyword,keyword,pageable)).thenReturn(
-				mockPage);
+			// ✅ includeDeleted 파라미터 추가
+			when(customerRepository.findAllByAgentIdAndFiltersAndDeletedAtIsNull(
+				agentId, keyword, keyword, keyword, includeDeleted, pageable))
+				.thenReturn(mockPage);
 
-			// when
-			Page<Customer> result = customerReader.findAllByKeyword(keyword, agentId, pageable);
+			// when (includeDeleted 추가)
+			Page<Customer> result = customerReader.findAllByKeyword(keyword, agentId, pageable, includeDeleted);
 
-			// then
+			// then (검증 로직 동일)
 			assertThat(result.getContent().size()).isEqualTo(1);
 			assertThat(result.getContent().get(0)).isEqualTo(customer);
 
-			// verify
-			verify(customerRepository, times(1)).findAllByAgentIdAndFiltersAndDeletedAtIsNull(agentId, keyword, keyword,keyword,pageable);
+			// verify (파라미터 개수 일치 확인)
+			verify(customerRepository, times(1))
+				.findAllByAgentIdAndFiltersAndDeletedAtIsNull(agentId, keyword, keyword, keyword, includeDeleted,
+					pageable);
 		}
 	}
+
 }

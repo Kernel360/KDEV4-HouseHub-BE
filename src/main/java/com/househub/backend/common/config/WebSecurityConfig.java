@@ -104,7 +104,8 @@ public class WebSecurityConfig {
 		CorsConfiguration configuration = new CorsConfiguration();
 		configuration.setAllowedOrigins(
 			Arrays.asList("http://localhost:3000", "https://www.house-hub.store")); // 허용할 Origin
-		configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS")); // 허용할 HTTP 메서드
+		configuration.setAllowedMethods(
+			Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")); // 허용할 HTTP 메서드
 		configuration.setAllowedHeaders(
 			Arrays.asList("Authorization", "Content-Type", "X-Requested-With")); // 허용할 Header
 		configuration.setAllowCredentials(true); // 쿠키 허용

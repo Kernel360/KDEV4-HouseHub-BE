@@ -3,6 +3,7 @@ package com.househub.backend.domain.customer.service.impl;
 import java.util.List;
 
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.househub.backend.domain.customer.dto.CreateCustomerReqDto;
 import com.househub.backend.domain.customer.entity.Customer;
@@ -13,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
+@Transactional
 public class CustomerStoreImpl implements CustomerStore {
 
 	private final CustomerRepository customerRepository;
@@ -30,13 +32,19 @@ public class CustomerStoreImpl implements CustomerStore {
 	@Override
 	public Customer update(Customer customer, CreateCustomerReqDto request) {
 		customer.update(request);
-		return customer;
+		return customerRepository.save(customer);
 	}
 
 	@Override
 	public Customer delete(Customer customer) {
 		// 소프트 딜리트
 		customer.softDelete();
+		return customer;
+	}
+
+	@Override
+	public Customer restore(Customer customer) {
+		customer.restore();
 		return customer;
 	}
 }

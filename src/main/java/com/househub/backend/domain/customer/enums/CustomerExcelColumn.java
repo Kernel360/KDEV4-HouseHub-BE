@@ -5,7 +5,7 @@ import lombok.Getter;
 @Getter
 public enum CustomerExcelColumn {
 	NAME("name"),
-	AGE_GROUP("ageGroup"),
+	BIRTH_DATE("birthDate"),
 	CONTACT("contact"),
 	EMAIL("email"),
 	MEMO("memo"),

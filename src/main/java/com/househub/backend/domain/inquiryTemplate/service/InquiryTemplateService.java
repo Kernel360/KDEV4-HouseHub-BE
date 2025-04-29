@@ -2,6 +2,7 @@ package com.househub.backend.domain.inquiryTemplate.service;
 
 import org.springframework.data.domain.Pageable;
 
+import com.househub.backend.domain.agent.dto.AgentResDto;
 import com.househub.backend.domain.inquiryTemplate.dto.CreateInquiryTemplateReqDto;
 import com.househub.backend.domain.inquiryTemplate.dto.InquiryTemplateListResDto;
 import com.househub.backend.domain.inquiryTemplate.dto.InquiryTemplatePreviewResDto;
@@ -9,17 +10,16 @@ import com.househub.backend.domain.inquiryTemplate.dto.InquiryTemplateSharedResD
 import com.househub.backend.domain.inquiryTemplate.dto.UpdateInquiryTemplateReqDto;
 
 public interface InquiryTemplateService {
-	void createNewInquiryTemplate(CreateInquiryTemplateReqDto reqDto, Long agentId);
+	void createNewInquiryTemplate(CreateInquiryTemplateReqDto reqDto, AgentResDto agent);
 
-	InquiryTemplateListResDto getInquiryTemplates(Boolean isActive, String keyword, Pageable pageable, Long agentId);
+	InquiryTemplateListResDto getInquiryTemplates(Boolean isActive, String keyword, String type, Pageable pageable,
+		AgentResDto agent);
 
-	InquiryTemplateListResDto searchInquiryTemplates(String keyword, Pageable pageable, Long agentId);
+	InquiryTemplatePreviewResDto previewInquiryTemplate(Long templateId, AgentResDto agent);
 
-	InquiryTemplatePreviewResDto previewInquiryTemplate(Long templateId, Long agentId);
+	void updateInquiryTemplate(Long templateId, UpdateInquiryTemplateReqDto reqDto, AgentResDto agent);
 
-	void updateInquiryTemplate(Long templateId, UpdateInquiryTemplateReqDto reqDto, Long agentId);
-
-	void deleteInquiryTemplate(Long templateId, Long agentId);
+	void deleteInquiryTemplate(Long templateId, AgentResDto agent);
 
 	InquiryTemplateSharedResDto getInquiryTemplateByShareToken(String shareToken);
 }

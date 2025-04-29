@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import com.househub.backend.common.exception.BusinessException;
@@ -11,7 +12,9 @@ import com.househub.backend.common.exception.ErrorCode;
 import com.househub.backend.domain.notification.entity.Notification;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class EmailService {
@@ -20,7 +23,9 @@ public class EmailService {
 	@Value("${spring.mail.username}")
 	private String fromEmail;
 
+	@Async
 	public void sendVerificationCode(String email, String verificationCode) {
+		log.info("이메일 인증 코드 전송 시작 - email={}", email);
 		SimpleMailMessage message = new SimpleMailMessage();
 		message.setTo(email);
 		message.setFrom(fromEmail);
@@ -35,11 +40,15 @@ public class EmailService {
 
 		try {
 			mailSender.send(message);
+			log.info("이메일 인증 코드 전송 완료 - email={}", email);
 		} catch (MailException e) {
+			log.info("이메일 인증 코드 전송 실패 - email={}, message={}", email, e.getMessage());
 			throw new BusinessException(ErrorCode.EMAIL_SEND_FAILED);
+
 		}
 	}
 
+	@Async
 	public void send(Notification notification) {
 		SimpleMailMessage message = new SimpleMailMessage();
 		message.setFrom(fromEmail);

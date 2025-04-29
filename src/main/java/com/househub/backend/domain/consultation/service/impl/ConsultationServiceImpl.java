@@ -8,12 +8,16 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import com.househub.backend.common.exception.BusinessException;
+import com.househub.backend.common.exception.ErrorCode;
 import com.househub.backend.common.exception.ResourceNotFoundException;
+import com.househub.backend.domain.agent.dto.AgentResDto;
 import com.househub.backend.domain.agent.entity.Agent;
 import com.househub.backend.domain.agent.repository.AgentRepository;
 import com.househub.backend.domain.consultation.dto.ConsultationListResDto;
 import com.househub.backend.domain.consultation.dto.ConsultationReqDto;
 import com.househub.backend.domain.consultation.dto.ConsultationResDto;
+import com.househub.backend.domain.consultation.dto.UpdateConsultationReqDto;
 import com.househub.backend.domain.consultation.entity.Consultation;
 import com.househub.backend.domain.consultation.enums.ConsultationStatus;
 import com.househub.backend.domain.consultation.enums.ConsultationType;
@@ -38,13 +42,43 @@ public class ConsultationServiceImpl implements ConsultationService {
 	@Transactional
 	public ConsultationResDto create(
 		ConsultationReqDto consultationReqDto,
-		Long agentId
+		AgentResDto agentDto
 	) {
-		Agent agent = validateAgent(agentId);
+		Agent agent = agentDto.toEntity();
 		Long customerId = consultationReqDto.getCustomerId();
-		Customer customer = customerRepository.findByIdAndAgentIdAndDeletedAtIsNull(customerId, agent.getId())
-			.orElseThrow(() -> new ResourceNotFoundException("해당하는 고객이 없습니다.", "CUSTOMER_NOT_FOUND"));
-		Consultation consultation = consultationReqDto.toEntity(agent, customer);
+		Customer customer = null;
+		Customer newCustomer = null;
+
+		// customerId가 null이면 신규 고객 처리
+		if (customerId == null && consultationReqDto.getNewCustomer() != null) {
+			ConsultationReqDto.NewCustomerDto newCustomerDto = consultationReqDto.getNewCustomer();
+			// contact 기반으로 기존 고객 찾음 (신규 고객의 연락처로)
+			customer = customerRepository.findByContactAndAgentIdAndDeletedAtIsNull(
+				newCustomerDto.getContact(), agent.getId()
+			).orElse(null);
+			log.info("{}", customer.getName());
+
+			if (customer != null) {
+				throw new BusinessException(ErrorCode.CONFLICT_CUSTOMER_CONTACT);
+			}
+
+			// 고객이 없으면 새로 생성
+			if (customer == null) {
+				newCustomer = customerRepository.save(newCustomerDto.toEntity(agent));
+				customer = newCustomer; // 새로 생성된 고객을 연결
+			}
+		} else if (customerId != null) {
+			// customerId가 있으면 기존 고객 조회
+			customer = customerRepository.findByIdAndAgentIdAndDeletedAtIsNull(customerId, agent.getId())
+				.orElseThrow(() -> new BusinessException(ErrorCode.RESOURCE_NOT_FOUND));
+		} else if (customerId == null && consultationReqDto.getNewCustomer() == null) {
+			throw new BusinessException(ErrorCode.MISSING_CUSTOMER_INFORMATION);
+		}
+
+		// 상담 등록
+		Consultation consultation = consultationReqDto.toEntity(agent, customer, newCustomer);
+
+		// 상담 저장 후 반환
 		return ConsultationResDto.fromEntity(consultationRepository.save(consultation));
 	}
 
@@ -106,10 +140,10 @@ public class ConsultationServiceImpl implements ConsultationService {
 	@Transactional
 	public ConsultationResDto update(
 		Long id,
-		ConsultationReqDto consultationReqDto,
-		Long agentId
+		UpdateConsultationReqDto consultationReqDto,
+		AgentResDto agentDto
 	) {
-		Agent agent = validateAgent(agentId);
+		Agent agent = agentDto.toEntity();
 
 		Consultation consultation = consultationRepository.findByIdAndAgentAndDeletedAtIsNull(id, agent)
 			.orElseThrow(() -> new ResourceNotFoundException("해당 상담 내역이 존재하지 않습니다:" + id, "CONSULTATION_NOT_FOUND"));
