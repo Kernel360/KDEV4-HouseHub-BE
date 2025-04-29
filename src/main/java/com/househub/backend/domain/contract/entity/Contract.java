@@ -139,8 +139,8 @@ public class Contract {
 			this.expiredAt = updateDto.getExpiredAt();
 		if (updateDto.getCompletedAt() != null)
 			this.completedAt = updateDto.getCompletedAt();
-		if (updateDto.getActive() != null)
-			this.active = updateDto.getActive();
+		// if (updateDto.getActive() != null)
+		// 	this.active = updateDto.getActive();
 	}
 
 	public void updateCustomer(Customer customer) {

@@ -29,5 +29,5 @@ public class UpdateContractReqDto {
 	private LocalDate expiredAt; // 계약 만료일 (매매일 경우 시작일과 동일)
 
 	private LocalDate completedAt; // 거래 완료일
-	private Boolean active; // 활성화 여부
+	// private Boolean active; // 활성화 여부
 }
