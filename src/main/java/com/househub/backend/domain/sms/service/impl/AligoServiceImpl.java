@@ -97,7 +97,8 @@ public class AligoServiceImpl implements AligoService {
 
 		// LMS/MMS 처리
 		if (request.getMsg().length() > 90 || request.getTitle() != null) {
-			params.add("title", request.getTitle());
+			String title = request.getTitle();
+			params.add("title", title==null||title.isBlank()?request.getTitle():"제목");
 			params.add("msg_type", "LMS");
 		}
 

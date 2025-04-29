@@ -1,5 +1,7 @@
 package com.househub.backend.domain.sms.service.impl;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -14,8 +16,10 @@ import com.househub.backend.domain.sms.dto.AligoSmsResDto;
 import com.househub.backend.domain.sms.dto.SendSmsReqDto;
 import com.househub.backend.domain.sms.dto.SendSmsResDto;
 import com.househub.backend.domain.sms.dto.SmsListResDto;
+import com.househub.backend.domain.sms.dto.SmsTypeCountDto;
 import com.househub.backend.domain.sms.entity.Sms;
 import com.househub.backend.domain.sms.entity.SmsTemplate;
+import com.househub.backend.domain.sms.enums.MessageType;
 import com.househub.backend.domain.sms.enums.SmsStatus;
 import com.househub.backend.domain.sms.service.AligoService;
 import com.househub.backend.domain.sms.service.SmsReader;
@@ -38,7 +42,9 @@ public class SmsServiceImpl implements SmsService {
 	public SendSmsResDto sendSms(SendSmsReqDto request, AgentResDto agentDto) {
 		Agent agent = agentDto.toEntity();
 		AligoSmsResDto aligoResponse = aligoService.sendSms(request);
-		SmsTemplate template = smsTemplateReader.findById(request.getTemplateId(),agent.getId());
+		SmsTemplate template = null;
+		if(request.getTemplateId() != null)
+			template = smsTemplateReader.findById(request.getTemplateId(),agent.getId());
 		if(aligoResponse.getResultCode() == 1){
 			return SendSmsResDto.fromEntity(smsStore.create(request.toEntity(SmsStatus.SUCCESS,agent,template)));
 		} else {
@@ -70,6 +76,21 @@ public class SmsServiceImpl implements SmsService {
 		);
 		Page<SendSmsResDto> response = smsPage.map(SendSmsResDto::fromEntity);
 		return SmsListResDto.fromPage(response);
+	}
+
+	@Override
+	public float findSmsCostByAgentId(Long agentId) {
+		List<SmsTypeCountDto> smsTypeCountDtos = smsReader.countSmsByMessageType(agentId);
+		float totalCost = 0;
+		for (SmsTypeCountDto smsTypeCountDto : smsTypeCountDtos) {
+			MessageType type = smsTypeCountDto.getMessageType();
+			Long count = smsTypeCountDto.getCount();
+			float multiple = type.equals(MessageType.SMS)? 8.4F :type.equals(MessageType.LMS)?25.9F:60F;
+			totalCost += (count * multiple);
+		}
+		// BigDecimal로 반올림 (소수점 2자리, HALF_UP)
+		BigDecimal rounded = BigDecimal.valueOf(totalCost).setScale(2, RoundingMode.HALF_UP);
+		return rounded.floatValue();
 	}
 
 	@Override

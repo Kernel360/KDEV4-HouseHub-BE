@@ -30,6 +30,10 @@ public class SendSmsResDto {
 	private LocalDateTime deletedAt;
 
 	public static SendSmsResDto fromEntity(Sms sms) {
+		TemplateResDto smsTemplate = null;
+		if(sms.getSmsTemplate()!=null)
+			smsTemplate = TemplateResDto.fromEntity(sms.getSmsTemplate());
+
 		return SendSmsResDto.builder()
 			.id(sms.getId())
 			.sender(sms.getSender())
@@ -40,7 +44,7 @@ public class SendSmsResDto {
 			.status(sms.getStatus())
 			.rdate(sms.getRdate())
 			.rtime(sms.getRtime())
-			.smsTemplate(TemplateResDto.fromEntity(sms.getSmsTemplate()))
+			.smsTemplate(smsTemplate)
 			.createdAt(sms.getCreatedAt())
 			.updatedAt(sms.getUpdatedAt())
 			.deletedAt(sms.getDeletedAt())
