@@ -22,11 +22,22 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.househub.backend.common.response.SuccessResponse;
 import com.househub.backend.common.util.SecurityUtil;
+import com.househub.backend.domain.agent.dto.AgentResDto;
+import com.househub.backend.domain.consultation.dto.ConsultationListResDto;
+import com.househub.backend.domain.consultation.service.ConsultationService;
+import com.househub.backend.domain.contract.dto.ContractListResDto;
+import com.househub.backend.domain.contract.service.ContractService;
 import com.househub.backend.domain.customer.dto.CreateCustomerReqDto;
 import com.househub.backend.domain.customer.dto.CreateCustomerResDto;
 import com.househub.backend.domain.customer.dto.CustomerListResDto;
 import com.househub.backend.domain.customer.service.CustomerService;
+import com.househub.backend.domain.inquiry.dto.InquiryListResDto;
+import com.househub.backend.domain.inquiry.service.InquiryService;
+import com.househub.backend.domain.property.dto.PropertyListResDto;
+import com.househub.backend.domain.property.entity.Property;
+import com.househub.backend.domain.property.service.PropertyService;
 
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -36,81 +47,164 @@ import lombok.RequiredArgsConstructor;
 public class CustomerController {
 
     private final CustomerService customerService;
+	private final ConsultationService consultationService;
+	private final ContractService contractService;
+	private final InquiryService inquiryService;
+	private final PropertyService propertyService;
 
-	// 고객 등록
-	// 이메일이 중복되는 경우, 가입이 되지 않게 해야함
-	// 로그인한 공인중개사도 같이 저장
+	@Operation(
+		summary = "고객 등록",
+		description = "새로운 고객을 등록합니다. 이메일이 중복되는 경우 등록이 불가합니다. 로그인한 공인중개사 정보도 함께 저장됩니다."
+	)
 	@PostMapping("")
 	public ResponseEntity<SuccessResponse<CreateCustomerResDto>> createCustomer(
 		@Valid @RequestBody CreateCustomerReqDto request) {
-		Long agentId = SecurityUtil.getAuthenticatedAgent().getId();
-		CreateCustomerResDto response = customerService.createCustomer(request,agentId);
+		AgentResDto agentDto = SecurityUtil.getAuthenticatedAgent();
+		CreateCustomerResDto response = customerService.create(request,agentDto);
 		return ResponseEntity.ok(SuccessResponse.success("고객 등록이 완료되었습니다.", "CUSTOMER_REGISTER_SUCCESS", response));
 	}
 
 	// 고객 목록 조회
-	// 페이지네이션 적용
+	@Operation(
+		summary = "고객 목록 조회",
+		description = "고객 목록을 페이지네이션하여 조회합니다. 키워드 검색이 가능합니다."
+	)
 	@GetMapping("")
 	public ResponseEntity<SuccessResponse<CustomerListResDto>> findAllCustomer(
-		// @ModelAttribute CustomerSearchDto searchDto,
 		@RequestParam(name = "keyword", required = false) String keyword,
-		Pageable pageable
+		Pageable pageable,
+		@RequestParam(name = "includeDeleted", required = false) boolean includeDeleted
 	) {
-		int page = Math.max(pageable.getPageNumber() -1,0);
-		int size = pageable.getPageSize();
+		Pageable adjustedPageable = PageRequest.of(Math.max(pageable.getPageNumber() -1,0),pageable.getPageSize(), pageable.getSort());
+		AgentResDto agentDto = SecurityUtil.getAuthenticatedAgent();
 
-		Pageable adjustedPageable = PageRequest.of(page,size, pageable.getSort());
-
-		Long agentId = SecurityUtil.getAuthenticatedAgent().getId();
-		CustomerListResDto response = customerService.findAllByDeletedAtIsNull(keyword, agentId, adjustedPageable);
+		CustomerListResDto response = customerService.findAll(keyword, agentDto, adjustedPageable, includeDeleted);
         return ResponseEntity.ok(SuccessResponse.success("고객 목록 조회에 성공했습니다.", "FIND_ALL_CUSTOMER_SUCCESS", response));
     }
 
-	// 고객 상세 정보 조회
-	// 삭제 처리된 고객은 조회되지 않게 예외처리
-	// 본인이 등록한 고객만 보게함
+	@Operation(
+		summary = "고객 상세 정보 조회",
+		description = "특정 고객의 상세 정보 조회합니다. 삭제된 고객이거나 본인이 등록하지 않은 고객은 조회할 수 없습니다."
+	)
 	@GetMapping("/{id}")
 	public ResponseEntity<SuccessResponse<CreateCustomerResDto>> findOneCustomer(@PathVariable Long id) {
-		Long agentId = SecurityUtil.getAuthenticatedAgent().getId();
-		CreateCustomerResDto response = customerService.findByIdAndDeletedAtIsNull(id,agentId);
-        return ResponseEntity.ok(SuccessResponse.success("고객 상세 조회가 완료되었습니다.", "FIND_CUSTOMER_SUCCESS", response));
-    }
+		AgentResDto agentDto = SecurityUtil.getAuthenticatedAgent();
+		CreateCustomerResDto response = customerService.findDetailsById(id, agentDto);
+		return ResponseEntity.ok(SuccessResponse.success("고객 상세 조회가 완료되었습니다.", "FIND_CUSTOMER_SUCCESS", response));
+	}
 
-	// 고객 수정
-	// 이메일이 중복되는 경우, 에러처리 해야함
-	// 본인이 담당하는 고객만 수정 가능
+	@Operation(
+		summary = "고객 상담 내역 조회",
+		description = "특정 고객의 상담 내역을 조회합니다. 삭제된 고객이거나 본인이 등록하지 않은 고객은 조회할 수 없습니다."
+	)
+	@GetMapping("/{id}/consultations")
+	public ResponseEntity<SuccessResponse<ConsultationListResDto>> findCustomerConsultations(@PathVariable Long id,
+		Pageable pageable) {
+		Pageable adjustedPageable = PageRequest.of(Math.max(pageable.getPageNumber() -1,0),pageable.getPageSize(), pageable.getSort());
+		AgentResDto agentDto = SecurityUtil.getAuthenticatedAgent();
+		ConsultationListResDto response = consultationService.findAllByCustomer(id, agentDto.getId(), adjustedPageable);
+		return ResponseEntity.ok(SuccessResponse.success("고객 상담 목록 조회가 완료되었습니다.", "FIND_CUSTOMER_CONSULTATIONS_SUCCESS", response));
+	}
+
+	@Operation(
+		summary = "고객 매수 계약 내역 조회",
+		description = "특정 고객의 매수 계약 내역을 조회합니다. 삭제된 고객이거나 본인이 등록하지 않은 고객은 조회할 수 없습니다."
+	)
+	@GetMapping("/{id}/buy-contracts")
+	public ResponseEntity<SuccessResponse<ContractListResDto>> findCustomerBuyContracts(@PathVariable Long id,
+		Pageable pageable) {
+		Pageable adjustedPageable = PageRequest.of(Math.max(pageable.getPageNumber() -1,0),pageable.getPageSize(), pageable.getSort());
+		AgentResDto agentDto = SecurityUtil.getAuthenticatedAgent();
+		ContractListResDto response = contractService.findAllByCustomer(id, adjustedPageable, agentDto.getId());
+		return ResponseEntity.ok(SuccessResponse.success("고객 계약 목록 조회가 완료되었습니다.", "FIND_CUSTOMER_CONTRACTS_SUCCESS", response));
+	}
+
+	@Operation(
+		summary = "고객 매도 계약 내역 조회",
+		description = "특정 고객의 매도 계약 내역을 조회합니다. 삭제된 고객이거나 본인이 등록하지 않은 고객은 조회할 수 없습니다."
+	)
+	@GetMapping("/{id}/sell-contracts")
+	public ResponseEntity<SuccessResponse<ContractListResDto>> findCustomerSellContracts(@PathVariable Long id,
+		Pageable pageable) {
+		Pageable adjustedPageable = PageRequest.of(Math.max(pageable.getPageNumber() -1,0),pageable.getPageSize(), pageable.getSort());
+		AgentResDto agentDto = SecurityUtil.getAuthenticatedAgent();
+		List<Property> properties = propertyService.findPropertiesByCustomer(id, adjustedPageable, agentDto.getId());
+		ContractListResDto response = contractService.findAllByProperties(properties,adjustedPageable, agentDto.getId());
+
+		return ResponseEntity.ok(SuccessResponse.success("고객 계약 목록 조회가 완료되었습니다.", "FIND_CUSTOMER_CONTRACTS_SUCCESS", response));
+	}
+
+	@Operation(
+		summary = "고객 문의 내역 조회",
+		description = "특정 고객의 문의 내역을 조회합니다. 삭제된 고객이거나 본인이 등록하지 않은 고객은 조회할 수 없습니다."
+	)
+	@GetMapping("/{id}/inquiries")
+	public ResponseEntity<SuccessResponse<InquiryListResDto>> findCustomerInquiries(@PathVariable Long id,
+		Pageable pageable) {
+		Pageable adjustedPageable = PageRequest.of(Math.max(pageable.getPageNumber() -1,0),pageable.getPageSize(), pageable.getSort());
+		AgentResDto agentDto = SecurityUtil.getAuthenticatedAgent();
+		InquiryListResDto response = inquiryService.findAllByCustomer(id, adjustedPageable, agentDto.getId());
+		return ResponseEntity.ok(SuccessResponse.success("고객 문의 목록 조회가 완료되었습니다.", "FIND_CUSTOMER_INQUIRIES_SUCCESS", response));
+	}
+
+	@Operation(
+		summary = "고객 정보 수정",
+		description = "특정 고객의 정보를 수정합니다. 이메일이 중복되거나 본인이 담당하지 않은 고객은 수정할 수 없습니다."
+	)
 	@PutMapping("/{id}")
 	public ResponseEntity<SuccessResponse<CreateCustomerResDto>> updateCustomer(@PathVariable Long id,
 		@Valid @RequestBody CreateCustomerReqDto request) {
-		Long agentId = SecurityUtil.getAuthenticatedAgent().getId();
-		CreateCustomerResDto response = customerService.updateCustomer(id, request, agentId);
+		AgentResDto agentDto = SecurityUtil.getAuthenticatedAgent();
+		CreateCustomerResDto response = customerService.update(id, request, agentDto);
 
         return ResponseEntity.ok(SuccessResponse.success("고객 정보 수정이 완료되었습니다.", "UPDATE_CUSTOMER_SUCCESS", response));
     }
 
 	// 고객 삭제
-	// 이미 삭제된 고객은 못하게 막기
+	@Operation(
+		summary = "고객 삭제",
+		description = "특정 고객을 삭제합니다. 이미 삭제된 고객은 삭제할 수 없습니다."
+	)
 	@DeleteMapping("/{id}")
 	public ResponseEntity<SuccessResponse<CreateCustomerResDto>> deleteCustomer(@PathVariable Long id) {
-		Long agentId = SecurityUtil.getAuthenticatedAgent().getId();
-		CreateCustomerResDto response = customerService.deleteCustomer(id,agentId);
+		AgentResDto agentDto = SecurityUtil.getAuthenticatedAgent();
+		CreateCustomerResDto response = customerService.delete(id,agentDto);
 
         return ResponseEntity.ok(SuccessResponse.success("해당 고객의 삭제가 완료되었습니다.", "DELETE_CUSTOMER_SUCCESS", response));
     }
 
-	// excel 업로드
-	@PostMapping("/upload")
+	// 고객 복구
+	@Operation(
+		summary = "고객 복구",
+		description = "특정 고객을 복구합니다."
+	)
+	@PutMapping("/restore/{id}")
+	public ResponseEntity<SuccessResponse<CreateCustomerResDto>> restoreCustomer(@PathVariable Long id) {
+		AgentResDto agentDto = SecurityUtil.getAuthenticatedAgent();
+		CreateCustomerResDto response = customerService.restore(id,agentDto);
+
+		return ResponseEntity.ok(SuccessResponse.success("해당 고객의 복구가 완료되었습니다.", "RESTORE_CUSTOMER_SUCCESS",response));
+	}
+
+	@Operation(
+		summary = "엑셀 업로드",
+		description = "엑셀 파일을 업로드하여 여러 고객 정보를 한 번에 등록합니다."
+	)
+	@PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<SuccessResponse<List<CreateCustomerResDto>>> createCustomersByExcel(
 		@RequestParam("file") MultipartFile file) {
-		Long agentId = SecurityUtil.getAuthenticatedAgent().getId();
+		AgentResDto agentDto = SecurityUtil.getAuthenticatedAgent();
 		if (file.isEmpty()) {
 			throw new IllegalArgumentException("업로드할 파일이 없습니다.");
 		}
-		List<CreateCustomerResDto> response = customerService.createCustomersByExcel(file,agentId);
+		List<CreateCustomerResDto> response = customerService.createAllByExcel(file,agentDto);
 		return ResponseEntity.ok(SuccessResponse.success("고객 정보 등록 완료", "CUSTOMER_REGISTER_SUCCESS", response));
 	}
 
-    // excel 템플릿 다운로드
+	@Operation(
+		summary = "엑셀 템플릿 다운로드",
+		description = "고객 정보 등록을 위한 엑셀 템플릿 파일을 다운로드합니다."
+	)
     @GetMapping("/download")
     public ResponseEntity<Resource> downloadExcelForm() {
         // 템플릿 파일 로드

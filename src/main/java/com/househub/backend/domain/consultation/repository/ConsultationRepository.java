@@ -44,4 +44,22 @@ public interface ConsultationRepository extends JpaRepository<Consultation, Long
 		@Param("status") ConsultationStatus status,
 		Pageable pageable
 	);
+
+	@Query("""
+		    SELECT c FROM Consultation c
+		    WHERE c.agent.id = :agentId
+		    AND c.deletedAt IS NULL
+		    AND :customerId = c.customer.id
+		""")
+	Page<Consultation> searchConsultationsByCustomerName(
+		@Param("agentId") Long agentId,
+		@Param("customerId") Long customerId,
+		Pageable pageable
+	);
+
+	// ConsultationRepository
+	@Query("SELECT c FROM Consultation c WHERE c.customer.id = :customerId AND c.agent.id = :agentId")
+	List<Consultation> findAllByCustomerIds(@Param("customerId") Long customerId, @Param("agentId") Long agentId);
+
+	Long agent(Agent agent);
 }

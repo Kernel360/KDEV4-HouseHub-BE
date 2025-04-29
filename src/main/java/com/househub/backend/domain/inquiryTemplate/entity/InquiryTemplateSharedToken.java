@@ -78,5 +78,9 @@ public class InquiryTemplateSharedToken {
 	public void setActive(Boolean active) {
 		this.active = active;
 	}
+
+	public void inactivate() {
+		this.active = false;
+	}
 }
 

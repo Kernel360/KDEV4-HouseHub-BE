@@ -2,17 +2,20 @@ package com.househub.backend.domain.property.controller;
 
 import com.househub.backend.common.response.SuccessResponse;
 import com.househub.backend.common.util.SecurityUtil;
+import com.househub.backend.domain.agent.dto.AgentResDto;
 import com.househub.backend.domain.property.dto.*;
 import com.househub.backend.domain.property.service.PropertyService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/properties")
 @RequiredArgsConstructor
@@ -23,8 +26,9 @@ public class PropertyController {
 	// 매물 등록
 	@PostMapping
 	public ResponseEntity<SuccessResponse<CreatePropertyResDto>> createProperty(
-		@RequestBody @Valid PropertyReqDto createPropertyDto) {
-		CreatePropertyResDto response = propertyService.createProperty(createPropertyDto, getSignInAgentId());
+		@RequestBody @Valid CreatePropertyReqDto createPropertyDto) {
+		AgentResDto agentDto = SecurityUtil.getAuthenticatedAgent();
+		CreatePropertyResDto response = propertyService.createProperty(createPropertyDto, agentDto);
 		return ResponseEntity.ok(SuccessResponse.success("매물이 성공적으로 등록되었습니다.", "CREATE_PROPERTY_SUCCESS", response));
 	}
 
@@ -38,14 +42,18 @@ public class PropertyController {
 		int page = Math.max(pageable.getPageNumber() - 1, 0);
 		int size = pageable.getPageSize();
 		Pageable adjustedPageable = PageRequest.of(page, size, pageable.getSort());
-		PropertyListResDto response = propertyService.findProperties(searchDto, adjustedPageable, getSignInAgentId());
+		AgentResDto agentDto = SecurityUtil.getAuthenticatedAgent();
+		PropertyListResDto response = propertyService.findProperties(searchDto, adjustedPageable, agentDto);
 		return ResponseEntity.ok(SuccessResponse.success("매물 조회 성공", "FIND_PROPERTIES_SUCCESS", response));
 	}
 
 	// 매물 상세 조회
 	@GetMapping("/{id}")
 	public ResponseEntity<SuccessResponse<FindPropertyDetailResDto>> findProperty(@PathVariable("id") Long id) {
-		FindPropertyDetailResDto response = propertyService.findProperty(id);
+		log.info("findProperty: {}", id);
+		AgentResDto agentDto = SecurityUtil.getAuthenticatedAgent();
+		FindPropertyDetailResDto response = propertyService.findProperty(id, agentDto);
+		log.info("findProperty response: {}", response);
 		return ResponseEntity.ok(SuccessResponse.success("매물 상세 조회 성공", "FIND_DETAIL_PROPERTY_SUCCESS", response));
 	}
 
@@ -53,24 +61,18 @@ public class PropertyController {
 	@PutMapping("/{id}")
 	public ResponseEntity<SuccessResponse<Void>> updateProperty(
 		@PathVariable("id") Long id,
-		@RequestBody @Valid PropertyReqDto updatePropertyReqDto
+		@RequestBody @Valid UpdatePropertyReqDto updatePropertyReqDto
 	) {
-		propertyService.updateProperty(id, updatePropertyReqDto);
+		AgentResDto agentDto = SecurityUtil.getAuthenticatedAgent();
+		propertyService.updateProperty(id, updatePropertyReqDto, agentDto);
 		return ResponseEntity.ok(SuccessResponse.success("매물이 성공적으로 수정되었습니다.", "UPDATE_PROPERTY_SUCCESS", null));
 	}
 
 	// 매물 삭제
 	@DeleteMapping("/{id}")
 	public ResponseEntity<SuccessResponse<Void>> deleteProperty(@PathVariable("id") Long id) {
-		propertyService.deleteProperty(id);
+		AgentResDto agentDto = SecurityUtil.getAuthenticatedAgent();
+		propertyService.deleteProperty(id, agentDto);
 		return ResponseEntity.ok(SuccessResponse.success("매물이 성공적으로 삭제되었습니다.", "DELETE_PROPERTY_SUCCESS", null));
-	}
-
-	/**
-	 * 현재 로그인한 에이전트의 ID 반환
-	 * @return 현재 로그인한 에이전트의 ID
-	 */
-	private Long getSignInAgentId() {
-		return SecurityUtil.getAuthenticatedAgent().getId();
 	}
 }

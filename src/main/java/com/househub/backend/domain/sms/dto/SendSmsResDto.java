@@ -3,8 +3,9 @@ package com.househub.backend.domain.sms.dto;
 import java.time.LocalDateTime;
 
 import com.househub.backend.domain.sms.entity.Sms;
+import com.househub.backend.domain.sms.entity.SmsTemplate;
 import com.househub.backend.domain.sms.enums.MessageType;
-import com.househub.backend.domain.sms.enums.Status;
+import com.househub.backend.domain.sms.enums.SmsStatus;
 
 import lombok.Builder;
 import lombok.Data;
@@ -19,9 +20,10 @@ public class SendSmsResDto {
 	private String msg;
 	private MessageType msgType;
 	private String title;
-	private Status status;
+	private SmsStatus status;
 	private String rdate;
 	private String rtime;
+	private TemplateResDto smsTemplate;
 
 	private LocalDateTime createdAt;
 	private LocalDateTime updatedAt;
@@ -38,6 +40,7 @@ public class SendSmsResDto {
 			.status(sms.getStatus())
 			.rdate(sms.getRdate())
 			.rtime(sms.getRtime())
+			.smsTemplate(TemplateResDto.fromEntity(sms.getSmsTemplate()))
 			.createdAt(sms.getCreatedAt())
 			.updatedAt(sms.getUpdatedAt())
 			.deletedAt(sms.getDeletedAt())

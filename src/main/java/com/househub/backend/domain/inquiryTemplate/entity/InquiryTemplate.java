@@ -7,10 +7,13 @@ import java.util.List;
 import com.househub.backend.domain.agent.entity.Agent;
 import com.househub.backend.domain.inquiryTemplate.dto.CreateInquiryTemplateReqDto;
 import com.househub.backend.domain.inquiryTemplate.dto.UpdateInquiryTemplateReqDto;
+import com.househub.backend.domain.inquiryTemplate.enums.InquiryType;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -31,7 +34,7 @@ import lombok.NoArgsConstructor;
 @Table(
 	name = "inquiry_templates",
 	uniqueConstraints = {
-		@UniqueConstraint(columnNames = {"agent_id", "name"})
+		@UniqueConstraint(columnNames = {"agent_id", "name", "version"})
 	}
 )
 @Getter
@@ -42,6 +45,11 @@ public class InquiryTemplate {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
+
+	private String version;
+
+	@Enumerated(EnumType.STRING)
+	private InquiryType type;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "agent_id", nullable = false)
@@ -88,6 +96,8 @@ public class InquiryTemplate {
 
 	public static InquiryTemplate fromDto(CreateInquiryTemplateReqDto reqDto, Agent agent) {
 		return InquiryTemplate.builder()
+			.version("v1.0")
+			.type(reqDto.getInquiryType())
 			.agent(agent)
 			.name(reqDto.getName())
 			.description(reqDto.getDescription())
@@ -98,16 +108,17 @@ public class InquiryTemplate {
 
 	// 각 필드가 null이 아닌 경우에만 업데이트
 	public void update(UpdateInquiryTemplateReqDto reqDto) {
-
-		if (reqDto.getName() != null) {
-			this.name = reqDto.getName();
-		}
 		if (reqDto.getDescription() != null) {
 			this.description = reqDto.getDescription();
 		}
 		if (reqDto.getActive() != null) {
 			this.active = reqDto.getActive();
 		}
+		this.updatedAt = LocalDateTime.now();
+	}
+
+	public void inactivate() {
+		this.active = false;
 		this.updatedAt = LocalDateTime.now();
 	}
 }

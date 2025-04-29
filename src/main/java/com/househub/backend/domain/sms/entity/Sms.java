@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 
 import com.househub.backend.domain.agent.entity.Agent;
 import com.househub.backend.domain.sms.enums.MessageType;
-import com.househub.backend.domain.sms.enums.Status;
+import com.househub.backend.domain.sms.enums.SmsStatus;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -44,7 +44,7 @@ public class Sms {
 
 	private String title;
 
-	private Status status;
+	private SmsStatus status;
 
 	private String rdate; // 예약일 (YYYYMMDD)
 
@@ -57,11 +57,15 @@ public class Sms {
 
 	private LocalDateTime deletedAt;
 
-	private Long templateId;
+	private Integer retryCount;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "agent_id", nullable = false)
 	private Agent agent;
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "sms_template_id")
+	private SmsTemplate smsTemplate;
 
 	@PrePersist
 	protected void onCreate() {
@@ -72,5 +76,13 @@ public class Sms {
 	@PreUpdate
 	protected void onUpdate() {
 		updatedAt = LocalDateTime.now();
+	}
+
+	public void updateStatus(SmsStatus status) {
+		this.status = status;
+	}
+
+	public void incrementRetryCount() {
+		this.retryCount = (retryCount == null) ? 1 : retryCount + 1;
 	}
 }

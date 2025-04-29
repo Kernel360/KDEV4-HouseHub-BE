@@ -3,6 +3,7 @@ package com.househub.backend.domain.inquiry.dto;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.househub.backend.domain.customer.entity.Customer;
 import com.househub.backend.domain.inquiry.entity.Inquiry;
 
 import lombok.AllArgsConstructor;
@@ -34,12 +35,10 @@ public class InquiryDetailResDto {
 	}
 
 	public static InquiryDetailResDto fromEntity(Inquiry inquiry) {
-		String name =
-			inquiry.getCustomer() != null ? inquiry.getCustomer().getName() : inquiry.getCandidate().getName();
-		String email =
-			inquiry.getCustomer() != null ? inquiry.getCustomer().getEmail() : inquiry.getCandidate().getEmail();
-		String contact =
-			inquiry.getCustomer() != null ? inquiry.getCustomer().getContact() : inquiry.getCandidate().getContact();
+		Customer customer = inquiry.getCustomer();
+		String name = customer.getName() != null ? customer.getName() : "미입력";
+		String email = customer.getEmail() != null ? customer.getEmail() : "미입력";
+		String contact = customer.getContact() != null ? customer.getContact() : "미입력";
 
 		List<AnswerDto> answers = inquiry.getAnswers().stream()
 			.map(a -> AnswerDto.builder()

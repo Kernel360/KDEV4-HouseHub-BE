@@ -1,5 +1,9 @@
 package com.househub.backend.domain.property.dto;
 
+import java.util.List;
+
+import com.househub.backend.domain.contract.entity.Contract;
+import com.househub.backend.domain.contract.enums.ContractType;
 import com.househub.backend.domain.property.entity.Property;
 import com.househub.backend.domain.property.enums.PropertyType;
 
@@ -17,6 +21,8 @@ public class FindPropertyResDto {
 	private String jibunAddress; // 지번 주소
 	private Boolean active; // 매물이 계약 가능한지 여부 default : true (계약이 없는 경우 true)
 
+	private List<ContractType> contractTypes; // 계약 유형 (전세, 월세, 매매 등)
+
 	// Entity -> DTO 변환
 	public static FindPropertyResDto toDto(Property property) {
 		return FindPropertyResDto.builder()
@@ -26,6 +32,7 @@ public class FindPropertyResDto {
 			.roadAddress(property.getRoadAddress())
 			.jibunAddress(property.getJibunAddress())
 			.active(property.getActive())
+			.contractTypes(property.getContracts().stream().map(Contract::getContractType).toList())
 			.build();
 	}
 }

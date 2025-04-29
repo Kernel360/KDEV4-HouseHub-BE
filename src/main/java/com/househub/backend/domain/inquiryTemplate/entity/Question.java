@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.househub.backend.domain.inquiryTemplate.dto.QuestionDto;
+import com.househub.backend.domain.inquiryTemplate.enums.QuestionType;
 
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;

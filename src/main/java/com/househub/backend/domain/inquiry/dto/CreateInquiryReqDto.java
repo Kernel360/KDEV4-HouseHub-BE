@@ -2,7 +2,8 @@ package com.househub.backend.domain.inquiry.dto;
 
 import java.util.List;
 
-import jakarta.validation.constraints.Email;
+import com.househub.backend.domain.customer.dto.CreateCustomerReqDto;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
@@ -20,12 +21,6 @@ public class CreateInquiryReqDto {
 	private String templateToken;
 
 	@NotBlank
-	private String name;
-
-	@Email
-	private String email;
-
-	@NotBlank
 	private String phone;
 
 	@NotEmpty
@@ -39,5 +34,12 @@ public class CreateInquiryReqDto {
 		private Long questionId;
 		private Object answerText; // String, List<String> 모두 가능
 	}
+
+	public CreateCustomerReqDto toCustomerReqDto() {
+		return CreateCustomerReqDto.builder()
+			.contact(this.phone)
+			.build();
+	}
+
 }
 

@@ -43,8 +43,10 @@ public class WebSecurityConfig {
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http
 			.cors(cors -> cors.configurationSource(corsConfigurationSource()))
+			.csrf(AbstractHttpConfigurer::disable) // REST API 서버이므로 CSRF 비활성화
 			.authorizeHttpRequests((authz) -> authz
 				.requestMatchers(
+					"/api/regions/**",
 					"/api/inquiry-templates/share/**",
 					"/api/inquiries",
 					"/api/auth/session",
@@ -57,7 +59,6 @@ public class WebSecurityConfig {
 				).permitAll() // 공개 API
 				.requestMatchers("/api/**").authenticated() // 인증 필요한 경로
 			)
-			.csrf(AbstractHttpConfigurer::disable) // REST API 서버이므로 CSRF 비활성화
 			.exceptionHandling(configurer -> configurer
 				.authenticationEntryPoint(customAuthenticationHandler)
 				.accessDeniedHandler(customAuthenticationHandler)
@@ -103,7 +104,8 @@ public class WebSecurityConfig {
 		CorsConfiguration configuration = new CorsConfiguration();
 		configuration.setAllowedOrigins(
 			Arrays.asList("http://localhost:3000", "https://www.house-hub.store")); // 허용할 Origin
-		configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS")); // 허용할 HTTP 메서드
+		configuration.setAllowedMethods(
+			Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")); // 허용할 HTTP 메서드
 		configuration.setAllowedHeaders(
 			Arrays.asList("Authorization", "Content-Type", "X-Requested-With")); // 허용할 Header
 		configuration.setAllowCredentials(true); // 쿠키 허용

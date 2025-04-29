@@ -1,6 +1,6 @@
 package com.househub.backend.common.validation;
 
-import com.househub.backend.domain.inquiryTemplate.entity.QuestionType;
+import com.househub.backend.domain.inquiryTemplate.enums.QuestionType;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;

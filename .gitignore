@@ -4,6 +4,7 @@ package-lock.json
 src/main/resources/application.yml
 # 개발용 docker-compose 파일을 숨김처리
 docker-compose.yml
+compose.yaml
 /node_modules
 
 
@@ -223,6 +224,9 @@ fabric.properties
 *.zip
 *.tar.gz
 *.rar
+
+# Generated sources
+src/main/generated/
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
