@@ -59,8 +59,8 @@ public class Contract {
 
 	private Long salePrice; // 매매가
 	private Long jeonsePrice; // 전세가
-	private Integer monthlyRentFee; // 월세 금액
-	private Integer monthlyRentDeposit; // 월세 보증금
+	private Long monthlyRentFee; // 월세 금액
+	private Long monthlyRentDeposit; // 월세 보증금
 
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)

@@ -94,9 +94,12 @@ public class ContractServiceImpl implements ContractService {
 	@Override
 	public void updateContract(Long id, UpdateContractReqDto dto, AgentResDto agentDto) {
 		Contract contract = contractReader.findByIdOrThrow(id, agentDto.getId());
+		// 해당 계약의 고객이 삭제된 고객일 경우 수정 불가
+		if(contract.getCustomer().getDeletedAt() != null) {
+			throw new BusinessException(ErrorCode.CONTRACT_CUSTOMER_ALREADY_DELETED);
+		}
 		// 매물 조회
 		Property property = contract.getProperty();
-		// Property property = propertyReader.findByIdOrThrow(dto.getPropertyId(), agentDto.getId());
 		// 고객을 설정한 경우, 검증
 		if(dto.getCustomerId() != null) {
 			// 고객 조회
@@ -198,7 +201,7 @@ public class ContractServiceImpl implements ContractService {
 	 * @param customer 계약할 고객
 	 * @param property 계약할 매물
 	 */
-	public void validateCustomerIsNotPropertyOwner(Customer customer, Property property) {
+	private void validateCustomerIsNotPropertyOwner(Customer customer, Property property) {
 		if (property.getCustomer().getId().equals(customer.getId())) {
 			throw new BusinessException(ErrorCode.CONTRACT_PROPERTY_CUSTOMER_SAME);
 		}
