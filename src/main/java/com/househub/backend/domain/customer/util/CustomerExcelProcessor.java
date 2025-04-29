@@ -14,7 +14,7 @@ import com.househub.backend.common.exception.InvalidExcelValueException;
 import com.househub.backend.common.exception.InvalidFormatException;
 import com.househub.backend.common.response.ErrorResponse.FieldError;
 import com.househub.backend.common.validation.CustomerExcelValidator;
-import com.househub.backend.domain.customer.dto.CreateCustomerReqDto;
+import com.househub.backend.domain.customer.dto.CustomerReqDto;
 import com.househub.backend.domain.customer.enums.CustomerExcelColumn;
 
 import lombok.RequiredArgsConstructor;
@@ -51,7 +51,7 @@ public class CustomerExcelProcessor {
 		}
 	}
 
-	public ExcelParserUtils.ExcelParseResult<CreateCustomerReqDto> process(MultipartFile file) {
+	public ExcelParserUtils.ExcelParseResult<CustomerReqDto> process(MultipartFile file) {
 		String fileName = file.getOriginalFilename();
 		String extension = FilenameUtils.getExtension(fileName);
 
@@ -109,8 +109,8 @@ public class CustomerExcelProcessor {
 		return (value == null || value.trim().isEmpty()) ? null : value;
 	}
 
-	private CreateCustomerReqDto buildCustomerDto(Row row) {
-		return CreateCustomerReqDto.builder()
+	private CustomerReqDto buildCustomerDto(Row row) {
+		return CustomerReqDto.builder()
 			.name(getStringCell(row, CustomerExcelColumn.NAME))
 			.birthDate(getBirthDateCell(row, CustomerExcelColumn.BIRTH_DATE))
 			.contact(getStringCell(row, CustomerExcelColumn.CONTACT))

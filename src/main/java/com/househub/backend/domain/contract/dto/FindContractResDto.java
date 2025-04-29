@@ -6,7 +6,7 @@ import com.househub.backend.domain.agent.dto.GetMyInfoResDto;
 import com.househub.backend.domain.contract.entity.Contract;
 import com.househub.backend.domain.contract.enums.ContractStatus;
 import com.househub.backend.domain.contract.enums.ContractType;
-import com.househub.backend.domain.customer.dto.CreateCustomerResDto;
+import com.househub.backend.domain.customer.dto.CustomerResDto;
 import com.househub.backend.domain.property.dto.FindPropertyResDto;
 
 import lombok.Builder;
@@ -18,7 +18,7 @@ public class FindContractResDto {
     private Long id; // 계약 ID
     private GetMyInfoResDto agent;
     private FindPropertyResDto property; // 매물
-    private CreateCustomerResDto customer; // 고객
+    private CustomerResDto customer; // 고객
     private ContractType contractType; // 거래 유형 (매매, 전세, 월세)
 
     // private Long salePrice; // 매매가
@@ -45,7 +45,7 @@ public class FindContractResDto {
                 .agent(GetMyInfoResDto.from(contract.getAgent()))
                 .property(FindPropertyResDto.toDto(contract.getProperty()))
                 .customer(contract.getCustomer() != null ?
-                        CreateCustomerResDto.fromEntity(contract.getCustomer()) : null)
+                        CustomerResDto.fromEntity(contract.getCustomer()) : null)
                 .contractType(contract.getContractType())
                 .salePrice(convertPriceFormat(contract.getSalePrice()))
                 .jeonsePrice(convertPriceFormat(contract.getJeonsePrice()))

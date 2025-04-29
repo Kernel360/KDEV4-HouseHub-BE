@@ -6,7 +6,7 @@ import org.springframework.data.domain.Pageable;
 import com.househub.backend.domain.customer.entity.Customer;
 
 public interface CustomerRepositoryCustom {
-	Page<Customer> findAllByAgentIdAndFiltersAndDeletedAtIsNull(
+	Page<Customer> findAllByAgentIdAndFiltersAndDeletedOnly(
 		Long agentId,
 		String name,
 		String contact,
