@@ -42,7 +42,9 @@ public class SmsServiceImpl implements SmsService {
 	public SendSmsResDto sendSms(SendSmsReqDto request, AgentResDto agentDto) {
 		Agent agent = agentDto.toEntity();
 		AligoSmsResDto aligoResponse = aligoService.sendSms(request);
-		SmsTemplate template = smsTemplateReader.findById(request.getTemplateId(),agent.getId());
+		SmsTemplate template = null;
+		if(request.getTemplateId() != null)
+			template = smsTemplateReader.findById(request.getTemplateId(),agent.getId());
 		if(aligoResponse.getResultCode() == 1){
 			return SendSmsResDto.fromEntity(smsStore.create(request.toEntity(SmsStatus.SUCCESS,agent,template)));
 		} else {
