@@ -15,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -33,7 +34,20 @@ public class CrawlingPropertyServiceImpl implements CrawlingPropertyService {
         CrawlingPropertyReqDto crawlingPropertyReqDto,
         Pageable pageable
     ) {
-        if (crawlingPropertyReqDto.getTagIds().isEmpty()) {
+        log.info("{}", crawlingPropertyReqDto.getTagIds());
+        if (crawlingPropertyReqDto.getTagIds() == null) {
+            Field[] fields = CrawlingPropertyReqDto.class.getDeclaredFields();
+
+            for (Field field : fields) {
+                field.setAccessible(true); // private 필드 접근 허용
+                try {
+                    Object value = field.get(crawlingPropertyReqDto);
+                    System.out.println(field.getName() + " : " + value);
+                } catch (IllegalAccessException e) {
+                    System.out.println("Cannot access field: " + field.getName());
+                }
+            }
+
             Page<CrawlingProperty> crawlingPropertyList = crawlingPropertyRepository.findAllWithTags(
                     crawlingPropertyReqDto.getTransactionType(),
                     crawlingPropertyReqDto.getPropertyType(),

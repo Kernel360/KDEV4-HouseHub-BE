@@ -4,6 +4,9 @@ import com.househub.backend.domain.crawlingProperty.dto.CrawlingPropertyResDto;
 import com.househub.backend.domain.crawlingProperty.dto.CrawlingPropertyTagListResDto;
 import com.househub.backend.domain.crawlingProperty.dto.CrawlingPropertyTagResDto;
 import com.househub.backend.domain.crawlingProperty.entity.*;
+import com.househub.backend.domain.crawlingProperty.enums.PropertyType;
+import com.househub.backend.domain.crawlingProperty.enums.TransactionType;
+import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -80,5 +83,80 @@ public class CrawlingPropertyRepositoryImpl implements CrawlingPropertyRepositor
 
         // 7. Page로 변환
         return new PageImpl<>(dtoList, pageable, propertyIds.size());
+    }
+
+    public Page<CrawlingProperty> findAllWithTags(
+            TransactionType transactionType,
+            PropertyType propertyType,
+            String province,
+            String city,
+            String dong,
+            Float minSalePrice,
+            Float maxSalePrice,
+            Float minDeposit,
+            Float maxDeposit,
+            Float minMonthlyRentFee,
+            Float maxMonthlyRentFee,
+            Pageable pageable
+    ) {
+        QCrawlingProperty cp = QCrawlingProperty.crawlingProperty;
+        QCrawlingPropertyTagMap cptm = QCrawlingPropertyTagMap.crawlingPropertyTagMap;
+        QTag tag = QTag.tag;
+
+        // 1. 조건(where절) 구성
+        BooleanBuilder builder = new BooleanBuilder();
+        if (transactionType != null) {
+            builder.and(cp.transactionType.eq(transactionType));
+        }
+        if (propertyType != null) {
+            builder.and(cp.propertyType.eq(propertyType));
+        }
+        if (province != null) {
+            builder.and(cp.province.eq(province));
+        }
+        if (city != null) {
+            builder.and(cp.city.eq(city));
+        }
+        if (dong != null) {
+            builder.and(cp.dong.like("%" + dong + "%"));
+        }
+        if (minSalePrice != null) {
+            builder.and(cp.salePrice.goe(minSalePrice));
+        }
+        if (maxSalePrice != null) {
+            builder.and(cp.salePrice.loe(maxSalePrice));
+        }
+        if (minDeposit != null) {
+            builder.and(cp.deposit.goe(minDeposit));
+        }
+        if (maxDeposit != null) {
+            builder.and(cp.deposit.loe(maxDeposit));
+        }
+        if (minMonthlyRentFee != null) {
+            builder.and(cp.monthlyRentFee.goe(minMonthlyRentFee));
+        }
+        if (maxMonthlyRentFee != null) {
+            builder.and(cp.monthlyRentFee.loe(maxMonthlyRentFee));
+        }
+
+        // 2. 본격 조회
+        List<CrawlingProperty> contents = queryFactory
+                .selectDistinct(cp)
+                .from(cp)
+                .leftJoin(cp.crawlingPropertyTagMaps, cptm).fetchJoin()
+                .leftJoin(cptm.tag, tag).fetchJoin()
+                .where(builder)
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        // 3. total count 조회
+        Long total = queryFactory
+                .select(cp.count())
+                .from(cp)
+                .where(builder)
+                .fetchOne();
+
+        return new PageImpl<>(contents, pageable, total == null ? 0 : total);
     }
 }
