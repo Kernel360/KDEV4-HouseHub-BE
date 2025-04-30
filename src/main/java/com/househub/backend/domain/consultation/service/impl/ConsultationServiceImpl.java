@@ -46,37 +46,26 @@ public class ConsultationServiceImpl implements ConsultationService {
 	) {
 		Agent agent = agentDto.toEntity();
 		Long customerId = consultationReqDto.getCustomerId();
-		Customer customer = null;
-		Customer newCustomer = null;
+		Customer customer;
 
-		// customerId가 null이면 신규 고객 처리
-		if (customerId == null && consultationReqDto.getNewCustomer() != null) {
-			ConsultationReqDto.NewCustomerDto newCustomerDto = consultationReqDto.getNewCustomer();
-			// contact 기반으로 기존 고객 찾음 (신규 고객의 연락처로)
-			customer = customerRepository.findByContactAndAgentIdAndDeletedAtIsNull(
-				newCustomerDto.getContact(), agent.getId()
-			).orElse(null);
-			log.info("{}", customer.getName());
-
-			if (customer != null) {
-				throw new BusinessException(ErrorCode.CONFLICT_CUSTOMER_CONTACT);
-			}
-
-			// 고객이 없으면 새로 생성
-			if (customer == null) {
-				newCustomer = customerRepository.save(newCustomerDto.toEntity(agent));
-				customer = newCustomer; // 새로 생성된 고객을 연결
-			}
-		} else if (customerId != null) {
-			// customerId가 있으면 기존 고객 조회
+		if (customerId != null) {
 			customer = customerRepository.findByIdAndAgentIdAndDeletedAtIsNull(customerId, agent.getId())
 				.orElseThrow(() -> new BusinessException(ErrorCode.RESOURCE_NOT_FOUND));
-		} else if (customerId == null && consultationReqDto.getNewCustomer() == null) {
+		} else if (consultationReqDto.getNewCustomer() != null) {
+			ConsultationReqDto.NewCustomerDto newCustomerDto = consultationReqDto.getNewCustomer();
+			customer = customerRepository.findByContactAndAgentIdAndDeletedAtIsNull(newCustomerDto.getContact(),
+					agent.getId())
+				.orElse(null);
+			// 신규 고객 정보가 존재하지 않으면 신규 고객 생성
+			if (customer == null) {
+				customer = customerRepository.save(newCustomerDto.toEntity(agent));
+			}
+		} else {
 			throw new BusinessException(ErrorCode.MISSING_CUSTOMER_INFORMATION);
 		}
 
 		// 상담 등록
-		Consultation consultation = consultationReqDto.toEntity(agent, customer, newCustomer);
+		Consultation consultation = consultationReqDto.toEntity(agent, customer);
 
 		// 상담 저장 후 반환
 		return ConsultationResDto.fromEntity(consultationRepository.save(consultation));
