@@ -54,10 +54,12 @@ public class SignUpReqDto {
 		private boolean isEmailVerified; // 이메일 인증 여부, 필수, 반드시 true 여야 회원가입 가능.
 
 		public Agent toAgentEntity(RealEstate realEstate) {
+			// 이메일은 대소문자 구분 없이 저장하기 위해 소문자로 변환
+			String normalizedEmail = getEmail().toLowerCase();
 			return Agent.builder()
 				.name(name)
 				.licenseNumber(licenseNumber)
-				.email(email)
+				.email(normalizedEmail)
 				.password(password)
 				.contact(contact)
 				.realEstate(realEstate)
