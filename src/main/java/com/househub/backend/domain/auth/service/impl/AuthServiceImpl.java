@@ -113,8 +113,10 @@ public class AuthServiceImpl implements AuthService {
 	}
 
 	private Authentication authenticateUser(SignInReqDto request) {
+		// 이메일 대소문자 구분 없이 비교하기 위해 소문자로 변환
+		String normalizedEmail = request.getEmail().toLowerCase();
 		UsernamePasswordAuthenticationToken token =
-			new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword());
+			new UsernamePasswordAuthenticationToken(normalizedEmail, request.getPassword());
 		return authenticationManager.authenticate(token);
 	}
 
