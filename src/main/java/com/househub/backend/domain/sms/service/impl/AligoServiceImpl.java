@@ -51,7 +51,7 @@ public class AligoServiceImpl implements AligoService {
 		// 기본 파라미터 추가
 		params.add("key", apiKey);
 		params.add("user_id", userId);
-		params.add("testmode_yn", "Y");
+		params.add("testmode_yn", "N");
 
 		try {
 			ResponseEntity<String> response = restTemplate.exchange(
