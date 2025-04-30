@@ -14,7 +14,7 @@ import com.househub.backend.domain.consultation.entity.Consultation;
 import com.househub.backend.domain.consultation.enums.ConsultationStatus;
 import com.househub.backend.domain.consultation.enums.ConsultationType;
 
-import io.lettuce.core.dynamic.annotation.Param;
+import org.springframework.data.repository.query.Param;  // Spring Data JPA의 @Param
 
 public interface ConsultationRepository extends JpaRepository<Consultation, Long> {
 
