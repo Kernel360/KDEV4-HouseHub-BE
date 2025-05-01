@@ -30,7 +30,9 @@ import com.househub.backend.domain.consultation.service.ConsultationService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/consultations")
 @RequiredArgsConstructor
@@ -42,6 +44,8 @@ public class ConsultationController {
 	public ResponseEntity<SuccessResponse<ConsultationResDto>> createConsultation(
 		@Valid @RequestBody ConsultationReqDto consultationReqDto
 	) {
+		log.info("{}", consultationReqDto.getNewCustomer().getName());
+		log.info("{}", consultationReqDto.getNewCustomer().getContact());
 		ConsultationResDto response = consultationService.create(consultationReqDto,
 			SecurityUtil.getAuthenticatedAgent());
 		return ResponseEntity.ok(SuccessResponse.success("상담 등록이 완료되었습니다.", "CONSULTATION_REGISTER_SUCCESS", response));
