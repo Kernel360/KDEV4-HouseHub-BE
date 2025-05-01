@@ -1,6 +1,7 @@
 package com.househub.backend.domain.property.dto;
 
 import com.househub.backend.domain.agent.entity.Agent;
+import com.househub.backend.domain.contract.dto.CreateContractReqDto;
 import com.househub.backend.domain.customer.entity.Customer;
 import com.househub.backend.domain.property.entity.Property;
 import com.househub.backend.domain.property.enums.PropertyDirection;
@@ -36,6 +37,7 @@ public class CreatePropertyReqDto {
 	private Integer bathroomCnt; // 욕실 개수
 	private Integer roomCnt; // 방 개수
 	private Boolean active; // 매물이 계약 가능한지 여부
+	private CreateContractReqDto contract;
 
 	public Property toEntity(Customer customer, Agent agent) {
 		Property property = Property.builder()
