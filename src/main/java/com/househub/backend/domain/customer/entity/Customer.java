@@ -10,9 +10,11 @@ import com.househub.backend.common.validation.ValidBirthDate;
 import com.househub.backend.domain.agent.entity.Agent;
 import com.househub.backend.domain.consultation.entity.Consultation;
 import com.househub.backend.domain.contract.entity.Contract;
+import com.househub.backend.domain.crawlingProperty.entity.Tag;
 import com.househub.backend.domain.customer.dto.CustomerReqDto;
 import com.househub.backend.domain.customer.enums.CustomerStatus;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -88,6 +90,10 @@ public class Customer {
 	@Builder.Default
 	private List<Contract> contracts = new ArrayList<>();
 
+	@OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
+	@Builder.Default
+	private List<CustomerTagMap> customerTagMaps = new ArrayList<>();
+
 	@PrePersist
 	protected void onCreate() {
 		createdAt = LocalDateTime.now();
@@ -100,7 +106,7 @@ public class Customer {
 		updatedAt = LocalDateTime.now();
 	}
 
-	public void update(CustomerReqDto reqDto) {
+	public void update(CustomerReqDto reqDto, List<Tag> newTags) {
 		this.name = reqDto.getName();
 		this.email = reqDto.getEmail();
 		if (reqDto.getContact() != null && !reqDto.getContact().isEmpty()) {
@@ -111,6 +117,21 @@ public class Customer {
 		}
 		this.gender = reqDto.getGender(); // null 허용
 		this.memo = reqDto.getMemo(); // null 허용
+
+		// 기존 태그 매핑 제거
+		this.customerTagMaps.clear();
+		
+		// 새로운 태그 매핑 추가
+		if (newTags != null) {
+			for(Tag tag : newTags) {
+				if (tag != null) {
+					this.customerTagMaps.add(CustomerTagMap.builder()
+							.tag(tag)
+							.customer(this)
+							.build());
+				}
+			}
+		}
 	}
 
 	public void softDelete() {
