@@ -1,13 +1,22 @@
 package com.househub.backend.domain.customer.service.impl;
 
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.househub.backend.domain.crawlingProperty.entity.Tag;
+import com.househub.backend.domain.crawlingProperty.repository.TagRepository;
 import com.househub.backend.domain.customer.dto.CustomerReqDto;
 import com.househub.backend.domain.customer.entity.Customer;
+import com.househub.backend.domain.customer.entity.CustomerTagMap;
 import com.househub.backend.domain.customer.repository.CustomerRepository;
+import com.househub.backend.domain.customer.repository.CustomerTagMapRepository;
 import com.househub.backend.domain.customer.service.CustomerStore;
 
 import lombok.RequiredArgsConstructor;
@@ -30,8 +39,11 @@ public class CustomerStoreImpl implements CustomerStore {
 	}
 
 	@Override
-	public Customer update(Customer customer, CustomerReqDto request) {
-		customer.update(request);
+	public Customer update(Customer customer, CustomerReqDto request, List<Tag> tags) {
+		List<Tag> filteredTags = tags == null
+			? Collections.emptyList()
+			: tags.stream().filter(Objects::nonNull).collect(Collectors.toList());
+		customer.update(request, filteredTags);
 		return customerRepository.save(customer);
 	}
 
