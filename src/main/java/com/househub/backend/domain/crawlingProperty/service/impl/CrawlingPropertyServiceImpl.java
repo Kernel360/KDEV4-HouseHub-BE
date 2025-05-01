@@ -63,10 +63,6 @@ public class CrawlingPropertyServiceImpl implements CrawlingPropertyService {
                     pageable
             );
 
-            if (crawlingPropertyList.isEmpty()) {
-                throw new ResourceNotFoundException("크롤링 매물 목록이 존재하지 않습니다:", "CRAWLING_PROPERTIES_NOT_FOUND");
-            }
-
             // 1. 태그들을 매물 ID 기준으로 묶기
             Map<String, List<Tag>> tagMap = crawlingPropertyList.getContent().stream()
                     .flatMap(cp -> cp.getCrawlingPropertyTagMaps().stream()
@@ -99,10 +95,6 @@ public class CrawlingPropertyServiceImpl implements CrawlingPropertyService {
                     correctMinValue(crawlingPropertyReqDto.getMinMonthlyRent()),
                     crawlingPropertyReqDto.getMaxMonthlyRent()
             );
-
-            if (crawlingPropertyList.isEmpty()) {
-                throw new ResourceNotFoundException("크롤링 매물 목록이 존재하지 않습니다:", "CRAWLING_PROPERTIES_NOT_FOUND");
-            }
 
             // id 리스트 변환
             List<String> propertyIds = crawlingPropertyList.stream()

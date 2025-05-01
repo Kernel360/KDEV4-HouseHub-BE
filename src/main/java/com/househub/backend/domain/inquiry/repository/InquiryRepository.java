@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
 import com.househub.backend.domain.customer.entity.Customer;
 import com.househub.backend.domain.inquiry.entity.Inquiry;
 
-import io.lettuce.core.dynamic.annotation.Param;
+import org.springframework.data.repository.query.Param;  // Spring Data JPA의 @Param
 
 @Repository
 public interface InquiryRepository extends JpaRepository<Inquiry, Long> {
