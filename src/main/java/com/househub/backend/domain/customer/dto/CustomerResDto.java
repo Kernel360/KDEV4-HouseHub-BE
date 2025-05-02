@@ -6,7 +6,7 @@ import java.util.Collections;
 import java.util.List;
 
 import com.househub.backend.common.enums.Gender;
-import com.househub.backend.domain.crawlingProperty.dto.TagResDto;
+import com.househub.backend.domain.tag.dto.TagResDto;
 import com.househub.backend.domain.customer.entity.Customer;
 
 import lombok.AllArgsConstructor;

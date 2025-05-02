@@ -1,7 +1,7 @@
 package com.househub.backend.domain.customer.entity;
 
-import java.time.LocalDateTime;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,9 +10,9 @@ import com.househub.backend.common.validation.ValidBirthDate;
 import com.househub.backend.domain.agent.entity.Agent;
 import com.househub.backend.domain.consultation.entity.Consultation;
 import com.househub.backend.domain.contract.entity.Contract;
-import com.househub.backend.domain.crawlingProperty.entity.Tag;
 import com.househub.backend.domain.customer.dto.CustomerReqDto;
 import com.househub.backend.domain.customer.enums.CustomerStatus;
+import com.househub.backend.domain.tag.entity.Tag;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -37,7 +37,7 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "customers", uniqueConstraints = {
-	@UniqueConstraint(name = "UK_contact_agentId", columnNames = {"contact","agent_id"})
+	@UniqueConstraint(name = "UK_contact_agentId", columnNames = {"contact", "agent_id"})
 })
 @AllArgsConstructor
 @NoArgsConstructor
@@ -109,29 +109,21 @@ public class Customer {
 	public void update(CustomerReqDto reqDto, List<Tag> newTags) {
 		this.name = reqDto.getName();
 		this.email = reqDto.getEmail();
-		if (reqDto.getContact() != null && !reqDto.getContact().isEmpty()) {
-			this.contact = reqDto.getContact();
-		}
-		if (reqDto.getBirthDate() != null) {
-			this.birthDate = reqDto.getBirthDate();
-		}
-		this.gender = reqDto.getGender(); // null 허용
-		this.memo = reqDto.getMemo(); // null 허용
+		this.contact = reqDto.getContact();
+		this.birthDate = reqDto.getBirthDate();
+		this.gender = reqDto.getGender();
+		this.memo = reqDto.getMemo();
 
-		// 기존 태그 매핑 제거
-		this.customerTagMaps.clear();
-		
-		// 새로운 태그 매핑 추가
-		if (newTags != null) {
-			for(Tag tag : newTags) {
-				if (tag != null) {
-					this.customerTagMaps.add(CustomerTagMap.builder()
-							.tag(tag)
-							.customer(this)
-							.build());
-				}
-			}
-		}
+		newTags.forEach(this::addTag);
+	}
+
+	private void addTag(Tag tag) {
+		this.customerTagMaps.add(
+			CustomerTagMap.builder()
+				.tag(tag)
+				.customer(this)
+				.build()
+		);
 	}
 
 	public void softDelete() {

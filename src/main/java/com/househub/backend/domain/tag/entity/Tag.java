@@ -1,4 +1,4 @@
-package com.househub.backend.domain.crawlingProperty.entity;
+package com.househub.backend.domain.tag.entity;
 
 import java.util.ArrayList;
 import java.util.List;
