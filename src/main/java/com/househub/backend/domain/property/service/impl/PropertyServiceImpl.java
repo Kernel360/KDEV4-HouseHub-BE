@@ -2,9 +2,9 @@ package com.househub.backend.domain.property.service.impl;
 
 import java.util.List;
 
-import com.househub.backend.domain.crawlingProperty.entity.Tag;
-import com.househub.backend.domain.crawlingProperty.service.TagReader;
 import com.househub.backend.domain.property.entity.PropertyTagMap;
+import com.househub.backend.domain.tag.entity.Tag;
+import com.househub.backend.domain.tag.service.TagReader;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -57,7 +57,7 @@ public class PropertyServiceImpl implements PropertyService {
 		// dto -> entity
 		Property property = dto.toEntity(customer, agent);
 
-		List<Tag> tagList = tagReader.findAllByIds(dto.getTagIds());
+		List<Tag> tagList = tagReader.findAllById(dto.getTagIds());
 		tagList.forEach(tag->
 				property.getPropertyTagMaps().add(
 						PropertyTagMap.builder()

@@ -5,12 +5,12 @@ import java.util.Collections;
 import java.util.List;
 
 import com.househub.backend.domain.contract.dto.FindContractResDto;
-import com.househub.backend.domain.crawlingProperty.dto.TagResDto;
 import com.househub.backend.domain.customer.dto.CustomerResDto;
 import com.househub.backend.domain.property.entity.Property;
 import com.househub.backend.domain.property.enums.PropertyDirection;
 import com.househub.backend.domain.property.enums.PropertyType;
 
+import com.househub.backend.domain.tag.dto.TagResDto;
 import lombok.Builder;
 import lombok.Getter;
 

@@ -35,8 +35,6 @@ public class CustomerServiceImpl implements CustomerService {
 	private final CustomerReader customerReader;
 	private final CustomerExecutor customerExecutor;
 	private final CustomerExcelProcessor excelProcessor;
-	private final TagRepository tagRepository;
-	private final CustomerTagMapRepository customerTagMapRepository;
 
 	@Transactional
 	public CustomerResDto create(CustomerReqDto request, AgentResDto agentDto) {
