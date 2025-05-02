@@ -58,9 +58,9 @@ public class PropertyServiceImpl implements PropertyService {
 		// db에 저장
 		propertyStore.create(property);
 		// 계약 등록 - '계약 가능' 상태로 등록 (계약자 없음)
-		if(dto.getContracts() != null) {
-			List<BasicContractDto> contractReqDto = dto.getContracts();
-			contractReqDto.forEach(c -> contractStore.create(c.toEntity(property, agent)));
+		if(dto.getContract() != null) {
+			BasicContractDto contractReqDto = dto.getContract();
+			contractStore.create(contractReqDto.toEntity(property, agent));
 		}
 		// 응답 객체 리턴
 		return new CreatePropertyResDto(property.getId());
