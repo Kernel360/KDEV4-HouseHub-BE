@@ -14,14 +14,10 @@ import org.springframework.web.multipart.MultipartFile;
 import com.househub.backend.common.exception.InvalidExcelValueException;
 import com.househub.backend.domain.agent.dto.AgentResDto;
 import com.househub.backend.domain.agent.entity.Agent;
-import com.househub.backend.domain.tag.entity.Tag;
-import com.househub.backend.domain.tag.repository.TagRepository;
+import com.househub.backend.domain.customer.dto.CustomerListResDto;
 import com.househub.backend.domain.customer.dto.CustomerReqDto;
 import com.househub.backend.domain.customer.dto.CustomerResDto;
-import com.househub.backend.domain.customer.dto.CustomerListResDto;
 import com.househub.backend.domain.customer.entity.Customer;
-import com.househub.backend.domain.customer.entity.CustomerTagMap;
-import com.househub.backend.domain.customer.repository.CustomerTagMapRepository;
 import com.househub.backend.domain.customer.service.CustomerExecutor;
 import com.househub.backend.domain.customer.service.CustomerReader;
 import com.househub.backend.domain.customer.service.CustomerService;
@@ -39,8 +35,6 @@ public class CustomerServiceImpl implements CustomerService {
 	private final CustomerReader customerReader;
 	private final CustomerExecutor customerExecutor;
 	private final CustomerExcelProcessor excelProcessor;
-	private final TagRepository tagRepository;
-	private final CustomerTagMapRepository customerTagMapRepository;
 
 	@Transactional
 	public CustomerResDto create(CustomerReqDto request, AgentResDto agentDto) {
@@ -48,15 +42,8 @@ public class CustomerServiceImpl implements CustomerService {
 		customerReader.checkDuplicatedByContact(request.getContact(), agent.getId());
 
 		Customer customer = request.toEntity(agent);
-		List<Tag> tagList = tagRepository.findAllById(request.getTagIds());
-		tagList.forEach(tag->
-			customer.getCustomerTagMaps().add(
-				CustomerTagMap.builder()
-					.customer(customer)
-					.tag(tag)
-					.build()
-			));
-		Customer storedCustomer = customerStore.create(customer);
+		Customer customerWithTag = customerExecutor.addTagsToCustomer(customer, request.getTagIds());
+		Customer storedCustomer = customerStore.create(customerWithTag);
 
 		return CustomerResDto.fromEntity(storedCustomer);
 	}
@@ -128,7 +115,7 @@ public class CustomerServiceImpl implements CustomerService {
 	@Transactional
 	public CustomerResDto restore(Long id, AgentResDto agentDto) {
 		Agent agent = agentDto.toEntity();
-		Customer restoredCustomer = customerExecutor.validateAndRestore(id,agent);
+		Customer restoredCustomer = customerExecutor.validateAndRestore(id, agent);
 		return CustomerResDto.fromEntity(restoredCustomer);
 	}
 }
