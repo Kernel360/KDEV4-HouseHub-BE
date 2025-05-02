@@ -73,5 +73,6 @@ public class CrawlingProperty {
     private Integer roomCnt;
 
     @OneToMany(mappedBy = "crawlingProperty")
+    @Builder.Default
     private List<CrawlingPropertyTagMap> crawlingPropertyTagMaps = new ArrayList<>();
 }

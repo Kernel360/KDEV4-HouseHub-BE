@@ -13,7 +13,7 @@ import com.househub.backend.domain.inquiryTemplate.entity.InquiryTemplate;
 import com.househub.backend.domain.inquiryTemplate.entity.Question;
 import com.househub.backend.domain.inquiryTemplate.enums.InquiryType;
 
-import io.lettuce.core.dynamic.annotation.Param;
+import org.springframework.data.repository.query.Param;  // Spring Data JPA의 @Param
 
 @Repository
 public interface InquiryTemplateRepository extends JpaRepository<InquiryTemplate, Long> {

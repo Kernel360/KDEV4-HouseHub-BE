@@ -13,7 +13,7 @@ import java.util.Map;
 
 @Builder
 @Getter
-public class CrawlingPropertyResDto {
+public class CrawlingPropertyTagResDto {
 
     private String crawlingPropertiesId;
     private PropertyType propertyType;
@@ -40,8 +40,10 @@ public class CrawlingPropertyResDto {
     private String realEstateOfficeName;
     private String realEstateOfficeAddress;
 
-    public static CrawlingPropertyResDto fromEntity(CrawlingProperty crawlingProperty) {
-        return CrawlingPropertyResDto.builder()
+    private List<Tag> tags; // 태그 리스트
+
+    public static CrawlingPropertyTagResDto fromEntity(CrawlingProperty crawlingProperty, Map<String, List<Tag>> propertyTagsMap) {
+        return CrawlingPropertyTagResDto.builder()
                 .crawlingPropertiesId(crawlingProperty.getCrawlingPropertiesId())
                 .propertyType(crawlingProperty.getPropertyType())
                 .transactionType(crawlingProperty.getTransactionType())
@@ -63,8 +65,44 @@ public class CrawlingPropertyResDto {
                 .realEstateAgentContact(crawlingProperty.getRealEstateAgentContact())
                 .realEstateOfficeName(crawlingProperty.getRealEstateOfficeName())
                 .realEstateOfficeAddress(crawlingProperty.getRealEstateOfficeAddress())
+                .tags(
+                        propertyTagsMap.getOrDefault(crawlingProperty.getCrawlingPropertiesId(), List.of())
+                                .stream()
+                                .map(tagEntity -> Tag.builder()
+                                        .tagId(tagEntity.getTagId())
+                                        .type(tagEntity.getType())
+                                        .value(tagEntity.getValue())
+                                        .build())
+                                .toList()
+                )
                 .build();
     }
+
+//    public static CrawlingPropertyResDto fromEntity(CrawlingProperty crawlingProperty) {
+//        return CrawlingPropertyResDto.builder()
+//                .crawlingPropertiesId(crawlingProperty.getCrawlingPropertiesId())
+//                .propertyType(crawlingProperty.getPropertyType())
+//                .transactionType(crawlingProperty.getTransactionType())
+//                .province(crawlingProperty.getProvince())
+//                .city(crawlingProperty.getCity())
+//                .dong(crawlingProperty.getDong())
+//                .detailAddress(crawlingProperty.getDetailAddress())
+//                .area(crawlingProperty.getArea())
+//                .floor(crawlingProperty.getFloor())
+//                .allFloors(crawlingProperty.getAllFloors())
+//                .salePrice(convertPriceFormat(crawlingProperty.getSalePrice())) // 가격 문자 형식으로 변환하여 반환
+//                .deposit(convertPriceFormat(crawlingProperty.getDeposit())) // 가격 문자 형식으로 변환하여 반환
+//                .monthlyRentFee(convertPriceFormat(crawlingProperty.getMonthlyRentFee())) // 가격 문자 형식으로 변환하여 반환
+//                .direction(crawlingProperty.getDirection())
+//                .bathRoomCnt(crawlingProperty.getBathRoomCnt())
+//                .roomCnt(crawlingProperty.getRoomCnt())
+//                .realEstateAgentId(crawlingProperty.getRealEstateAgentId())
+//                .realEstateAgentName(crawlingProperty.getRealEstateAgentName())
+//                .realEstateAgentContact(crawlingProperty.getRealEstateAgentContact())
+//                .realEstateOfficeName(crawlingProperty.getRealEstateOfficeName())
+//                .realEstateOfficeAddress(crawlingProperty.getRealEstateOfficeAddress())
+//                .build();
+//    }
 
     private static String convertPriceFormat(Float price) {
 
