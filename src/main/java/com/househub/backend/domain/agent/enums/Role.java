@@ -1,4 +1,4 @@
-package com.househub.backend.domain.agent.entity;
+package com.househub.backend.domain.agent.enums;
 
 public enum Role {
     AGENT("ROLE_AGENT"),

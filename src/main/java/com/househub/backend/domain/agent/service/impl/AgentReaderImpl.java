@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 
 import com.househub.backend.common.exception.ResourceNotFoundException;
 import com.househub.backend.domain.agent.entity.Agent;
-import com.househub.backend.domain.agent.entity.AgentStatus;
+import com.househub.backend.domain.agent.enums.AgentStatus;
 import com.househub.backend.domain.agent.repository.AgentRepository;
 import com.househub.backend.domain.agent.service.AgentReader;
 
