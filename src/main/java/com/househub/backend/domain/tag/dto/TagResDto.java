@@ -1,6 +1,6 @@
-package com.househub.backend.domain.crawlingProperty.dto;
+package com.househub.backend.domain.tag.dto;
 
-import com.househub.backend.domain.crawlingProperty.entity.Tag;
+import com.househub.backend.domain.tag.entity.Tag;
 import lombok.Builder;
 import lombok.Getter;
 

@@ -1,9 +1,9 @@
-package com.househub.backend.domain.crawlingProperty.service.impl;
+package com.househub.backend.domain.tag.service.impl;
 
-import com.househub.backend.domain.crawlingProperty.dto.TagResDto;
-import com.househub.backend.domain.crawlingProperty.entity.Tag;
-import com.househub.backend.domain.crawlingProperty.repository.TagRepository;
-import com.househub.backend.domain.crawlingProperty.service.TagService;
+import com.househub.backend.domain.tag.dto.TagResDto;
+import com.househub.backend.domain.tag.entity.Tag;
+import com.househub.backend.domain.tag.repository.TagRepository;
+import com.househub.backend.domain.tag.service.TagService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
