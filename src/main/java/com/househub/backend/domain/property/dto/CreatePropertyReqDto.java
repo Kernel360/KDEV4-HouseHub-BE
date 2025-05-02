@@ -12,6 +12,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Builder
 @Getter
 @NoArgsConstructor
@@ -36,6 +38,7 @@ public class CreatePropertyReqDto {
 	private Integer bathroomCnt; // 욕실 개수
 	private Integer roomCnt; // 방 개수
 	private Boolean active; // 매물이 계약 가능한지 여부
+	private List<Long> tagIds;
 
 	public Property toEntity(Customer customer, Agent agent) {
 		Property property = Property.builder()

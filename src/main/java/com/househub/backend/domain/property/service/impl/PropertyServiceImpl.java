@@ -2,6 +2,9 @@ package com.househub.backend.domain.property.service.impl;
 
 import java.util.List;
 
+import com.househub.backend.domain.crawlingProperty.entity.Tag;
+import com.househub.backend.domain.crawlingProperty.service.TagReader;
+import com.househub.backend.domain.property.entity.PropertyTagMap;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -34,6 +37,7 @@ public class PropertyServiceImpl implements PropertyService {
 	private final CustomerReader customerReader;
 	private final PropertyStore propertyStore;
 	private final PropertyReader propertyReader;
+	private final TagReader tagReader;
 
 	/**
 	 * 매물 등록
@@ -52,10 +56,19 @@ public class PropertyServiceImpl implements PropertyService {
 		propertyReader.validateUniqueAddressForCustomer(dto.getRoadAddress(), dto.getJibunAddress(), dto.getCustomerId());
 		// dto -> entity
 		Property property = dto.toEntity(customer, agent);
+
+		List<Tag> tagList = tagReader.findAllByIds(dto.getTagIds());
+		tagList.forEach(tag->
+				property.getPropertyTagMaps().add(
+						PropertyTagMap.builder()
+								.property(property)
+								.tag(tag)
+								.build()
+				));
 		// db에 저장
-		propertyStore.create(property);
+		Property storedProperty = propertyStore.create(property);
 		// 응답 객체 리턴
-		return new CreatePropertyResDto(property.getId());
+		return new CreatePropertyResDto(storedProperty.getId());
 	}
 
 	/**

@@ -2,8 +2,10 @@ package com.househub.backend.domain.property.entity;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
+import jakarta.persistence.*;
 import org.hibernate.annotations.SQLRestriction;
 
 import com.househub.backend.domain.agent.entity.Agent;
@@ -13,19 +15,6 @@ import com.househub.backend.domain.property.dto.UpdatePropertyReqDto;
 import com.househub.backend.domain.property.enums.PropertyDirection;
 import com.househub.backend.domain.property.enums.PropertyType;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
-import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -90,6 +79,10 @@ public class Property {
 
     @Column(precision = 10, scale = 7)
     private BigDecimal longitude; // 경도
+
+    @OneToMany(mappedBy = "property", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<PropertyTagMap> propertyTagMaps = new ArrayList<>();
 
     // 지번주소 -> 도, 시, 동 으로 파싱
     public void parseJibunAddress(String jibun) {
