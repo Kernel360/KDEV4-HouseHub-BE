@@ -2,7 +2,7 @@ package com.househub.backend.domain.property.service.impl;
 
 import java.util.List;
 
-import com.househub.backend.domain.contract.dto.CreateContractReqDto;
+import com.househub.backend.domain.contract.dto.BasicContractDto;
 import com.househub.backend.domain.contract.service.ContractStore;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -58,10 +58,9 @@ public class PropertyServiceImpl implements PropertyService {
 		// db에 저장
 		propertyStore.create(property);
 		// 계약 등록 - '계약 가능' 상태로 등록 (계약자 없음)
-		if(dto.getContract() != null) {
-			CreateContractReqDto contractReqDto = dto.getContract();
-			contractReqDto.setPropertyId(property.getId());
-			contractStore.create(contractReqDto.toEntity(property, null, agent));
+		if(dto.getContracts() != null) {
+			List<BasicContractDto> contractReqDto = dto.getContracts();
+			contractReqDto.forEach(c -> contractStore.create(c.toEntity(property, agent)));
 		}
 		// 응답 객체 리턴
 		return new CreatePropertyResDto(property.getId());

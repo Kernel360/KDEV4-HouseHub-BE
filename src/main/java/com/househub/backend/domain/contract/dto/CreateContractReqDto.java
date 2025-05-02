@@ -24,7 +24,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CreateContractReqDto {
-//    @NotNull(message = "매물 id를 입력해 주세요.")
+    @NotNull(message = "매물 id를 입력해 주세요.")
     private Long propertyId; // 매물 ID
     private Long customerId; // 고객 ID
     @NotNull(message = "거래 유형은 필수입니다.")
