@@ -5,11 +5,10 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.househub.backend.domain.crawlingProperty.entity.Tag;
+import com.househub.backend.domain.tag.entity.Tag;
 import com.househub.backend.domain.customer.dto.CustomerReqDto;
 import com.househub.backend.domain.customer.entity.Customer;
 import com.househub.backend.domain.customer.repository.CustomerRepository;
-import com.househub.backend.domain.customer.repository.CustomerTagMapRepository;
 import com.househub.backend.domain.customer.service.CustomerStore;
 
 import lombok.RequiredArgsConstructor;

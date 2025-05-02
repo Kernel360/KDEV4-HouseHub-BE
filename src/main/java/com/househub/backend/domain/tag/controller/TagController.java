@@ -1,8 +1,8 @@
-package com.househub.backend.domain.crawlingProperty.controller;
+package com.househub.backend.domain.tag.controller;
 
 import com.househub.backend.common.response.SuccessResponse;
-import com.househub.backend.domain.crawlingProperty.dto.TagResDto;
-import com.househub.backend.domain.crawlingProperty.service.TagService;
+import com.househub.backend.domain.tag.dto.TagResDto;
+import com.househub.backend.domain.tag.service.TagService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

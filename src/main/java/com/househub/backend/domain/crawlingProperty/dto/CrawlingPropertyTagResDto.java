@@ -1,7 +1,7 @@
 package com.househub.backend.domain.crawlingProperty.dto;
 
 import com.househub.backend.domain.crawlingProperty.entity.CrawlingProperty;
-import com.househub.backend.domain.crawlingProperty.entity.Tag;
+import com.househub.backend.domain.tag.entity.Tag;
 import com.househub.backend.domain.crawlingProperty.enums.Direction;
 import com.househub.backend.domain.crawlingProperty.enums.PropertyType;
 import com.househub.backend.domain.crawlingProperty.enums.TransactionType;

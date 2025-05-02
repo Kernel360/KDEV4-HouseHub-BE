@@ -5,14 +5,14 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 
 import com.househub.backend.domain.agent.entity.Agent;
-import com.househub.backend.domain.crawlingProperty.entity.Tag;
-import com.househub.backend.domain.crawlingProperty.repository.TagRepository;
 import com.househub.backend.domain.customer.dto.CustomerReqDto;
 import com.househub.backend.domain.customer.entity.Customer;
-import com.househub.backend.domain.customer.repository.CustomerTagMapRepository;
 import com.househub.backend.domain.customer.service.CustomerExecutor;
 import com.househub.backend.domain.customer.service.CustomerReader;
 import com.househub.backend.domain.customer.service.CustomerStore;
+import com.househub.backend.domain.customer.service.CustomerTagMapStore;
+import com.househub.backend.domain.tag.entity.Tag;
+import com.househub.backend.domain.tag.service.TagReader;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -22,8 +22,8 @@ import lombok.RequiredArgsConstructor;
 public class CustomerExecutorImpl implements CustomerExecutor {
 	private final CustomerReader customerReader;
 	private final CustomerStore customerStore;
-	private final TagRepository tagRepository;
-	private final CustomerTagMapRepository customerTagMapRepository;
+	private final CustomerTagMapStore customerTagMapStore;
+	private final TagReader tagReader;
 
 	@Transactional
 	@Override
@@ -49,9 +49,9 @@ public class CustomerExecutorImpl implements CustomerExecutor {
 		}
 
 		// 태그 벌크 삭제 → 즉시 반영
-		customerTagMapRepository.deleteByCustomerId(customer.getId());
+		customerTagMapStore.deleteByCustomerId(customer.getId());
 
-		List<Tag> tags = tagRepository.findAllById(request.getTagIds());
+		List<Tag> tags = tagReader.findAllById(request.getTagIds());
 		return customerStore.update(customer, request, tags);
 	}
 
