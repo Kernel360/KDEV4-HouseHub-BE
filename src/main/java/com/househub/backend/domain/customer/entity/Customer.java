@@ -117,21 +117,17 @@ public class Customer {
 		}
 		this.gender = reqDto.getGender(); // null 허용
 		this.memo = reqDto.getMemo(); // null 허용
-
-		// 기존 태그 매핑 제거
-		this.customerTagMaps.clear();
 		
-		// 새로운 태그 매핑 추가
-		if (newTags != null) {
-			for(Tag tag : newTags) {
-				if (tag != null) {
-					this.customerTagMaps.add(CustomerTagMap.builder()
-							.tag(tag)
-							.customer(this)
-							.build());
-				}
-			}
-		}
+		newTags.forEach(this::addTag);
+	}
+
+	private void addTag(Tag tag) {
+		this.customerTagMaps.add(
+			CustomerTagMap.builder()
+				.tag(tag)
+				.customer(this)
+				.build()
+		);
 	}
 
 	public void softDelete() {

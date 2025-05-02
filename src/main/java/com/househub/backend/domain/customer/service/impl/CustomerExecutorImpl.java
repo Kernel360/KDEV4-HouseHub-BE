@@ -5,11 +5,11 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 
 import com.househub.backend.domain.agent.entity.Agent;
-import com.househub.backend.domain.consultation.service.ConsultationService;
 import com.househub.backend.domain.crawlingProperty.entity.Tag;
 import com.househub.backend.domain.crawlingProperty.repository.TagRepository;
 import com.househub.backend.domain.customer.dto.CustomerReqDto;
 import com.househub.backend.domain.customer.entity.Customer;
+import com.househub.backend.domain.customer.repository.CustomerTagMapRepository;
 import com.househub.backend.domain.customer.service.CustomerExecutor;
 import com.househub.backend.domain.customer.service.CustomerReader;
 import com.househub.backend.domain.customer.service.CustomerStore;
@@ -23,6 +23,7 @@ public class CustomerExecutorImpl implements CustomerExecutor {
 	private final CustomerReader customerReader;
 	private final CustomerStore customerStore;
 	private final TagRepository tagRepository;
+	private final CustomerTagMapRepository customerTagMapRepository;
 
 	@Transactional
 	@Override
@@ -46,6 +47,10 @@ public class CustomerExecutorImpl implements CustomerExecutor {
 		if (!customer.getContact().equals(request.getContact())) {
 			customerReader.checkDuplicatedByContact(request.getContact(), agent.getId());
 		}
+
+		// 태그 벌크 삭제 → 즉시 반영
+		customerTagMapRepository.deleteByCustomerId(customer.getId());
+
 		List<Tag> tags = tagRepository.findAllById(request.getTagIds());
 		return customerStore.update(customer, request, tags);
 	}
