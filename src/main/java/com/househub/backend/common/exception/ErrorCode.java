@@ -22,7 +22,7 @@ public enum ErrorCode {
 	MISSING_CUSTOMER_INFORMATION(HttpStatus.BAD_REQUEST, "MISSING_CUSTOMER_INFORMATION",
 		"기존 고객 ID 또는 신규 고객 정보 중 하나는 필수입니다."),
 	CONFLICT_CUSTOMER_CONTACT(HttpStatus.CONFLICT,
-		"CONFLICT_CUSTOMER_CONTACT", "이미 등록된 연락처입니다. 기존 고객을 찾아 선택하세요.");
+		"CONFLICT_CUSTOMER_CONTACT", "이미 등록된 연락처입니다. 기존 고객을 찾아 선택하세요."),
 	INVALID_INQUIRY_TYPE(HttpStatus.BAD_REQUEST, "INVALID_INQUIRY_TYPE", "유효하지 않은 문의 유형입니다."),
 	INVALID_INQUIRY_TEMPLATE_TITLE_MODIFICATION(
 		HttpStatus.BAD_REQUEST,
@@ -33,7 +33,8 @@ public enum ErrorCode {
 		HttpStatus.BAD_REQUEST,
 		"INVALID_INQUIRY_TEMPLATE_TYPE_MODIFICATION",
 		"기존 템플릿의 유형은 수정할 수 없습니다."
-	);
+	),
+	INVALID_YEAR_MONTH(HttpStatus.BAD_REQUEST, "INVALID_YEAR_MONTH", "yearMonth는 yyyy-MM 형식이어야 합니다.");
 
 	private final HttpStatus httpStatus;
 	private final String code;   // 프론트에서 오류 코드 구분용 (예: AUTH_CODE_INVALID)
