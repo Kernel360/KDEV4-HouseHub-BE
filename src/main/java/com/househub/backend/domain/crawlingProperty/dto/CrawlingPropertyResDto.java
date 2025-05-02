@@ -1,15 +1,11 @@
 package com.househub.backend.domain.crawlingProperty.dto;
 
 import com.househub.backend.domain.crawlingProperty.entity.CrawlingProperty;
-import com.househub.backend.domain.crawlingProperty.entity.Tag;
 import com.househub.backend.domain.crawlingProperty.enums.Direction;
 import com.househub.backend.domain.crawlingProperty.enums.PropertyType;
 import com.househub.backend.domain.crawlingProperty.enums.TransactionType;
 import lombok.Builder;
 import lombok.Getter;
-
-import java.util.List;
-import java.util.Map;
 
 @Builder
 @Getter

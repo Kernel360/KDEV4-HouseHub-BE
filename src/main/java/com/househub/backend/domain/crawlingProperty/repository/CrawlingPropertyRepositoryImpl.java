@@ -1,11 +1,11 @@
 package com.househub.backend.domain.crawlingProperty.repository;
 
-import com.househub.backend.domain.crawlingProperty.dto.CrawlingPropertyResDto;
-import com.househub.backend.domain.crawlingProperty.dto.CrawlingPropertyTagListResDto;
 import com.househub.backend.domain.crawlingProperty.dto.CrawlingPropertyTagResDto;
 import com.househub.backend.domain.crawlingProperty.entity.*;
 import com.househub.backend.domain.crawlingProperty.enums.PropertyType;
 import com.househub.backend.domain.crawlingProperty.enums.TransactionType;
+import com.househub.backend.domain.tag.entity.QTag;
+import com.househub.backend.domain.tag.entity.Tag;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;

@@ -53,7 +53,7 @@ public interface InquiryRepository extends JpaRepository<Inquiry, Long> {
 		""")
 	Page<Inquiry> findInquiriesWithCustomer(
 		@Param("agentId") Long agentId,
-		@Param("customer") Long customerId,
+		@Param("customerId") Long customerId,
 		Pageable pageable
 	);
 }
