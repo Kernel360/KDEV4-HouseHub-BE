@@ -2,8 +2,10 @@ package com.househub.backend.domain.property.entity;
 
 import com.househub.backend.domain.tag.entity.Tag;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "property_tag_map", uniqueConstraints = {
@@ -11,6 +13,8 @@ import lombok.Getter;
 })
 @Getter
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class PropertyTagMap {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

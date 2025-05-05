@@ -37,7 +37,7 @@ public class FindPropertyDetailResDto {
     private List<TagResDto> tags;
 
     // Entity -> DTO 변환
-    public static FindPropertyDetailResDto toDto(Property property) {
+    public static FindPropertyDetailResDto fromEntity(Property property) {
         return FindPropertyDetailResDto.builder()
                 .id(property.getId())
                 .propertyType(property.getPropertyType())

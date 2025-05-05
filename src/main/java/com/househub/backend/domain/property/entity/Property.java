@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.househub.backend.domain.tag.entity.Tag;
 import jakarta.persistence.*;
 import org.hibernate.annotations.SQLRestriction;
 
@@ -109,6 +110,15 @@ public class Property {
 
     public void disable() {
         this.active = false;
+    }
+
+    public void addTags(List<Tag> tags) {
+        tags.forEach(t -> this.propertyTagMaps.add(
+                PropertyTagMap.builder()
+                        .tag(t)
+                        .property(this)
+                        .build()
+        ));
     }
 
     public void update(UpdatePropertyReqDto updateDto, Customer customer) {

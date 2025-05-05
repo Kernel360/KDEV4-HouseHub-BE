@@ -40,6 +40,7 @@ public class CreatePropertyReqDto {
 	private Integer roomCnt; // 방 개수
 	private Boolean active; // 매물이 계약 가능한지 여부
 	private BasicContractDto contract;
+	private List<Long> tagIds;
 
 	public Property toEntity(Customer customer, Agent agent) {
 		Property property = Property.builder()
