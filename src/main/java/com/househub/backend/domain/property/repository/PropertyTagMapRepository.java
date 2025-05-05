@@ -8,6 +8,6 @@ import org.springframework.data.repository.query.Param;
 
 public interface PropertyTagMapRepository extends JpaRepository<PropertyTagMap, Long> {
     @Modifying
-    @Query("DELETE FROM CustomerTagMap c WHERE c.customer.id = :customerId")
+    @Query("DELETE FROM PropertyTagMap p WHERE p.property.id = :propertyId")
     void deleteByPropertyId(@Param("propertyId") Long propertyId);
 }
