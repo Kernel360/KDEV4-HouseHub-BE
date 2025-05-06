@@ -17,4 +17,6 @@ public interface AgentRepository extends JpaRepository<Agent, Long> {
 	boolean existsByIdAndStatus(Long agentId, AgentStatus status);
 
 	boolean existsByEmail(String email);
+
+	boolean existsByLicenseNumber(String licenseNumber);
 }

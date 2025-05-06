@@ -21,4 +21,15 @@ public class AgentReaderImpl implements AgentReader {
 		return agentRepository.findByIdAndStatus(agentId, AgentStatus.ACTIVE)
 			.orElseThrow(() -> new ResourceNotFoundException("해당 중개사를 찾을 수 없습니다.", "AGENT_NOT_FOUND"));
 	}
+
+	@Override
+	public boolean existsByEmail(String email) {
+		return agentRepository.existsByEmail(email);
+	}
+
+	@Override
+	public boolean existsByLicenseNumber(String licenseNumber) {
+		return agentRepository.existsByLicenseNumber(licenseNumber);
+	}
+
 }
