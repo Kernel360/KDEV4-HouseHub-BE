@@ -32,4 +32,9 @@ public class AgentReaderImpl implements AgentReader {
 		return agentRepository.existsByLicenseNumber(licenseNumber);
 	}
 
+	@Override
+	public Agent findByContact(String contact) {
+		return agentRepository.findByContact(contact);
+	}
+
 }

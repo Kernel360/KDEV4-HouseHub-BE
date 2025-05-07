@@ -2,11 +2,10 @@ package com.househub.backend.domain.sms.service.impl;
 
 import org.springframework.stereotype.Component;
 
-import com.househub.backend.domain.customer.entity.Customer;
 import com.househub.backend.domain.sms.dto.AligoSmsResDto;
 import com.househub.backend.domain.sms.dto.SendSmsReqDto;
 import com.househub.backend.domain.sms.entity.Sms;
-import com.househub.backend.domain.sms.service.AligoService;
+import com.househub.backend.domain.sms.service.AligoGateway;
 import com.househub.backend.domain.sms.service.SmsExecutor;
 
 import lombok.RequiredArgsConstructor;
@@ -14,17 +13,16 @@ import lombok.RequiredArgsConstructor;
 @Component
 @RequiredArgsConstructor
 public class SmsExecutorImpl implements SmsExecutor {
-
-	private final AligoService aligoService;
+	private final AligoGateway aligoGateway;
 
 	@Override
 	public boolean resend(Sms log) {
-		AligoSmsResDto result = aligoService.sendSms(SendSmsReqDto.fromEntity(log));
+		AligoSmsResDto result = aligoGateway.sendApiRequest(SendSmsReqDto.fromEntity(log));
 		return result.getResultCode() == 1;
 	}
 
 	// @Override
-	// public Sms sendContractExpireNotification(Customer customer) {
+	// public Sms sendContractExpire(Customer customer) {
 	// 	return ;
 	// }
 }

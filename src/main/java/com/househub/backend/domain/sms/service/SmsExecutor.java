@@ -6,5 +6,5 @@ import com.househub.backend.domain.sms.entity.Sms;
 public interface SmsExecutor {
 	boolean resend(Sms log);
 
-	// Sms sendContractExpireNotification(Customer customer);
+	// Sms sendContractExpire(Customer customer);
 }
