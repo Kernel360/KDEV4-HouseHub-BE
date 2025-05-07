@@ -21,7 +21,7 @@ public class SmsJobScheduler {
 	@Qualifier("smsResendJob")
 	private final Job smsResendJob;
 
-	@Scheduled(cron = "0 0/1 * * * *")
+	@Scheduled(cron = "0 0 0 * * *")
 	public void runSmsResendJob() {
 		try {
 			JobParameters parameters = new JobParametersBuilder()

@@ -1,39 +1,20 @@
 package com.househub.backend.domain.contract.service;
 
-import static org.assertj.core.api.AssertionsForClassTypes.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.eq;
 
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 
-import com.househub.backend.common.exception.AlreadyExistsException;
-import com.househub.backend.common.exception.ResourceNotFoundException;
 import com.househub.backend.domain.agent.entity.Agent;
-import com.househub.backend.domain.agent.entity.AgentStatus;
+import com.househub.backend.domain.agent.enums.AgentStatus;
 import com.househub.backend.domain.agent.entity.RealEstate;
 import com.househub.backend.domain.agent.repository.AgentRepository;
-import com.househub.backend.domain.contract.dto.ContractListResDto;
-import com.househub.backend.domain.contract.dto.CreateContractReqDto;
-import com.househub.backend.domain.contract.dto.ContractSearchDto;
-import com.househub.backend.domain.contract.dto.CreateContractResDto;
 import com.househub.backend.domain.contract.entity.Contract;
-import com.househub.backend.domain.contract.enums.ContractStatus;
-import com.househub.backend.domain.contract.enums.ContractType;
 import com.househub.backend.domain.contract.repository.ContractRepository;
 import com.househub.backend.domain.contract.service.impl.ContractServiceImpl;
 import com.househub.backend.domain.customer.entity.Customer;
