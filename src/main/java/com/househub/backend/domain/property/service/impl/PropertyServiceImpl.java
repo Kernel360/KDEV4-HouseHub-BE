@@ -2,7 +2,7 @@ package com.househub.backend.domain.property.service.impl;
 
 import java.util.List;
 
-import com.househub.backend.domain.contract.dto.BasicContractDto;
+import com.househub.backend.domain.contract.dto.BasicContractReqDto;
 import com.househub.backend.domain.contract.service.ContractStore;
 import com.househub.backend.domain.property.service.PropertyTagMapStore;
 import com.househub.backend.domain.property.validator.PropertyValidator;
@@ -68,7 +68,7 @@ public class PropertyServiceImpl implements PropertyService {
 		propertyStore.addTag(property, tags);
 		// 계약 등록 - '계약 가능' 상태로 등록 (계약자 없음)
 		if(dto.getContract() != null) {
-			BasicContractDto contractReqDto = dto.getContract();
+			BasicContractReqDto contractReqDto = dto.getContract();
 			contractStore.create(contractReqDto.toEntity(property, agent));
 			property.enable();
 		}

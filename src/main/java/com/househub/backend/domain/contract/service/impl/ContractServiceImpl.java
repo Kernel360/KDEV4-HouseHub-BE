@@ -118,7 +118,7 @@ public class ContractServiceImpl implements ContractService {
 		// 해당 공인중개사가 체결한 계약만 조회
 		Page<Contract> contractPage = contractReader.findPageBySearchDto(searchDto, pageable, agent.getId());
 		// 계약 엔티티를 dto 로 변환하여 리스트로 반환
-		Page<FindContractResDto> response = contractPage.map(FindContractResDto::toDto);
+		Page<FindContractResDto> response = contractPage.map(FindContractResDto::fromEntity);
 		return ContractListResDto.fromPage(response);
 	}
 
@@ -133,7 +133,7 @@ public class ContractServiceImpl implements ContractService {
 			pageable
 		);
 		// 계약 엔티티를 dto 로 변환하여 리스트로 반환
-		Page<FindContractResDto> response = contractPage.map(FindContractResDto::toDto);
+		Page<FindContractResDto> response = contractPage.map(FindContractResDto::fromEntity);
 		return ContractListResDto.fromPage(response);
 	}
 
@@ -147,7 +147,7 @@ public class ContractServiceImpl implements ContractService {
 			pageable
 		);
 
-		Page<FindContractResDto> response = contractPage.map(FindContractResDto::toDto);
+		Page<FindContractResDto> response = contractPage.map(FindContractResDto::fromEntity);
 		return ContractListResDto.fromPage(response);
 	}
 
@@ -161,7 +161,7 @@ public class ContractServiceImpl implements ContractService {
 	@Transactional(readOnly = true)
 	public FindContractResDto findContract(Long id, AgentResDto agentDto) {
 		Contract contract = contractReader.findByIdOrThrow(id, agentDto.getId());
-		return FindContractResDto.toDto(contract);
+		return FindContractResDto.fromEntity(contract);
 	}
 
 	/**

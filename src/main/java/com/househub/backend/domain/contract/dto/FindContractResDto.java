@@ -15,6 +15,13 @@ import lombok.Getter;
 @Getter
 @Builder
 public class FindContractResDto {
+//    <매물 정보>
+//    매물 도로명 주소, 상세주소
+//
+//    <계약자 정보>
+//            계약자 이름, 연락처
+//>여기를 매매면 매도/매수
+//    임대/임차
     private Long id; // 계약 ID
     private GetMyInfoResDto agent;
     private FindPropertyResDto property; // 매물
@@ -31,7 +38,7 @@ public class FindContractResDto {
     private String monthlyRentFee; // 월세 금액
     private String monthlyRentDeposit; // 월세 보증금
 
-    private ContractStatus status; // 계약 상태 (ON_SALE, SOLD_OUT)
+    private ContractStatus status; // 계약 상태
     private String memo; // 계약 관련 메모
     private LocalDate startedAt; // 계약 시작 일시
     private LocalDate expiredAt; // 계약 만료 일시
@@ -39,7 +46,7 @@ public class FindContractResDto {
     // private Boolean active; // 계약 활성화 여부
 
     // Contract 엔티티를 DTO로 변환
-    public static FindContractResDto toDto(Contract contract) {
+    public static FindContractResDto fromEntity(Contract contract) {
         return FindContractResDto.builder()
                 .id(contract.getId())
                 .agent(GetMyInfoResDto.from(contract.getAgent()))
