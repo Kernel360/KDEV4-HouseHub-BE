@@ -65,7 +65,7 @@ public class Property {
     private Integer roomCnt; // 방 개수
 
     @Column(nullable = false)
-    private Boolean active; // 매물이 계약 가능한지 여부 default : true (계약이 없는 경우 true)
+    private Boolean active = false; // 매물이 계약 가능한지 여부 default : false (계약이 없는 경우 false)
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt; // 등록일시

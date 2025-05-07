@@ -5,6 +5,7 @@ import java.util.List;
 import com.househub.backend.domain.contract.dto.BasicContractDto;
 import com.househub.backend.domain.contract.service.ContractStore;
 import com.househub.backend.domain.property.service.PropertyTagMapStore;
+import com.househub.backend.domain.property.validator.PropertyValidator;
 import com.househub.backend.domain.tag.entity.Tag;
 import com.househub.backend.domain.tag.service.TagReader;
 import org.springframework.data.domain.Page;
@@ -42,6 +43,7 @@ public class PropertyServiceImpl implements PropertyService {
 	private final PropertyReader propertyReader;
 	private final PropertyTagMapStore propertyTagMapStore;
 	private final TagReader tagReader;
+	private final PropertyValidator propertyValidator;
 
 	/**
 	 * 매물 등록
@@ -57,7 +59,7 @@ public class PropertyServiceImpl implements PropertyService {
 		// 의뢰인(임대인 또는 매도인) 존재 여부 확인
 		Customer customer = customerReader.findByIdOrThrow(dto.getCustomerId(), agentDto.getId());
 		// 동일한 고객이 동일한 주소의 매물을 등록할 수 없도록 처리
-		propertyReader.validateUniqueAddressForCustomer(dto.getRoadAddress(), dto.getJibunAddress(), dto.getCustomerId());
+		propertyValidator.validateUniqueAddressForCustomer(dto.getRoadAddress(), dto.getJibunAddress(), dto.getCustomerId());
 		// dto -> entity
 		Property property = dto.toEntity(customer, agent);
 		// db에 저장
@@ -68,6 +70,7 @@ public class PropertyServiceImpl implements PropertyService {
 		if(dto.getContract() != null) {
 			BasicContractDto contractReqDto = dto.getContract();
 			contractStore.create(contractReqDto.toEntity(property, agent));
+			property.enable();
 		}
 		// 응답 객체 리턴
 		return new CreatePropertyResDto(property.getId());
@@ -130,21 +133,19 @@ public class PropertyServiceImpl implements PropertyService {
 	public void updateProperty(Long propertyId, UpdatePropertyReqDto updateDto, AgentResDto agentDto) {
 		// 의뢰인(임대인 또는 매도인) 존재 여부 확인
 		Customer customer = null;
+		// 의뢰인을 수정한 경우
 		if(updateDto.getCustomerId() != null) {
 			customer = customerReader.findByIdOrThrow(updateDto.getCustomerId(), agentDto.getId());
 		}
 		// 매물 조회
 		Property property = propertyReader.findByIdOrThrow(propertyId, agentDto.getId());
 		// 매물의 고객 ID나 매물 주소가 변경된 경우, 동일한 고객이 동일한 주소의 매물을 등록할 수 없도록 처리
-		if ((updateDto.getRoadAddress() != null && updateDto.getRoadAddress() != property.getRoadAddress()) ||
-			(updateDto.getDetailAddress() != null && updateDto.getDetailAddress() != property.getDetailAddress()) ||
-			(updateDto.getCustomerId() != null && updateDto.getCustomerId() != property.getCustomer().getId())) {
-			propertyReader.validateUniqueAddressForCustomer(updateDto.getRoadAddress(), updateDto.getDetailAddress(), updateDto.getCustomerId());
+		propertyValidator.validateUniqueAddressOnUpdate(updateDto, property);
+		if(updateDto.getTagIds() != null) {
+			propertyTagMapStore.deleteByPropertyId(propertyId);
+			List<Tag> tags = tagReader.findAllById(updateDto.getTagIds());
+			propertyStore.addTag(property, tags);
 		}
-
-		propertyTagMapStore.deleteByPropertyId(propertyId);
-		List<Tag> tags = tagReader.findAllById(updateDto.getTagIds());
-		propertyStore.addTag(property, tags);
 		propertyStore.update(updateDto, property, customer);
 	}
 
