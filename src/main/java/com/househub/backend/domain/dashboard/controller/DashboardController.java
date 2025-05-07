@@ -1,15 +1,24 @@
 package com.househub.backend.domain.dashboard.controller;
 
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.househub.backend.common.exception.BusinessException;
+import com.househub.backend.common.exception.ErrorCode;
 import com.househub.backend.common.response.SuccessResponse;
 import com.househub.backend.common.util.SecurityUtil;
+import com.househub.backend.domain.contract.dto.ExpiringContractListResDto;
 import com.househub.backend.domain.dashboard.dto.ChartDataResDto;
 import com.househub.backend.domain.dashboard.dto.DashboardStatsResDto;
 import com.househub.backend.domain.dashboard.dto.MultiDatasetChartResDto;
@@ -93,6 +102,21 @@ public class DashboardController {
 			chartData));
 	}
 
+	@GetMapping("/contracts/expiring")
+	public ResponseEntity<SuccessResponse<ExpiringContractListResDto>> getExpiringContractsForDashboard(
+		@RequestParam("yearMonth") String yearMonth,
+		@RequestParam(value = "page", defaultValue = "1") int page,
+		@RequestParam(value = "size", defaultValue = "10") int size
+	) {
+		validateYearMonthFormat(yearMonth);
+		Pageable pageable = PageRequest.of(page - 1, size, Sort.by("expiredAt").ascending());
+		ExpiringContractListResDto result = dashboardService.getExpiringContracts(yearMonth,
+			SecurityUtil.getAuthenticatedAgent(), pageable);
+		return ResponseEntity.ok(SuccessResponse.success("계약 만료 목록 조회 성공", "EXPIRING_CONTRACT_LIST_SUCCESS", result));
+	}
+
+	@GetMapping("/contracts/expiring/counts")
+
 	/**
 	 * 현재 로그인한 에이전트의 ID를 반환합니다.
 	 *
@@ -100,5 +124,13 @@ public class DashboardController {
 	 */
 	private Long getSignInAgentId() {
 		return SecurityUtil.getAuthenticatedAgent().getId();
+	}
+
+	private void validateYearMonthFormat(String yearMonth) {
+		try {
+			YearMonth.parse(yearMonth, DateTimeFormatter.ofPattern("yyyy-MM"));
+		} catch (DateTimeParseException e) {
+			throw new BusinessException(ErrorCode.INVALID_YEAR_MONTH);
+		}
 	}
 }

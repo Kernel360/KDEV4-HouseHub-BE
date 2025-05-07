@@ -34,7 +34,8 @@ public enum ErrorCode {
 		HttpStatus.BAD_REQUEST,
 		"INVALID_INQUIRY_TEMPLATE_TYPE_MODIFICATION",
 		"기존 템플릿의 유형은 수정할 수 없습니다."
-	);
+	),
+	INVALID_YEAR_MONTH(HttpStatus.BAD_REQUEST, "INVALID_YEAR_MONTH", "yearMonth는 yyyy-MM 형식이어야 합니다.");
 
 	private final HttpStatus httpStatus;
 	private final String code;   // 프론트에서 오류 코드 구분용 (예: AUTH_CODE_INVALID)
