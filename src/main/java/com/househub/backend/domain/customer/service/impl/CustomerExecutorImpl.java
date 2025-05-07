@@ -1,16 +1,22 @@
 package com.househub.backend.domain.customer.service.impl;
 
+import java.util.List;
+
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.househub.backend.domain.agent.entity.Agent;
-import com.househub.backend.domain.consultation.service.ConsultationService;
 import com.househub.backend.domain.customer.dto.CustomerReqDto;
 import com.househub.backend.domain.customer.entity.Customer;
+import com.househub.backend.domain.customer.entity.CustomerTagMap;
 import com.househub.backend.domain.customer.service.CustomerExecutor;
 import com.househub.backend.domain.customer.service.CustomerReader;
 import com.househub.backend.domain.customer.service.CustomerStore;
+import com.househub.backend.domain.customer.service.CustomerTagMapStore;
+import com.househub.backend.domain.tag.entity.Tag;
+import com.househub.backend.domain.tag.service.TagReader;
+import com.househub.backend.domain.tag.service.TagStore;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Component
@@ -18,7 +24,9 @@ import lombok.RequiredArgsConstructor;
 public class CustomerExecutorImpl implements CustomerExecutor {
 	private final CustomerReader customerReader;
 	private final CustomerStore customerStore;
-	private final ConsultationService consultationService;
+	private final CustomerTagMapStore customerTagMapStore;
+	private final TagReader tagReader;
+	private final TagStore tagStore;
 
 	@Transactional
 	@Override
@@ -37,12 +45,30 @@ public class CustomerExecutorImpl implements CustomerExecutor {
 	}
 
 	@Override
+	public Customer addTagsToCustomer(Customer customer, List<Long> tagIds) {
+		List<Tag> tagList = tagStore.findAllById(tagIds);
+		tagList.forEach(tag ->
+			customer.getCustomerTagMaps().add(
+				CustomerTagMap.builder()
+					.customer(customer)
+					.tag(tag)
+					.build()
+			));
+		return customer;
+	}
+
+	@Override
 	public Customer validateAndUpdate(Long id, CustomerReqDto request, Agent agent) {
 		Customer customer = customerReader.findByIdOrThrow(id, agent.getId());
 		if (!customer.getContact().equals(request.getContact())) {
 			customerReader.checkDuplicatedByContact(request.getContact(), agent.getId());
 		}
-		return customerStore.update(customer, request);
+
+		// 태그 벌크 삭제 → 즉시 반영
+		customerTagMapStore.deleteByCustomerId(customer.getId());
+
+		List<Tag> tags = tagReader.findAllById(request.getTagIds());
+		return customerStore.update(customer, request, tags);
 	}
 
 	@Override
