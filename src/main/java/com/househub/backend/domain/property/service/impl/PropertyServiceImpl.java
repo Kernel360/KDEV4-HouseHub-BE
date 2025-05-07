@@ -75,12 +75,10 @@ public class PropertyServiceImpl implements PropertyService {
 	@Transactional(readOnly = true)
 	@Override
 	public FindPropertyDetailResDto findProperty(Long id, AgentResDto agentDto) {
-		log.info("service impl findProperty: {}", id);
 		// 매물 조회
 		Property property = propertyReader.findByIdOrThrow(id, agentDto.getId());
-		log.info("service impl findProperty property: {}", property);
 		// entity -> dto
-		return FindPropertyDetailResDto.toDto(property);
+		return FindPropertyDetailResDto.fromEntity(property);
 	}
 
 	/**

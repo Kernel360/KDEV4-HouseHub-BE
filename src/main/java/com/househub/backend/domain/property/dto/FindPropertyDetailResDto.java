@@ -34,7 +34,7 @@ public class FindPropertyDetailResDto {
     private Integer roomCnt; // 방 개수
 
     // Entity -> DTO 변환
-    public static FindPropertyDetailResDto toDto(Property property) {
+    public static FindPropertyDetailResDto fromEntity(Property property) {
         return FindPropertyDetailResDto.builder()
                 .id(property.getId())
                 .propertyType(property.getPropertyType())

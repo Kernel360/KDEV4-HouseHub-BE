@@ -32,10 +32,8 @@ public class ContractController {
 	@PostMapping
 	public ResponseEntity<SuccessResponse<CreateContractResDto>> createContract(
 		@RequestBody @Valid CreateContractReqDto contractReqDto) {
-		log.info("createContract: {}", contractReqDto);
 		AgentResDto agentDto = SecurityUtil.getAuthenticatedAgent();
 		CreateContractResDto response = contractService.createContract(contractReqDto, agentDto);
-		log.info("createContract response: {}", response);
 		return ResponseEntity.ok(SuccessResponse.success("계약이 성공적으로 등록되었습니다.", "CREATE_CONTRACT_SUCCESS", response));
 	}
 
