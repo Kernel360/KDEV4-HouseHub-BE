@@ -5,6 +5,8 @@ import com.househub.backend.domain.property.enums.PropertyType;
 
 import lombok.Getter;
 
+import java.util.List;
+
 @Getter
 public class UpdatePropertyReqDto {
 	private Long customerId; // 의뢰인 ID
@@ -20,4 +22,5 @@ public class UpdatePropertyReqDto {
 	private Integer bathroomCnt; // 욕실 개수
 	private Integer roomCnt; // 방 개수
 	private Boolean active; // 매물이 계약 가능한지 여부
+	private List<Long> tagIds;
 }
