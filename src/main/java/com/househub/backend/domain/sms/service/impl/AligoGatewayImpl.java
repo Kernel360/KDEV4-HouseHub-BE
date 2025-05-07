@@ -20,6 +20,7 @@ import com.househub.backend.domain.sms.dto.AligoHistoryResDto;
 import com.househub.backend.domain.sms.dto.AligoSmsResDto;
 import com.househub.backend.domain.sms.dto.SendSmsReqDto;
 import com.househub.backend.domain.sms.service.AligoGateway;
+import com.househub.backend.domain.sms.utils.MessageFormatter;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +31,7 @@ import lombok.extern.slf4j.Slf4j;
 public class AligoGatewayImpl implements AligoGateway {
 
 	private final RestTemplate restTemplate;
+	private final MessageFormatter formatter;
 
 	@Value("${aligo.apikey}")
 	private String apiKey;
@@ -82,7 +84,7 @@ public class AligoGatewayImpl implements AligoGateway {
 
 		params.add("sender", commonSender);
 		params.add("receiver", request.getReceiver());
-		params.add("msg", request.getMsg());
+		params.add("msg", formatter.addAgentInfo(request.getMsg(), request.getSender()));
 
 		if(request.getMsgType() != null) {
 			params.add("msg_type", request.getMsgType().toString());

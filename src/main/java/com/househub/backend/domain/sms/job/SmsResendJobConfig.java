@@ -94,7 +94,7 @@ public class SmsResendJobConfig {
 				.map(entityManager::merge)
 				.collect(Collectors.toCollection(ArrayList::new));
 
-			smsStore.updateAll(mergedSmsList);
+			smsStore.saveAll(mergedSmsList);
 		};
 	}
 

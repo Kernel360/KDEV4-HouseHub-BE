@@ -2,6 +2,7 @@ package com.househub.backend.domain.sms.service.impl;
 
 import org.springframework.stereotype.Component;
 
+import com.househub.backend.domain.customer.entity.Customer;
 import com.househub.backend.domain.sms.dto.AligoSmsResDto;
 import com.househub.backend.domain.sms.dto.SendSmsReqDto;
 import com.househub.backend.domain.sms.entity.Sms;
@@ -21,8 +22,10 @@ public class SmsExecutorImpl implements SmsExecutor {
 		return result.getResultCode() == 1;
 	}
 
-	// @Override
-	// public Sms sendContractExpire(Customer customer) {
-	// 	return ;
-	// }
+	@Override
+	public boolean sendNew(SendSmsReqDto request) {
+		AligoSmsResDto result = aligoGateway.sendApiRequest(request);
+		return result.getResultCode() == 1;
+	}
+
 }

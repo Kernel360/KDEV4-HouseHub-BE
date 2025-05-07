@@ -26,7 +26,6 @@ public class AligoServiceImpl implements AligoService {
 	private final MessageFormatter formatter;
 
 	public AligoSmsResDto sendSms(SendSmsReqDto request) {
-		request.setMsg(formatter.addAgentInfo(request.getMsg(), request.getSender()));
 		request.setMsgType(request.getMsgType());
 		request.setTitle(processTitle(request.getTitle(), request.getMsgType().toString()));
 

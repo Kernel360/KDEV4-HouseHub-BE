@@ -1,5 +1,6 @@
 package com.househub.backend.domain.contract.repository;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -63,6 +64,11 @@ public interface ContractRepository extends JpaRepository<Contract, Long> {
 		Long agentId,
 		LocalDateTime startDate,
 		LocalDateTime endDate
+	);
+
+	List<Contract> findAllByExpiredAtBetween(
+		LocalDate startDate,
+		LocalDate endDate
 	);
 
 	@Query("SELECT c FROM Contract c " +

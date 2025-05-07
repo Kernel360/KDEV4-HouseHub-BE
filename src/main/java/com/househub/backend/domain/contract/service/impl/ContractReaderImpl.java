@@ -1,5 +1,7 @@
 package com.househub.backend.domain.contract.service.impl;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -73,5 +75,11 @@ public class ContractReaderImpl implements ContractReader {
 			propertyIds,
 			pageable
 		);
+	}
+
+	@Override
+	public List<Contract> findAllByExpiredAtBetween(LocalDate startDate,
+		LocalDate endDate) {
+		return contractRepository.findAllByExpiredAtBetween(startDate, endDate);
 	}
 }

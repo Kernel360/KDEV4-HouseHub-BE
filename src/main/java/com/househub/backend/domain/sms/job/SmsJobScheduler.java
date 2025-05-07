@@ -21,21 +21,33 @@ public class SmsJobScheduler {
 	@Qualifier("smsResendJob")
 	private final Job smsResendJob;
 
+	@Qualifier("contractExpireSmsJob")
+	private final Job contractExpireSmsJob;
+
 	@Scheduled(cron = "0 0 0 * * *")
 	public void runSmsResendJob() {
+		executeJob(smsResendJob, "SMS 재전송 Job");
+	}
+
+	// 계약 종료일 3달 전인 고객에게 문자로 알림을 보냄
+	@Scheduled(cron = "0 0 0 1 * *")
+	public void runContractExpireSmsJob(){
+		executeJob(contractExpireSmsJob,"계약 만료 알림 SMS 전송 Job");
+	}
+
+	private void executeJob(Job job, String jobName) {
 		try {
 			JobParameters parameters = new JobParametersBuilder()
 				.addLong("runtime", System.currentTimeMillis())
 				.toJobParameters();
 
-			jobLauncher.run(smsResendJob, parameters);
+			log.info("{} 시작", jobName);
+			jobLauncher.run(job, parameters);
+			log.info("{} 완료", jobName);
 		} catch (Exception e) {
-			log.error("Job 실행 실패: {}", e.getMessage());
+			log.error("{} 실행 실패: {}", jobName, e.getMessage());
 		}
 	}
-
-	// 계약 종료일 3달 전인 고객에게 문자로 알림을 보냄
-
 
 	// 생일 대상자인 고객에게 축하 메세지 자동 전송
 

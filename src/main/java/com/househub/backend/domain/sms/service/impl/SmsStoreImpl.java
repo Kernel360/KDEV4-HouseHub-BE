@@ -24,7 +24,7 @@ public class SmsStoreImpl implements SmsStore {
 
 	@StepScope
 	@Override
-	public void updateAll(List<? extends Sms> logs) {
+	public void saveAll(List<? extends Sms> logs) {
 		smsRepository.saveAll(logs);
 	}
 }
