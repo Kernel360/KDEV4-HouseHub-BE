@@ -65,6 +65,7 @@ public class Property {
     private Integer roomCnt; // 방 개수
 
     @Column(nullable = false)
+    @Builder.Default
     private Boolean active = false; // 매물이 계약 가능한지 여부 default : false (계약이 없는 경우 false)
 
     @Column(nullable = false, updatable = false)
