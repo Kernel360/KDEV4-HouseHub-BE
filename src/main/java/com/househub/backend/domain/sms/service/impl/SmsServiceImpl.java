@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import com.househub.backend.common.exception.SmsSendFailException;
 import com.househub.backend.domain.agent.dto.AgentResDto;
 import com.househub.backend.domain.agent.entity.Agent;
-import com.househub.backend.domain.sms.dto.AligoHistoryResDto;
 import com.househub.backend.domain.sms.dto.AligoSmsResDto;
 import com.househub.backend.domain.sms.dto.SendSmsReqDto;
 import com.househub.backend.domain.sms.dto.SendSmsResDto;
@@ -22,6 +21,7 @@ import com.househub.backend.domain.sms.entity.SmsTemplate;
 import com.househub.backend.domain.sms.enums.MessageType;
 import com.househub.backend.domain.sms.enums.SmsStatus;
 import com.househub.backend.domain.sms.service.AligoService;
+import com.househub.backend.domain.sms.service.SmsExecutor;
 import com.househub.backend.domain.sms.service.SmsReader;
 import com.househub.backend.domain.sms.service.SmsService;
 import com.househub.backend.domain.sms.service.SmsStore;
@@ -37,6 +37,7 @@ public class SmsServiceImpl implements SmsService {
 	private final AligoService aligoService;
 	private final SmsStore smsStore;
 	private final SmsReader smsReader;
+	private final SmsExecutor smsExecutor;
 	private final SmsTemplateReader smsTemplateReader;
 	private final MessageFormatter messageFormatter;
 
@@ -67,6 +68,18 @@ public class SmsServiceImpl implements SmsService {
 			keyword,
 			templateId,
 			pageable
+		);
+		Page<SendSmsResDto> response = smsPage.map(SendSmsResDto::fromEntity);
+		return SmsListResDto.fromPage(response);
+	}
+
+	@Override
+	public SmsListResDto findAllByCustomer(Long id, Pageable pageable, AgentResDto agentDto) {
+		Agent agent = agentDto.toEntity();
+		Page<Sms> smsPage = smsExecutor.findAllByCustomer(
+			id,
+			pageable,
+			agent.getId()
 		);
 		Page<SendSmsResDto> response = smsPage.map(SendSmsResDto::fromEntity);
 		return SmsListResDto.fromPage(response);
