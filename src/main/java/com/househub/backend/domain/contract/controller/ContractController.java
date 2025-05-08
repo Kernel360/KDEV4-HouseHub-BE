@@ -63,6 +63,17 @@ public class ContractController {
 		return ResponseEntity.ok(SuccessResponse.success("계약 조회 성공", "FIND_CONTRACTS_SUCCESS", response));
 	}
 
+	// 이번달 완료 계약 조회
+	@GetMapping("completed/this-month")
+	public ResponseEntity<SuccessResponse<ContractListResDto>> findCompletedContractsThisMonth(Pageable pageable) {
+		int page = Math.max(pageable.getPageNumber() - 1, 0);
+		int size = pageable.getPageSize();
+		Pageable adjustedPageable = PageRequest.of(page, size, pageable.getSort());
+		AgentResDto agentDto = SecurityUtil.getAuthenticatedAgent();
+		ContractListResDto response = contractService.findAllByStatusAndDateRange(agentDto.getId(), adjustedPageable);
+		return ResponseEntity.ok(SuccessResponse.success("계약 조회 성공", "FIND_CONTRACTS_SUCCESS", response));
+	}
+
 	// 계약 상세 조회
 	@GetMapping("/{id}")
 	public ResponseEntity<SuccessResponse<FindContractResDto>> findContract(@PathVariable("id") Long id) {

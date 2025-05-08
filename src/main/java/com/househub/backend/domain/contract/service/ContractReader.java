@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.househub.backend.domain.contract.enums.ContractStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -20,6 +21,9 @@ public interface ContractReader {
 	Page<Contract> findContractsByAgentAndCustomer(Long agentId, Long customerId, Pageable pageable);
 
 	Page<Contract> findContractsByProperties(Long agentId, List<Property> propertyIds, Pageable pageable);
+
+	Page<Contract> findContractsByStatusAndCreatedAtBetween(Long agentId, ContractStatus status,
+															LocalDateTime start, LocalDateTime end, Pageable pageable);
 
 	List<Contract> findAllByExpiredAtBetween(LocalDate startDate, LocalDate endDate);
 }

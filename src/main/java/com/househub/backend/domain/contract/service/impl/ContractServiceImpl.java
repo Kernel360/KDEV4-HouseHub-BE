@@ -21,6 +21,8 @@ import com.househub.backend.domain.customer.service.CustomerReader;
 import com.househub.backend.domain.property.entity.Property;
 import com.househub.backend.domain.property.service.PropertyReader;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import lombok.RequiredArgsConstructor;
@@ -144,6 +146,19 @@ public class ContractServiceImpl implements ContractService {
 
 		Page<FindContractResDto> response = contractPage.map(FindContractResDto::fromEntity);
 		return ContractListResDto.fromPage(response);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public ContractListResDto findAllByStatusAndDateRange(Long agentId, Pageable pageable) {
+		LocalDateTime startOfMonthLdt = LocalDate.now().withDayOfMonth(1).atStartOfDay();
+		LocalDateTime startOfNextMonthLdt = startOfMonthLdt.plusMonths(1);
+		Page<Contract> contracts = contractReader.findContractsByStatusAndCreatedAtBetween(
+				agentId, ContractStatus.COMPLETED,
+				startOfMonthLdt, startOfNextMonthLdt, pageable
+		);
+		Page<FindContractResDto> findContractResDtoPage = contracts.map(FindContractResDto::fromEntity);
+		return ContractListResDto.fromPage(findContractResDtoPage);
 	}
 
 	/**
