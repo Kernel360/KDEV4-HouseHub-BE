@@ -2,36 +2,26 @@ package com.househub.backend.domain.contract.dto;
 
 import java.time.LocalDate;
 
-import com.househub.backend.domain.agent.dto.GetMyInfoResDto;
 import com.househub.backend.domain.contract.entity.Contract;
 import com.househub.backend.domain.contract.enums.ContractStatus;
 import com.househub.backend.domain.contract.enums.ContractType;
-import com.househub.backend.domain.customer.dto.CustomerResDto;
-import com.househub.backend.domain.property.dto.FindPropertyResDto;
+import com.househub.backend.domain.customer.dto.CustomerSummaryResDto;
 
+import com.househub.backend.domain.property.dto.PropertySummaryResDto;
 import lombok.Builder;
 import lombok.Getter;
 
 @Getter
 @Builder
 public class FindContractResDto {
-//    <매물 정보>
-//    매물 도로명 주소, 상세주소
-//
-//    <계약자 정보>
-//            계약자 이름, 연락처
-//>여기를 매매면 매도/매수
-//    임대/임차
     private Long id; // 계약 ID
-    private GetMyInfoResDto agent;
-    private FindPropertyResDto property; // 매물
-    private CustomerResDto customer; // 고객
+//    private GetMyInfoResDto agent;
+//    private FindPropertyResDto property; // 매물
+//    private CustomerResDto customer; // 고객
     private ContractType contractType; // 거래 유형 (매매, 전세, 월세)
-
-    // private Long salePrice; // 매매가
-    // private Long jeonsePrice; // 전세가
-    // private Integer monthlyRentFee; // 월세 금액
-    // private Integer monthlyRentDeposit; // 월세 보증금
+    private PropertySummaryResDto property;
+    private CustomerSummaryResDto seeker; // 매수,임차
+    private CustomerSummaryResDto provider; // 매도,임대
 
     private String salePrice; // 매매가
     private String jeonsePrice; // 전세가
@@ -49,10 +39,17 @@ public class FindContractResDto {
     public static FindContractResDto fromEntity(Contract contract) {
         return FindContractResDto.builder()
                 .id(contract.getId())
-                .agent(GetMyInfoResDto.from(contract.getAgent()))
-                .property(FindPropertyResDto.toDto(contract.getProperty()))
-                .customer(contract.getCustomer() != null ?
-                        CustomerResDto.fromEntity(contract.getCustomer()) : null)
+//                .agent(GetMyInfoResDto.from(contract.getAgent()))
+//                .property(FindPropertyResDto.toDto(contract.getProperty()))
+//                .customer(contract.getCustomer() != null ?
+//                        CustomerResDto.fromEntity(contract.getCustomer()) : null)
+                .property(PropertySummaryResDto.fromEntity(contract.getProperty()))
+                // 매수,임차인
+                .seeker(contract.getCustomer() != null ?
+                        CustomerSummaryResDto.fromEntity(contract.getCustomer()) : null)
+                // 매도,임대인
+                .provider(contract.getCustomer() != null ?
+                        CustomerSummaryResDto.fromEntity(contract.getProperty().getCustomer()) : null)
                 .contractType(contract.getContractType())
                 .salePrice(convertPriceFormat(contract.getSalePrice()))
                 .jeonsePrice(convertPriceFormat(contract.getJeonsePrice()))
@@ -91,17 +88,6 @@ public class FindContractResDto {
         }
 
         return sb.toString().trim();
-    }
-
-    private static String addComma(String price) {
-        String result;
-
-        if (price.length() == 4) {
-            result = price.substring(0, 1) + "," + price.substring(1);
-        } else {
-            result = price;
-        }
-        return result;
     }
 
 }
