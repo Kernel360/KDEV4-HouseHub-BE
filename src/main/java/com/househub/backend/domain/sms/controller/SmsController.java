@@ -39,9 +39,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @RequestMapping("/api/sms")
 public class SmsController {
-
 	private final SmsService smsService;
-	private final SmsTemplateService smsTemplateService;
 
 	@Operation(
 		summary = "문자 전송",
@@ -55,23 +53,11 @@ public class SmsController {
 	}
 
 	@Operation(
-		summary = "문자 발송 이력 조회",
-		description = "문자 발송 이력을 조건에 따라 조회합니다. 날짜, 페이지, 건수 등으로 필터링할 수 있습니다."
-	)
-	@GetMapping("/history")
-	public ResponseEntity<SuccessResponse<List<AligoHistoryResDto.HistoryDetailDto>>> getSmsHistories(
-		@ModelAttribute @Valid AligoHistoryReqDto dto
-	) {
-		List<AligoHistoryResDto.HistoryDetailDto> response = smsService.getRecentMessages(dto.getPage(), dto.getSize(), dto.getStartDate(), dto.getLimitDay());
-		return ResponseEntity.ok(SuccessResponse.success("문자 내역 조회에 성공했습니다.", "SMS_HISTORY_READ_SUCCESS", response));
-	}
-
-	@Operation(
 		summary = "문자 단건 조회",
 		description = "특정 문자 발송 내역을 상세 조회합니다."
 	)
 	@GetMapping("/{id}")
-	public ResponseEntity<SuccessResponse<SendSmsResDto>> getSmsHistory(@PathVariable Long id) {
+	public ResponseEntity<SuccessResponse<SendSmsResDto>> getSms(@PathVariable Long id) {
 		AgentResDto agentDto = SecurityUtil.getAuthenticatedAgent();
 		SendSmsResDto response = smsService.findById(id, agentDto);
 
@@ -107,68 +93,5 @@ public class SmsController {
 		AgentResDto agentDto = SecurityUtil.getAuthenticatedAgent();
 		float response = smsService.findSmsCostByAgentId(agentDto.getId());
 		return ResponseEntity.ok(SuccessResponse.success("문자 사용 금액 조회에 성공했습니다.","SMS_COST_READ_SUCCESS",response));
-	}
-
-	@Operation(
-		summary = "문자 발송 템플릿 생성",
-		description = "문자 발송에 사용할 템플릿을 생성합니다."
-	)
-	@PostMapping("/templates")
-	public ResponseEntity<SuccessResponse<TemplateResDto>> createTemplate(@RequestBody @Valid CreateUpdateTemplateReqDto createUpdateTemplateReqDto) {
-		AgentResDto agentDto = SecurityUtil.getAuthenticatedAgent();
-		TemplateResDto response = smsTemplateService.create(createUpdateTemplateReqDto,agentDto);
-		return ResponseEntity.ok(SuccessResponse.success("문자 템플릿 생성에 성공했습니다.", "SMS_TEMPLATE_CREATE_SUCCESS",response));
-	}
-
-	@Operation(
-		summary = "문자 발송 템플릿 수정",
-		description = "기존 문자 발송 템플릿의 내용을 수정합니다."
-	)
-	@PutMapping("/templates/{id}")
-	public ResponseEntity<SuccessResponse<TemplateResDto>> updateTemplate(@RequestBody @Valid CreateUpdateTemplateReqDto createUpdateTemplateReqDto, @PathVariable Long id){
-		AgentResDto agentDto = SecurityUtil.getAuthenticatedAgent();
-		TemplateResDto response = smsTemplateService.update(createUpdateTemplateReqDto,id,agentDto);
-		return ResponseEntity.ok(SuccessResponse.success("문자 템플릿 수정에 성공했습니다.", "SMS_TEMPLATE_UPDATE_SUCCESS",response));
-	}
-
-	@Operation(
-		summary = "문자 발송 템플릿 삭제",
-		description = "특정 문자 발송 템플릿을 삭제합니다."
-	)
-	@DeleteMapping("/templates/{id}")
-	public ResponseEntity<SuccessResponse<Void>> deleteTemplate(@PathVariable Long id){
-		AgentResDto agentDto = SecurityUtil.getAuthenticatedAgent();
-		SmsTemplate response =  smsTemplateService.delete(id,agentDto);
-		return ResponseEntity.ok(SuccessResponse.success("문자 템플릿" + response.getTitle() +" 삭제에 성공했습니다.", "SMS_TEMPLATE_DELETE_SUCCESS",null));
-	}
-
-	@Operation(
-		summary = "문자 발송 템플릿 상세 조회",
-		description = "특정 문자 발송 템플릿의 상세 정보를 조회합니다."
-	)
-	@GetMapping("/templates/{id}")
-	public ResponseEntity<SuccessResponse<TemplateResDto>> findTemplate(@PathVariable Long id) {
-		AgentResDto agentDto = SecurityUtil.getAuthenticatedAgent();
-		TemplateResDto response = smsTemplateService.findById(id,agentDto);
-		return ResponseEntity.ok(SuccessResponse.success("문자 템플릿" + response.getTitle() +"조회에 성공했습니다","SMS_TEMPLATE_FIND_SUCCESS",response));
-	}
-
-	@Operation(
-		summary = "문자 발송 템플릿 목록 조회",
-		description = "같은 부동산에서 만든 문자 발송 템플릿 전체를 키워드와 페이지네이션으로 조회합니다."
-	)
-	@GetMapping("/templates")
-	public ResponseEntity<SuccessResponse<SmsTemplateListResDto>> findAllTemplates(
-		@RequestParam(required = false) String keyword,
-		Pageable pageable
-	){
-		int page = Math.max(pageable.getPageNumber() -1, 0);
-		int size = pageable.getPageSize();
-
-		Pageable adjustedPageable = PageRequest.of(page,size, pageable.getSort());
-
-		AgentResDto agentDto = SecurityUtil.getAuthenticatedAgent();
-		SmsTemplateListResDto response = smsTemplateService.findAll(keyword, agentDto, adjustedPageable);
-		return ResponseEntity.ok(SuccessResponse.success("문자 템플릿 전체 조회에 성공했습니다.","SMS_TEMPLATE_FIND_ALL_SUCCESS", response));
 	}
 }

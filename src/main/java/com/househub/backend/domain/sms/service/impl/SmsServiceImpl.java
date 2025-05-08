@@ -52,16 +52,6 @@ public class SmsServiceImpl implements SmsService {
 			throw new SmsSendFailException(aligoResponse.getMessage(),"SMS_SEND_FAIL");
 		}
 	}
-	
-	public List<AligoHistoryResDto.HistoryDetailDto> getRecentMessages(Integer page, Integer pageSize, String startDate,
-		Integer limitDay) {
-		AligoHistoryResDto response = aligoService.getRecentMessages(page,pageSize,startDate,limitDay);
-		if (response.getResultCode() == 1) {
-			return response.getList();
-		} else {
-			throw new RuntimeException("전송 내역 조회 실패: " + response.getMessage());
-		}
-	}
 
 	@Override
 	public SmsListResDto findAllByKeyword(String keyword, AgentResDto agentDto, Pageable pageable, Long templateId) {

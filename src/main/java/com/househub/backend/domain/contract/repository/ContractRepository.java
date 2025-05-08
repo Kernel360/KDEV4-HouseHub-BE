@@ -67,6 +67,11 @@ public interface ContractRepository extends JpaRepository<Contract, Long> {
 		LocalDateTime endDate
 	);
 
+	List<Contract> findAllByExpiredAtBetween(
+		LocalDate startDate,
+		LocalDate endDate
+	);
+
 	@Query("SELECT c FROM Contract c " +
 		"JOIN c.agent a " +
 		"WHERE a.id = :agentId " +

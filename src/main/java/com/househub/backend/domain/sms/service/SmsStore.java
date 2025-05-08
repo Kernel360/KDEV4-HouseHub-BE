@@ -6,5 +6,5 @@ import com.househub.backend.domain.sms.entity.Sms;
 
 public interface SmsStore {
 	Sms create(Sms sms);
-	void updateAll(List<? extends Sms> logs);
+	void saveAll(List<? extends Sms> logs);
 }
