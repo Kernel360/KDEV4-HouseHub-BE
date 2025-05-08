@@ -19,9 +19,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
 
+import com.househub.backend.domain.sms.dto.AligoSmsResDto;
+import com.househub.backend.domain.sms.dto.SendSmsReqDto;
 import com.househub.backend.domain.sms.entity.Sms;
 import com.househub.backend.domain.sms.enums.SmsStatus;
-import com.househub.backend.domain.sms.service.SmsExecutor;
+import com.househub.backend.domain.sms.service.AligoGateway;
 import com.househub.backend.domain.sms.service.SmsReader;
 import com.househub.backend.domain.sms.service.SmsStore;
 
@@ -69,21 +71,20 @@ public class SmsResendJobConfig {
 
 	@Bean
 	@StepScope
-	public ItemProcessor<Sms, Sms> smsResendProcessor(SmsExecutor smsExecutor, EntityManager entityManager) {
+	public ItemProcessor<Sms, Sms> smsResendProcessor(AligoGateway aligoGateway, EntityManager entityManager) {
 		return sms -> {
 			Sms detachedSms = entityManager.merge(sms);
 			entityManager.detach(detachedSms);
 
-			boolean result = smsExecutor.resend(detachedSms);
-			detachedSms.updateStatus((result ? SmsStatus.SUCCESS : SmsStatus.FAIL));
+			AligoSmsResDto result = aligoGateway.formatParamsAndSend(SendSmsReqDto.fromEntity(detachedSms));
+			detachedSms.updateStatus((result.getResultCode() == 1 ? SmsStatus.SUCCESS : SmsStatus.FAIL));
 			detachedSms.incrementRetryCount();
-			if(!result && detachedSms.getRetryCount() > 3) {
+			if(result.getResultCode()!=1 && detachedSms.getRetryCount() > 3) {
 				detachedSms.updateStatus(SmsStatus.PERMANENT_FAIL);
 			}
 			return detachedSms;
 		};
 	}
-
 
 	@Bean
 	@StepScope
@@ -97,5 +98,4 @@ public class SmsResendJobConfig {
 			smsStore.saveAll(mergedSmsList);
 		};
 	}
-
 }

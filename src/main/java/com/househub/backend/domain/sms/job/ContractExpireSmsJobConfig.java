@@ -22,14 +22,14 @@ import com.househub.backend.domain.agent.entity.Agent;
 import com.househub.backend.domain.contract.entity.Contract;
 import com.househub.backend.domain.contract.service.ContractReader;
 import com.househub.backend.domain.customer.entity.Customer;
+import com.househub.backend.domain.sms.dto.AligoSmsResDto;
 import com.househub.backend.domain.sms.dto.SendSmsReqDto;
 import com.househub.backend.domain.sms.entity.Sms;
 import com.househub.backend.domain.sms.enums.MessageType;
 import com.househub.backend.domain.sms.enums.SmsStatus;
-import com.househub.backend.domain.sms.service.SmsExecutor;
-import com.househub.backend.domain.sms.service.SmsStore;
+import com.househub.backend.domain.sms.service.AligoGateway;
+import com.househub.backend.domain.sms.utils.MessageFormatter;
 
-import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -76,27 +76,26 @@ public class ContractExpireSmsJobConfig {
 
 	@Bean
 	@StepScope
-	public ItemProcessor<Contract, Sms> expireSmsProcessor(SmsExecutor smsExecutor, SmsStore smsStore,
-		EntityManager entityManager) {
+	public ItemProcessor<Contract, Sms> expireSmsProcessor(AligoGateway aligoGateway,
+		MessageFormatter messageFormatter) {
 		return contract -> {
 			Agent agent = contract.getAgent();
 			Customer customer = contract.getCustomer();
 			SendSmsReqDto request = SendSmsReqDto.builder()
 				.sender(agent.getContact())
 				.receiver(customer.getContact())
-				.msg("고객님의 계약이 3개월 후 만료됩니다!")
+				.msg(messageFormatter.addAgentInfo("고객님의 계약이 3개월 후 만료됩니다!", agent.getContact()))
 				.msgType(MessageType.SMS)
 				.build();
 
 			// SMS 발송 시도
-			boolean result = smsExecutor.sendNew(request);
-			if (result) {
-				Sms sms = request.toEntity(SmsStatus.SUCCESS, agent, null);
-				return sms;
+			AligoSmsResDto aligoResponse = aligoGateway.formatParamsAndSend(request);
+			request.setMsg(aligoResponse.getMessage());
+			if (aligoResponse.getResultCode() == 1) {
+				return request.toEntity(SmsStatus.SUCCESS, agent, null);
 			} else {
 				// 실패 시, 실패 상태로 저장하거나 null 반환 (null 반환 시 Writer로 넘어가지 않음)
-				Sms sms = request.toEntity(SmsStatus.FAIL, agent, null);
-				return sms;
+				return request.toEntity(SmsStatus.FAIL, agent, null);
 			}
 		};
 	}

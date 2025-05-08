@@ -26,6 +26,7 @@ import com.househub.backend.domain.sms.service.SmsReader;
 import com.househub.backend.domain.sms.service.SmsService;
 import com.househub.backend.domain.sms.service.SmsStore;
 import com.househub.backend.domain.sms.service.SmsTemplateReader;
+import com.househub.backend.domain.sms.utils.MessageFormatter;
 
 import lombok.RequiredArgsConstructor;
 
@@ -37,11 +38,14 @@ public class SmsServiceImpl implements SmsService {
 	private final SmsStore smsStore;
 	private final SmsReader smsReader;
 	private final SmsTemplateReader smsTemplateReader;
+	private final MessageFormatter messageFormatter;
 
 	// send와 create 분리
 	public SendSmsResDto sendSms(SendSmsReqDto request, AgentResDto agentDto) {
 		Agent agent = agentDto.toEntity();
+		request.setMsg(messageFormatter.addAgentInfo(request.getMsg(), request.getSender()));
 		AligoSmsResDto aligoResponse = aligoService.sendSms(request);
+
 		SmsTemplate template = null;
 		if(request.getTemplateId() != null)
 			template = smsTemplateReader.findById(request.getTemplateId(),agent.getId());

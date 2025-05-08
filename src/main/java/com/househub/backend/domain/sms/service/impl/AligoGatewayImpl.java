@@ -48,7 +48,7 @@ public class AligoGatewayImpl implements AligoGateway {
 
 		params.add("key", apiKey);
 		params.add("user_id", userId);
-		params.add("testmode_yn", "N");
+		params.add("testmode_yn", "Y");
 
 		try {
 			ResponseEntity<String> response = restTemplate.exchange(
@@ -78,13 +78,13 @@ public class AligoGatewayImpl implements AligoGateway {
 	}
 
 	@Override
-	public AligoSmsResDto sendApiRequest(SendSmsReqDto request) {
+	public AligoSmsResDto formatParamsAndSend(SendSmsReqDto request) {
 		String url = "https://apis.aligo.in/send/";
 		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 
 		params.add("sender", commonSender);
 		params.add("receiver", request.getReceiver());
-		params.add("msg", formatter.addAgentInfo(request.getMsg(), request.getSender()));
+		params.add("msg", request.getMsg());
 
 		if(request.getMsgType() != null) {
 			params.add("msg_type", request.getMsgType().toString());

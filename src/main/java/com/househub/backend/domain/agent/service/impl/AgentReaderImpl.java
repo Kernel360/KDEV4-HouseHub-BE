@@ -34,7 +34,7 @@ public class AgentReaderImpl implements AgentReader {
 
 	@Override
 	public Agent findByContact(String contact) {
-		return agentRepository.findByContact(contact);
+		return agentRepository.findByContact(contact).orElseThrow(() -> new ResourceNotFoundException("해당 중개사를 찾을 수 없습니다.", "AGENT_NOT_FOUND"));
 	}
 
 }
