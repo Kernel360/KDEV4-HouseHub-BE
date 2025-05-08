@@ -114,9 +114,9 @@ public class CrawlingPropertyServiceImpl implements CrawlingPropertyService {
     }
 
     // 상세 조회
-    public CrawlingPropertyResDto findOne(String id) {
-        CrawlingProperty crawlingProperty = crawlingPropertyRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("해당 매물이 존재하지 않습니다.", "PROPERTY_NOT_FOUND"));
+    public CrawlingPropertyTagResDto findOne(String id) {
+        CrawlingPropertyTagResDto crawlingPropertyTagResDto = crawlingPropertyRepository.findCrawlingPropertyById(id).orElseThrow(() -> new ResourceNotFoundException("해당 매물이 존재하지 않습니다.", "PROPERTY_NOT_FOUND"));
 
-        return CrawlingPropertyResDto.fromEntity(crawlingProperty);
+        return crawlingPropertyTagResDto;
     }
 }

@@ -1,10 +1,7 @@
 package com.househub.backend.domain.crawlingProperty.controller;
 
 import com.househub.backend.common.response.SuccessResponse;
-import com.househub.backend.domain.crawlingProperty.dto.CrawlingPropertyListResDto;
-import com.househub.backend.domain.crawlingProperty.dto.CrawlingPropertyReqDto;
-import com.househub.backend.domain.crawlingProperty.dto.CrawlingPropertyResDto;
-import com.househub.backend.domain.crawlingProperty.dto.CrawlingPropertyTagListResDto;
+import com.househub.backend.domain.crawlingProperty.dto.*;
 import com.househub.backend.domain.crawlingProperty.entity.CrawlingProperty;
 import com.househub.backend.domain.crawlingProperty.service.CrawlingPropertyService;
 import lombok.RequiredArgsConstructor;
@@ -41,10 +38,10 @@ public class CrawlingPropertyController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<SuccessResponse<CrawlingPropertyResDto>> findOneCrawlingProperty(
-            @PathVariable String id
+    public ResponseEntity<SuccessResponse<CrawlingPropertyTagResDto>> findOneCrawlingProperty(
+            @PathVariable("id") String id
     ) {
-        CrawlingPropertyResDto response = crawlingPropertyService.findOne(id);
+        CrawlingPropertyTagResDto response = crawlingPropertyService.findOne(id);
         return ResponseEntity.ok(SuccessResponse.success("크롤링 매물 상세 조회에 성공했습니다.", "FIND_CRAWLING_PROPERTY_SUCCESS", response));
     }
 }

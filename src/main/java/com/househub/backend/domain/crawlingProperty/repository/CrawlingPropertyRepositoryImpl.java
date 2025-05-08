@@ -14,8 +14,10 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import com.querydsl.core.Tuple;
 
@@ -192,5 +194,37 @@ public class CrawlingPropertyRepositoryImpl implements CrawlingPropertyRepositor
                         maxMonthlyRentFee != null ? crawlingProperty.monthlyRentFee.loe(maxMonthlyRentFee) : null
                 )
                 .fetch();
+    }
+
+    @Override
+    public Optional<CrawlingPropertyTagResDto> findCrawlingPropertyById(String crawlingPropertyId) {
+        // Q엔티티 명확하게 선언
+        QCrawlingProperty cp = crawlingProperty;
+        QCrawlingPropertyTagMap cptm = QCrawlingPropertyTagMap.crawlingPropertyTagMap;
+        QTag tag = QTag.tag;
+
+        // 1. 매물 조회
+        CrawlingProperty property = queryFactory
+                .selectFrom(cp)
+                .where(cp.crawlingPropertiesId.eq(crawlingPropertyId))
+                .fetchOne();
+
+        if (property == null) {
+            return Optional.empty();
+        }
+
+        // 2. 태그 리스트 조회 (조인)
+        List<Tag> tags = queryFactory
+                .select(tag)
+                .from(cptm)
+                .join(cptm.tag, tag)
+                .where(cptm.crawlingProperty.crawlingPropertiesId.eq(crawlingPropertyId))
+                .fetch();
+
+        // 3. 매물 id와 태그 리스트를 Map에 담아 DTO로 변환
+        Map<String, List<Tag>> propertyTagsMap = new HashMap<>();
+        propertyTagsMap.put(crawlingPropertyId, tags);
+
+        return Optional.of(CrawlingPropertyTagResDto.fromEntity(property, propertyTagsMap));
     }
 }
