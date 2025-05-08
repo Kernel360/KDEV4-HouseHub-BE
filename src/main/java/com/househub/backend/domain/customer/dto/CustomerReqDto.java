@@ -15,6 +15,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Data
 @Builder
@@ -37,6 +38,8 @@ public class CustomerReqDto {
 	private String memo;
 
 	private Gender gender;
+
+	private List<Long> tagIds;
 
 	public Customer toEntity(Agent agent) {
 		return Customer.builder()

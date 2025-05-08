@@ -1,6 +1,5 @@
 package com.househub.backend.domain.sms.repository;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -28,9 +27,11 @@ public interface SmsRepository extends JpaRepository<Sms, Long> {
 		"       LIKE CONCAT('%', REPLACE(REPLACE(:receiver, '-', ''), ' ', ''), '%')) OR " +
 		"   (:msg IS NULL OR :msg = '' OR s.msg LIKE CONCAT('%', :msg, '%'))" +
 		") " +
-		"AND (:templateId IS NULL OR s.smsTemplate.id = :templateId) "+
+		"AND (:templateId IS NULL OR s.smsTemplate.id = :templateId) " +
 		"ORDER BY s.createdAt DESC")
-	Page<Sms> findAllSmsByAgentIdAndFiltersAndDeletedAtIsNull(@Param("agentId") Long agentId,@Param("receiver") String receiver,@Param("msg") String msg, @Param("templateId")Long templateId, Pageable pageable);
+	Page<Sms> findAllSmsByAgentIdAndFiltersAndDeletedAtIsNull(@Param("agentId") Long agentId,
+		@Param("receiver") String receiver, @Param("msg") String msg, @Param("templateId") Long templateId,
+		Pageable pageable);
 
 	List<Sms> findSmsByStatus(SmsStatus status);
 
@@ -41,7 +42,8 @@ public interface SmsRepository extends JpaRepository<Sms, Long> {
 		"AND s.status = 0" +
 		"AND s.createdAt >= :startDate " +
 		"GROUP BY s.msgType")
-	List<SmsTypeCountDto> countSmsByMessageType(@Param("agentId") Long agentId, @Param("startDate")LocalDateTime startDate);
+	List<SmsTypeCountDto> countSmsByMessageType(@Param("agentId") Long agentId,
+		@Param("startDate") LocalDateTime startDate);
 
 	Long agent(Agent agent);
 }

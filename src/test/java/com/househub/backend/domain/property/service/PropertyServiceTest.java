@@ -1,40 +1,15 @@
 package com.househub.backend.domain.property.service;
 
-import static org.assertj.core.api.AssertionsForClassTypes.*;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 
-import com.househub.backend.common.exception.AlreadyExistsException;
-import com.househub.backend.common.exception.ResourceNotFoundException;
 import com.househub.backend.domain.agent.entity.Agent;
-import com.househub.backend.domain.agent.entity.AgentStatus;
 import com.househub.backend.domain.agent.repository.AgentRepository;
-import com.househub.backend.domain.contract.entity.Contract;
 import com.househub.backend.domain.customer.entity.Customer;
 import com.househub.backend.domain.customer.repository.CustomerRepository;
-import com.househub.backend.domain.property.dto.CreatePropertyResDto;
-import com.househub.backend.domain.property.dto.FindPropertyDetailResDto;
-import com.househub.backend.domain.property.dto.PropertyListResDto;
-import com.househub.backend.domain.property.dto.CreatePropertyReqDto;
-import com.househub.backend.domain.property.dto.PropertySearchDto;
 import com.househub.backend.domain.property.entity.Property;
-import com.househub.backend.domain.property.enums.PropertyType;
 import com.househub.backend.domain.property.repository.PropertyRepository;
 import com.househub.backend.domain.property.service.impl.PropertyServiceImpl;
 

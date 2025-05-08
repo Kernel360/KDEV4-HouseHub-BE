@@ -1,4 +1,9 @@
-package com.househub.backend.domain.crawlingProperty.entity;
+package com.househub.backend.domain.tag.entity;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import com.househub.backend.domain.customer.entity.CustomerTagMap;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -23,4 +28,8 @@ public class Tag {
 
     @Column(nullable = false)
     private String value;
+
+    @OneToMany(mappedBy = "tag")
+    @Builder.Default
+    private List<CustomerTagMap> customerTagMaps = new ArrayList<>();
 }

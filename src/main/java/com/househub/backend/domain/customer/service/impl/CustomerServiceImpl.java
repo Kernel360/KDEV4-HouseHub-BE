@@ -14,9 +14,9 @@ import org.springframework.web.multipart.MultipartFile;
 import com.househub.backend.common.exception.InvalidExcelValueException;
 import com.househub.backend.domain.agent.dto.AgentResDto;
 import com.househub.backend.domain.agent.entity.Agent;
+import com.househub.backend.domain.customer.dto.CustomerListResDto;
 import com.househub.backend.domain.customer.dto.CustomerReqDto;
 import com.househub.backend.domain.customer.dto.CustomerResDto;
-import com.househub.backend.domain.customer.dto.CustomerListResDto;
 import com.househub.backend.domain.customer.entity.Customer;
 import com.househub.backend.domain.customer.service.CustomerExecutor;
 import com.househub.backend.domain.customer.service.CustomerReader;
@@ -40,7 +40,11 @@ public class CustomerServiceImpl implements CustomerService {
 	public CustomerResDto create(CustomerReqDto request, AgentResDto agentDto) {
 		Agent agent = agentDto.toEntity();
 		customerReader.checkDuplicatedByContact(request.getContact(), agent.getId());
-		Customer storedCustomer = customerStore.create(request.toEntity(agent));
+
+		Customer customer = request.toEntity(agent);
+		Customer customerWithTag = customerExecutor.addTagsToCustomer(customer, request.getTagIds());
+		Customer storedCustomer = customerStore.create(customerWithTag);
+
 		return CustomerResDto.fromEntity(storedCustomer);
 	}
 
@@ -111,7 +115,7 @@ public class CustomerServiceImpl implements CustomerService {
 	@Transactional
 	public CustomerResDto restore(Long id, AgentResDto agentDto) {
 		Agent agent = agentDto.toEntity();
-		Customer restoredCustomer = customerExecutor.validateAndRestore(id,agent);
+		Customer restoredCustomer = customerExecutor.validateAndRestore(id, agent);
 		return CustomerResDto.fromEntity(restoredCustomer);
 	}
 }

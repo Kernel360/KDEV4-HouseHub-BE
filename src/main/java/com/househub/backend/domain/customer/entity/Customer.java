@@ -1,7 +1,7 @@
 package com.househub.backend.domain.customer.entity;
 
-import java.time.LocalDateTime;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,7 +12,9 @@ import com.househub.backend.domain.consultation.entity.Consultation;
 import com.househub.backend.domain.contract.entity.Contract;
 import com.househub.backend.domain.customer.dto.CustomerReqDto;
 import com.househub.backend.domain.customer.enums.CustomerStatus;
+import com.househub.backend.domain.tag.entity.Tag;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -35,7 +37,7 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "customers", uniqueConstraints = {
-	@UniqueConstraint(name = "UK_contact_agentId", columnNames = {"contact","agent_id"})
+	@UniqueConstraint(name = "UK_contact_agentId", columnNames = {"contact", "agent_id"})
 })
 @AllArgsConstructor
 @NoArgsConstructor
@@ -88,6 +90,10 @@ public class Customer {
 	@Builder.Default
 	private List<Contract> contracts = new ArrayList<>();
 
+	@OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
+	@Builder.Default
+	private List<CustomerTagMap> customerTagMaps = new ArrayList<>();
+
 	@PrePersist
 	protected void onCreate() {
 		createdAt = LocalDateTime.now();
@@ -100,17 +106,24 @@ public class Customer {
 		updatedAt = LocalDateTime.now();
 	}
 
-	public void update(CustomerReqDto reqDto) {
+	public void update(CustomerReqDto reqDto, List<Tag> newTags) {
 		this.name = reqDto.getName();
 		this.email = reqDto.getEmail();
-		if (reqDto.getContact() != null && !reqDto.getContact().isEmpty()) {
-			this.contact = reqDto.getContact();
-		}
-		if (reqDto.getBirthDate() != null) {
-			this.birthDate = reqDto.getBirthDate();
-		}
-		this.gender = reqDto.getGender(); // null 허용
-		this.memo = reqDto.getMemo(); // null 허용
+		this.contact = reqDto.getContact();
+		this.birthDate = reqDto.getBirthDate();
+		this.gender = reqDto.getGender();
+		this.memo = reqDto.getMemo();
+
+		newTags.forEach(this::addTag);
+	}
+
+	private void addTag(Tag tag) {
+		this.customerTagMaps.add(
+			CustomerTagMap.builder()
+				.tag(tag)
+				.customer(this)
+				.build()
+		);
 	}
 
 	public void softDelete() {

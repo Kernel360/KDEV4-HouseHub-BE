@@ -3,14 +3,21 @@ package com.househub.backend.domain.dashboard.service.impl;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.househub.backend.domain.agent.dto.AgentResDto;
+import com.househub.backend.domain.contract.dto.ExpiringContractItemResDto;
+import com.househub.backend.domain.contract.dto.ExpiringContractListResDto;
 import com.househub.backend.domain.contract.entity.Contract;
 import com.househub.backend.domain.contract.enums.ContractStatus;
 import com.househub.backend.domain.contract.repository.ContractRepository;
@@ -107,5 +114,20 @@ public class DashboardServiceImpl implements DashboardService {
 			));
 
 		return MultiDatasetChartResDto.from(activeMap, completedMap);
+	}
+
+	@Transactional(readOnly = true)
+	@Override
+	public ExpiringContractListResDto getExpiringContracts(String yearMonth, AgentResDto agentDto,
+		Pageable pageable) {
+		YearMonth ym = YearMonth.parse(yearMonth);
+		LocalDate startDate = ym.atDay(1);
+		LocalDate endDate = ym.atEndOfMonth();
+
+		Page<ExpiringContractItemResDto> contractPage = contractRepository.findByAgentIdAndExpiredAtBetween(
+			agentDto.getId(), startDate, endDate, pageable
+		).map(ExpiringContractItemResDto::fromEntity);
+
+		return ExpiringContractListResDto.fromPage(contractPage);
 	}
 }
