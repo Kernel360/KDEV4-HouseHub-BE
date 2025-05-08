@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import com.househub.backend.domain.region.dto.RegionOptionDto;
 import com.househub.backend.domain.region.entity.Region;
 
-import io.lettuce.core.dynamic.annotation.Param;
+import org.springframework.data.repository.query.Param;  // Spring Data JPA의 @Param
 
 public interface RegionRepository extends JpaRepository<Region, Long> {
 	@Query("SELECT r.id FROM Region r")

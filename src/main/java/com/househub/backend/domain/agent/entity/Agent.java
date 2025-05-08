@@ -4,6 +4,9 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.househub.backend.domain.agent.dto.UpdateAgentReqDto;
+import com.househub.backend.domain.agent.enums.AgentStatus;
+import com.househub.backend.domain.agent.enums.Role;
 import com.househub.backend.domain.customer.entity.Customer;
 
 import jakarta.persistence.CascadeType;
@@ -43,7 +46,7 @@ public class Agent {
 	@Column(nullable = false)
 	private String password;
 
-	@Column(nullable = false, length = 50)
+	@Column(nullable = true, length = 50)
 	private String name;
 
 	@Column(nullable = false, length = 50)
@@ -87,5 +90,16 @@ public class Agent {
 	@PreUpdate
 	protected void onUpdate() {
 		this.updatedAt = LocalDateTime.now();
+	}
+
+	public void update(UpdateAgentReqDto request){
+		this.name = request.getName();
+		if (request.getEmail() != null && !request.getEmail().isEmpty()){
+			this.email = request.getEmail();
+		}
+		if (request.getContact() != null && !request.getContact().isEmpty()) {
+			this.contact = request.getContact();
+		}
+		this.licenseNumber = request.getLicenseNumber();
 	}
 }

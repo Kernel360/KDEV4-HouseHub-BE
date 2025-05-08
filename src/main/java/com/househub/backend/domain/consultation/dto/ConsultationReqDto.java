@@ -42,10 +42,10 @@ public class ConsultationReqDto {
 	@NotNull(message = "상담 상태를 입력하세요.")
 	private ConsultationStatus status; // RESERVED, COMPLETED, CANCELED
 
-	public Consultation toEntity(Agent agent, Customer customer, Customer newCustomer) {
+	public Consultation toEntity(Agent agent, Customer customer) {
 		return Consultation.builder()
 			.agent(agent)
-			.customer(customer != null ? customer : newCustomer)
+			.customer(customer)
 			.consultationType(this.getConsultationType())
 			.content(this.getContent())
 			.consultationDate(this.getConsultationDate())

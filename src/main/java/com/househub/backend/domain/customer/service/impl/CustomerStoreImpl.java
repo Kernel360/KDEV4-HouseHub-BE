@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.househub.backend.domain.tag.entity.Tag;
 import com.househub.backend.domain.customer.dto.CustomerReqDto;
 import com.househub.backend.domain.customer.entity.Customer;
 import com.househub.backend.domain.customer.repository.CustomerRepository;
@@ -30,8 +31,8 @@ public class CustomerStoreImpl implements CustomerStore {
 	}
 
 	@Override
-	public Customer update(Customer customer, CustomerReqDto request) {
-		customer.update(request);
+	public Customer update(Customer customer, CustomerReqDto request, List<Tag> filteredTags) {
+		customer.update(request, filteredTags);
 		return customerRepository.save(customer);
 	}
 

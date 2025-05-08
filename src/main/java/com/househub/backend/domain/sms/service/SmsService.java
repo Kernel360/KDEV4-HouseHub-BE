@@ -15,10 +15,6 @@ public interface SmsService {
 	// 문자 단건 발송
 	SendSmsResDto sendSms(SendSmsReqDto sendSmsReqDto, AgentResDto agentDto);
 
-	// 문자 발송 이력 조회
-	List<AligoHistoryResDto.HistoryDetailDto> getRecentMessages(Integer page, Integer pageSize, String startDate,
-		Integer limitDay);
-
 	SendSmsResDto findById(Long id, AgentResDto agentDto);
 
 	SmsListResDto findAllByKeyword(String keyword, AgentResDto agentDto, Pageable pageable,Long templateId);

@@ -1,15 +1,11 @@
 package com.househub.backend.domain.crawlingProperty.dto;
 
 import com.househub.backend.domain.crawlingProperty.entity.CrawlingProperty;
-import com.househub.backend.domain.crawlingProperty.entity.Tag;
 import com.househub.backend.domain.crawlingProperty.enums.Direction;
 import com.househub.backend.domain.crawlingProperty.enums.PropertyType;
 import com.househub.backend.domain.crawlingProperty.enums.TransactionType;
 import lombok.Builder;
 import lombok.Getter;
-
-import java.util.List;
-import java.util.Map;
 
 @Builder
 @Getter
@@ -39,54 +35,6 @@ public class CrawlingPropertyResDto {
     private String realEstateAgentContact;
     private String realEstateOfficeName;
     private String realEstateOfficeAddress;
-
-
-//    // 새로 추가한 부분
-//    private List<TagDto> tags; // 태그 리스트
-//
-//    @Getter
-//    @Builder
-//    public static class TagDto {
-//        private Long tagId;
-//        private String type;
-//        private String value;
-//    }
-//
-//    public static CrawlingPropertyResDto fromEntity(CrawlingProperty crawlingProperty, Map<String, List<Tag>> propertyTagsMap) {
-//        return CrawlingPropertyResDto.builder()
-//                .crawlingPropertiesId(crawlingProperty.getCrawlingPropertiesId())
-//                .propertyType(crawlingProperty.getPropertyType())
-//                .transactionType(crawlingProperty.getTransactionType())
-//                .province(crawlingProperty.getProvince())
-//                .city(crawlingProperty.getCity())
-//                .dong(crawlingProperty.getDong())
-//                .detailAddress(crawlingProperty.getDetailAddress())
-//                .area(crawlingProperty.getArea())
-//                .floor(crawlingProperty.getFloor())
-//                .allFloors(crawlingProperty.getAllFloors())
-//                .salePrice(convertPriceFormat(crawlingProperty.getSalePrice())) // 가격 문자 형식으로 변환하여 반환
-//                .deposit(convertPriceFormat(crawlingProperty.getDeposit())) // 가격 문자 형식으로 변환하여 반환
-//                .monthlyRentFee(convertPriceFormat(crawlingProperty.getMonthlyRentFee())) // 가격 문자 형식으로 변환하여 반환
-//                .direction(crawlingProperty.getDirection())
-//                .bathRoomCnt(crawlingProperty.getBathRoomCnt())
-//                .roomCnt(crawlingProperty.getRoomCnt())
-//                .realEstateAgentId(crawlingProperty.getRealEstateAgentId())
-//                .realEstateAgentName(crawlingProperty.getRealEstateAgentName())
-//                .realEstateAgentContact(crawlingProperty.getRealEstateAgentContact())
-//                .realEstateOfficeName(crawlingProperty.getRealEstateOfficeName())
-//                .realEstateOfficeAddress(crawlingProperty.getRealEstateOfficeAddress())
-//                .tags(
-//                        propertyTagsMap.getOrDefault(crawlingProperty.getCrawlingPropertiesId(), List.of())
-//                                .stream()
-//                                .map(tagEntity -> TagDto.builder()
-//                                        .tagId(tagEntity.getTagId())
-//                                        .type(tagEntity.getType())
-//                                        .value(tagEntity.getValue())
-//                                        .build())
-//                                .toList()
-//                )
-//                .build();
-//    }
 
     public static CrawlingPropertyResDto fromEntity(CrawlingProperty crawlingProperty) {
         return CrawlingPropertyResDto.builder()

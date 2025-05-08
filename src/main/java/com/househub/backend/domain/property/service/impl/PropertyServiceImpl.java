@@ -2,6 +2,11 @@ package com.househub.backend.domain.property.service.impl;
 
 import java.util.List;
 
+import com.househub.backend.domain.contract.dto.BasicContractDto;
+import com.househub.backend.domain.contract.service.ContractStore;
+import com.househub.backend.domain.property.service.PropertyTagMapStore;
+import com.househub.backend.domain.tag.entity.Tag;
+import com.househub.backend.domain.tag.service.TagReader;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -31,9 +36,12 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class PropertyServiceImpl implements PropertyService {
 
+	private final ContractStore contractStore;
 	private final CustomerReader customerReader;
 	private final PropertyStore propertyStore;
 	private final PropertyReader propertyReader;
+	private final PropertyTagMapStore propertyTagMapStore;
+	private final TagReader tagReader;
 
 	/**
 	 * 매물 등록
@@ -54,6 +62,13 @@ public class PropertyServiceImpl implements PropertyService {
 		Property property = dto.toEntity(customer, agent);
 		// db에 저장
 		propertyStore.create(property);
+		List<Tag> tags = tagReader.findAllById(dto.getTagIds());
+		propertyStore.addTag(property, tags);
+		// 계약 등록 - '계약 가능' 상태로 등록 (계약자 없음)
+		if(dto.getContract() != null) {
+			BasicContractDto contractReqDto = dto.getContract();
+			contractStore.create(contractReqDto.toEntity(property, agent));
+		}
 		// 응답 객체 리턴
 		return new CreatePropertyResDto(property.getId());
 	}
@@ -72,7 +87,7 @@ public class PropertyServiceImpl implements PropertyService {
 		Property property = propertyReader.findByIdOrThrow(id, agentDto.getId());
 		log.info("service impl findProperty property: {}", property);
 		// entity -> dto
-		return FindPropertyDetailResDto.toDto(property);
+		return FindPropertyDetailResDto.fromEntity(property);
 	}
 
 	/**
@@ -128,6 +143,10 @@ public class PropertyServiceImpl implements PropertyService {
 			(updateDto.getCustomerId() != null && updateDto.getCustomerId() != property.getCustomer().getId())) {
 			propertyReader.validateUniqueAddressForCustomer(updateDto.getRoadAddress(), updateDto.getDetailAddress(), updateDto.getCustomerId());
 		}
+
+		propertyTagMapStore.deleteByPropertyId(propertyId);
+		List<Tag> tags = tagReader.findAllById(updateDto.getTagIds());
+		propertyStore.addTag(property, tags);
 		propertyStore.update(updateDto, property, customer);
 	}
 

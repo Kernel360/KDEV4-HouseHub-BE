@@ -1,6 +1,7 @@
 package com.househub.backend.domain.property.dto;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 
 import com.househub.backend.domain.contract.dto.FindContractResDto;
@@ -9,6 +10,7 @@ import com.househub.backend.domain.property.entity.Property;
 import com.househub.backend.domain.property.enums.PropertyDirection;
 import com.househub.backend.domain.property.enums.PropertyType;
 
+import com.househub.backend.domain.tag.dto.TagResDto;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -32,9 +34,10 @@ public class FindPropertyDetailResDto {
     private PropertyDirection direction; // 방향 (남, 북, 동, 서 , ...)
     private Integer bathroomCnt; // 욕실 개수
     private Integer roomCnt; // 방 개수
+    private List<TagResDto> tags;
 
     // Entity -> DTO 변환
-    public static FindPropertyDetailResDto toDto(Property property) {
+    public static FindPropertyDetailResDto fromEntity(Property property) {
         return FindPropertyDetailResDto.builder()
                 .id(property.getId())
                 .propertyType(property.getPropertyType())
@@ -54,6 +57,8 @@ public class FindPropertyDetailResDto {
                         property.getContracts().stream().map(FindContractResDto::toDto).toList() : null)
                 .active(property.getActive())
                 .createdAt(property.getCreatedAt())
+                .tags(property.getPropertyTagMaps() == null ? Collections.emptyList() :
+                        property.getPropertyTagMaps().stream().map(m -> TagResDto.fromEntity(m.getTag())).toList())
                 .build();
     }
 }
