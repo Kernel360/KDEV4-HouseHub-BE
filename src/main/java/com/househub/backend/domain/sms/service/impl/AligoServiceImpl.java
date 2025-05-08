@@ -10,7 +10,6 @@ import com.househub.backend.domain.sms.dto.AligoSmsResDto;
 import com.househub.backend.domain.sms.dto.SendSmsReqDto;
 import com.househub.backend.domain.sms.service.AligoGateway;
 import com.househub.backend.domain.sms.service.AligoService;
-import com.househub.backend.domain.sms.utils.MessageFormatter;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +25,7 @@ public class AligoServiceImpl implements AligoService {
 		request.setMsgType(request.getMsgType());
 		request.setTitle(processTitle(request.getTitle(), request.getMsgType().toString()));
 
-		return aligoGateway.formatParamsAndSend(request);
+		return aligoGateway.addParamsAndSend(request);
 	}
 
 	private String processTitle(String originalTitle, String msgType) {

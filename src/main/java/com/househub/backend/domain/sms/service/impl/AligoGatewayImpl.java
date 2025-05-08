@@ -78,7 +78,7 @@ public class AligoGatewayImpl implements AligoGateway {
 	}
 
 	@Override
-	public AligoSmsResDto formatParamsAndSend(SendSmsReqDto request) {
+	public AligoSmsResDto addParamsAndSend(SendSmsReqDto request) {
 		String url = "https://apis.aligo.in/send/";
 		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 

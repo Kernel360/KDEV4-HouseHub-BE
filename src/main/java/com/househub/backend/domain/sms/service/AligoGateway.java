@@ -7,6 +7,6 @@ import com.househub.backend.domain.sms.dto.AligoSmsResDto;
 import com.househub.backend.domain.sms.dto.SendSmsReqDto;
 
 public interface AligoGateway {
-	AligoSmsResDto formatParamsAndSend(SendSmsReqDto request);
+	AligoSmsResDto addParamsAndSend(SendSmsReqDto request);
 	List<AligoHistoryResDto.HistoryDetailDto> getHistory(Integer page, Integer pageSize, String startDate, Integer limitDay);
 }

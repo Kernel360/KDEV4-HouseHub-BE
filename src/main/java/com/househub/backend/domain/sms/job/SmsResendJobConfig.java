@@ -76,7 +76,7 @@ public class SmsResendJobConfig {
 			Sms detachedSms = entityManager.merge(sms);
 			entityManager.detach(detachedSms);
 
-			AligoSmsResDto result = aligoGateway.formatParamsAndSend(SendSmsReqDto.fromEntity(detachedSms));
+			AligoSmsResDto result = aligoGateway.addParamsAndSend(SendSmsReqDto.fromEntity(detachedSms));
 			detachedSms.updateStatus((result.getResultCode() == 1 ? SmsStatus.SUCCESS : SmsStatus.FAIL));
 			detachedSms.incrementRetryCount();
 			if(result.getResultCode()!=1 && detachedSms.getRetryCount() > 3) {
