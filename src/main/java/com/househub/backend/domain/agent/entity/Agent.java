@@ -104,5 +104,6 @@ public class Agent {
 			this.contact = request.getContact();
 		}
 		this.licenseNumber = request.getLicenseNumber();
+		this.birthdayTemplateId = request.getBirthdayTemplateId();
 	}
 }
