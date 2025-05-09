@@ -9,10 +9,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface CrawlingPropertyRepositoryCustom {
-
-    Page<CrawlingPropertyTagResDto> findByTags(List<String> propertyIds, List<Long> tagIds, Pageable pageable);
 
     Page<CrawlingProperty> findAllWithTags(
             TransactionType transactionType,
@@ -42,4 +41,8 @@ public interface CrawlingPropertyRepositoryCustom {
             Float minMonthlyRentFee,
             Float maxMonthlyRentFee
     );
+
+    Page<CrawlingPropertyTagResDto> findByTags(List<String> propertyIds, List<Long> tagIds, Pageable pageable);
+
+    Optional<CrawlingPropertyTagResDto> findCrawlingPropertyById(String crawlingPropertyId);
 }

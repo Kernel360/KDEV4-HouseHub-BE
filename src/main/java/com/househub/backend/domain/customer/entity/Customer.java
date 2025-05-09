@@ -82,11 +82,11 @@ public class Customer {
 	@JoinColumn(name = "agent_id", nullable = false)
 	private Agent agent;
 
-	@OneToMany(mappedBy = "customer")
+	@OneToMany(mappedBy = "customer", cascade = CascadeType.REMOVE, orphanRemoval = true)
 	@Builder.Default
 	private List<Consultation> consultations = new ArrayList<>();
 
-	@OneToMany(mappedBy = "customer")
+	@OneToMany(mappedBy = "customer", cascade = CascadeType.REMOVE, orphanRemoval = true)
 	@Builder.Default
 	private List<Contract> contracts = new ArrayList<>();
 

@@ -44,9 +44,4 @@ public class AgentController {
 
 		return ResponseEntity.ok(SuccessResponse.success("내 정보 수정 성공","UPDATE_MY_INFO_SUCCESS",response));
 	}
-
-	@GetMapping("")
-	public String hello() {
-		return "Hello, World!";
-	}
 }
