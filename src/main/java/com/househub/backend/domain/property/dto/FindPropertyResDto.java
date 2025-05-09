@@ -26,7 +26,7 @@ public class FindPropertyResDto {
 	private List<ContractType> contractTypes; // 계약 유형 (전세, 월세, 매매 등)
 
 	// Entity -> DTO 변환
-	public static FindPropertyResDto toDto(Property property) {
+	public static FindPropertyResDto fromEntity(Property property) {
 		return FindPropertyResDto.builder()
 			.id(property.getId())
 			.customer(CustomerResDto.fromEntity(property.getCustomer()))

@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.repository.query.Param;
 
 import com.househub.backend.domain.property.dto.PropertySearchDto;
 import com.househub.backend.domain.property.entity.Property;
@@ -16,4 +17,6 @@ public interface PropertyReader {
 	void validateUniqueAddressForCustomer(String roadAddress, String jibunAddress, Long customerId);
 
 	List<Property> searchPropertiesByCustomer(Long agentId, Long customerId);
+
+	List<Property> findTop5ByMatchingTags(List<Long> tagIds, Integer limit, Long agentId);
 }

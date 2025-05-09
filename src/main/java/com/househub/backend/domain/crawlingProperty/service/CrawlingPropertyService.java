@@ -1,5 +1,6 @@
 package com.househub.backend.domain.crawlingProperty.service;
 
+import com.househub.backend.domain.agent.dto.AgentResDto;
 import com.househub.backend.domain.crawlingProperty.dto.CrawlingPropertyListResDto;
 import com.househub.backend.domain.crawlingProperty.dto.CrawlingPropertyReqDto;
 import com.househub.backend.domain.crawlingProperty.dto.CrawlingPropertyResDto;
@@ -14,4 +15,6 @@ public interface CrawlingPropertyService {
     CrawlingPropertyResDto findOne(String id);
 
     CrawlingPropertyTagListResDto findAll(CrawlingPropertyReqDto crawlingPropertyReqDto, Pageable pageable);
+
+	List<CrawlingPropertyResDto> findRecommendProperties(Long id, int limit, AgentResDto agentDto);
 }

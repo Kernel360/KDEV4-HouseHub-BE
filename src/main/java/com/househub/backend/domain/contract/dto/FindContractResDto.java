@@ -43,7 +43,7 @@ public class FindContractResDto {
         return FindContractResDto.builder()
                 .id(contract.getId())
                 .agent(GetMyInfoResDto.from(contract.getAgent()))
-                .property(FindPropertyResDto.toDto(contract.getProperty()))
+                .property(FindPropertyResDto.fromEntity(contract.getProperty()))
                 .customer(contract.getCustomer() != null ?
                         CustomerResDto.fromEntity(contract.getCustomer()) : null)
                 .contractType(contract.getContractType())
