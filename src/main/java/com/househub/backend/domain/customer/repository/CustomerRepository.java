@@ -30,6 +30,14 @@ public interface CustomerRepository extends JpaRepository<Customer, Long>, Custo
 	long countNewCustomersInLast7DaysByAgentId(@Param("agentId") Long agentId,
 		@Param("sevenDaysAgo") LocalDateTime sevenDaysAgo);
 
+	@Query("SELECT c FROM Customer c WHERE c.agent.id = :agentId AND c.createdAt >= :sevenDaysAgo")
+	Page<Customer> findNewCustomersInLast7DaysByAgentId(
+			@Param("agentId") Long agentId,
+			@Param("sevenDaysAgo") LocalDateTime sevenDaysAgo,
+			Pageable pageable
+	);
+
+
 	Optional<Customer> findByEmailAndAgentIdAndDeletedAtIsNull(String email, Long agentId);
 
 	@Query("SELECT c FROM Customer c " +

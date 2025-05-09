@@ -17,6 +17,7 @@ public interface CustomerReader {
 	void checkDuplicatedByContact(String contact, Long agentId);
 	void checkDuplicatedByEmail(String email, Long agentId);
 	Page<Customer> findAllByKeyword(String keyword, Long agentId, Pageable pageable, boolean includeDeleted);
+	Page<Customer> findNewCustomers(Long agentId, Pageable pageable);
 	Optional<Customer> findByContactAndAgentId(String contact, Long agentId);
 	List<Customer> findAllByBirthDate();
 }

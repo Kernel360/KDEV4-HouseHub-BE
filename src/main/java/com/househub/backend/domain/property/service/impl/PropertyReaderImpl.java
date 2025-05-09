@@ -38,15 +38,6 @@ public class PropertyReaderImpl implements PropertyReader {
 	}
 
 	@Override
-	public void validateUniqueAddressForCustomer(String roadAddress, String detailAddress, Long customerId) {
-		boolean isExist = propertyRepository.existsByRoadAddressAndDetailAddressAndCustomerId(roadAddress,
-			detailAddress, customerId);
-		if (isExist) {
-			throw new AlreadyExistsException("해당 고객이 동일 주소로 등록한 매물이 존재합니다.", "PROPERTY_ALREADY_EXISTS");
-		}
-	}
-
-	@Override
 	public List<Property> searchPropertiesByCustomer(Long agentId, Long customerId) {
 		return propertyRepository.searchPropertiesByCustomer(
 			agentId,

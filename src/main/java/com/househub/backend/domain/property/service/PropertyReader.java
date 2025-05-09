@@ -14,8 +14,6 @@ public interface PropertyReader {
 
 	Page<Property> findPageBySearchDto(PropertySearchDto searchDto, Pageable pageable, Long agentId);
 
-	void validateUniqueAddressForCustomer(String roadAddress, String jibunAddress, Long customerId);
-
 	List<Property> searchPropertiesByCustomer(Long agentId, Long customerId);
 
 	List<Property> findTop5ByMatchingTags(List<Long> tagIds, Integer limit, Long agentId);

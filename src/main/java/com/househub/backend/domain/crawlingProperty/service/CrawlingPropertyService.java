@@ -1,5 +1,6 @@
 package com.househub.backend.domain.crawlingProperty.service;
 
+import com.househub.backend.domain.crawlingProperty.dto.*;
 import com.househub.backend.domain.agent.dto.AgentResDto;
 import com.househub.backend.domain.crawlingProperty.dto.CrawlingPropertyListResDto;
 import com.househub.backend.domain.crawlingProperty.dto.CrawlingPropertyReqDto;
@@ -12,7 +13,7 @@ import java.util.List;
 
 public interface CrawlingPropertyService {
 
-    CrawlingPropertyResDto findOne(String id);
+    CrawlingPropertyTagResDto findOne(String id);
 
     CrawlingPropertyTagListResDto findAll(CrawlingPropertyReqDto crawlingPropertyReqDto, Pageable pageable);
 

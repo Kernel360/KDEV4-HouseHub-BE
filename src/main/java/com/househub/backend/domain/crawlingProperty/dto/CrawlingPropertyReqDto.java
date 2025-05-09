@@ -42,5 +42,4 @@ public class CrawlingPropertyReqDto {
     private Float maxMonthlyRent;
 
     private List<Long> tagIds;
-
 }
