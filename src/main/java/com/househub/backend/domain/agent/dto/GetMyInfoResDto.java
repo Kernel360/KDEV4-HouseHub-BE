@@ -20,6 +20,7 @@ public class GetMyInfoResDto {
 	private String licenseNumber;
 	private Role role;
 	private AgentStatus status;
+	private Long birthdayTemplateId;
 	private LocalDateTime createdAt;
 	private LocalDateTime updatedAt;
 	private RealEstateResDto realEstate;
@@ -51,6 +52,7 @@ public class GetMyInfoResDto {
 			.createdAt(agent.getCreatedAt())
 			.updatedAt(agent.getUpdatedAt())
 			.realEstate(realEstateResDto)
+			.birthdayTemplateId(agent.getBirthdayTemplateId())
 			.build();
 	}
 

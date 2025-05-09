@@ -1,31 +1,36 @@
 package com.househub.backend.domain.sms.service.impl;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
+import com.househub.backend.domain.agent.entity.Agent;
+import com.househub.backend.domain.agent.service.AgentReader;
 import com.househub.backend.domain.customer.entity.Customer;
-import com.househub.backend.domain.sms.dto.AligoSmsResDto;
-import com.househub.backend.domain.sms.dto.SendSmsReqDto;
+import com.househub.backend.domain.customer.service.CustomerReader;
 import com.househub.backend.domain.sms.entity.Sms;
-import com.househub.backend.domain.sms.service.AligoGateway;
 import com.househub.backend.domain.sms.service.SmsExecutor;
+import com.househub.backend.domain.sms.service.SmsReader;
 
 import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
 public class SmsExecutorImpl implements SmsExecutor {
-	private final AligoGateway aligoGateway;
+
+	private final CustomerReader customerReader;
+	private final AgentReader agentReader;
+	private final SmsReader smsReader;
 
 	@Override
-	public boolean resend(Sms log) {
-		AligoSmsResDto result = aligoGateway.sendApiRequest(SendSmsReqDto.fromEntity(log));
-		return result.getResultCode() == 1;
-	}
+	public Page<Sms> findAllByCustomer(Long customerId, Pageable pageable, Long agentId) {
+		Customer customer = customerReader.findById(customerId, agentId);
+		Agent agent = agentReader.findById(agentId);
 
-	@Override
-	public boolean sendNew(SendSmsReqDto request) {
-		AligoSmsResDto result = aligoGateway.sendApiRequest(request);
-		return result.getResultCode() == 1;
-	}
+		String sender = agent.getContact();
+		String receiver = customer.getContact();
 
+		return smsReader.findAllBySenderAndReceiver(receiver, sender, pageable);
+	}
 }

@@ -46,4 +46,8 @@ public interface SmsRepository extends JpaRepository<Sms, Long> {
 		@Param("startDate") LocalDateTime startDate);
 
 	Long agent(Agent agent);
+
+
+	Page<Sms> findAllSmsBySenderAndReceiverAndDeletedAtIsNull(String sender, String receiver,
+		Pageable pageable);
 }

@@ -74,12 +74,7 @@ public class CustomerReaderImpl implements CustomerReader {
 	}
 
 	@Override
-	public List<Customer> findAllByBirthDate(LocalDate birthDate) {
-		return customerRepository.findByBirthDate(birthDate);
-	}
-
-	@Override
-	public List<Customer> findAllByContractEndDate(LocalDateTime consultationDate) {
-		return customerRepository.findCustomersWithExpiringContracts(consultationDate.toLocalDate());
+	public List<Customer> findAllByBirthDate() {
+		return customerRepository.findByBirthDate();
 	}
 }
