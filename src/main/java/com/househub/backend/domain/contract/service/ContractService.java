@@ -29,6 +29,9 @@ public interface ContractService {
     // 매물 계약 내역 조회
     public ContractListResDto findAllByProperties(List<Property> propertyIds, Pageable pageable, Long agentId);
 
+    //
+    public ContractListResDto findAllByStatusAndDateRange(Long agentId, Pageable pageable);
+
     // 계약 상세 조회
     public FindContractResDto findContract(Long id, AgentResDto agentDto);
 

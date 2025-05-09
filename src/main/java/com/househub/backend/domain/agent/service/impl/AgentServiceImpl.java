@@ -41,6 +41,7 @@ public class AgentServiceImpl implements AgentService {
 	public GetMyInfoResDto updateMyInfo(UpdateAgentReqDto request, Long agentId) {
 
 		Agent agent = agentReader.findById(agentId);
+
 		// 이메일 중복 체크 (본인 이메일은 제외)
 		if (request.getEmail() != null && !request.getEmail().isEmpty() && !agent.getEmail()
 			.equals(request.getEmail())) {
@@ -56,6 +57,14 @@ public class AgentServiceImpl implements AgentService {
 				throw new AlreadyExistsException("이미 사용 중인 라이선스 번호입니다.", "LICENSE_DUPLICATE");
 			}
 		}
+
+		if (request.getContact() != null && !request.getContact().isEmpty()
+			&& (agent.getContact() == null || !agent.getContact().equals(request.getContact()))) {
+			if (agentReader.existsByContact(request.getContact())) {
+				throw new AlreadyExistsException("이미 사용 중인 전화번호입니다.", "CONTACT_DUPLICATE");
+			}
+		}
+
 		agent.update(request);
 
 		return GetMyInfoResDto.from(agent);

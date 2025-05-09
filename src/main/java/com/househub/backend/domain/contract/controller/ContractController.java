@@ -32,10 +32,8 @@ public class ContractController {
 	@PostMapping
 	public ResponseEntity<SuccessResponse<CreateContractResDto>> createContract(
 		@RequestBody @Valid CreateContractReqDto contractReqDto) {
-		log.info("createContract: {}", contractReqDto);
 		AgentResDto agentDto = SecurityUtil.getAuthenticatedAgent();
 		CreateContractResDto response = contractService.createContract(contractReqDto, agentDto);
-		log.info("createContract response: {}", response);
 		return ResponseEntity.ok(SuccessResponse.success("계약이 성공적으로 등록되었습니다.", "CREATE_CONTRACT_SUCCESS", response));
 	}
 
@@ -62,6 +60,17 @@ public class ContractController {
 		Pageable adjustedPageable = PageRequest.of(page, size, pageable.getSort());
 		AgentResDto agentDto = SecurityUtil.getAuthenticatedAgent();
 		ContractListResDto response = contractService.findContracts(searchDto, adjustedPageable, agentDto);
+		return ResponseEntity.ok(SuccessResponse.success("계약 조회 성공", "FIND_CONTRACTS_SUCCESS", response));
+	}
+
+	// 이번달 완료 계약 조회
+	@GetMapping("completed/this-month")
+	public ResponseEntity<SuccessResponse<ContractListResDto>> findCompletedContractsThisMonth(Pageable pageable) {
+		int page = Math.max(pageable.getPageNumber() - 1, 0);
+		int size = pageable.getPageSize();
+		Pageable adjustedPageable = PageRequest.of(page, size, pageable.getSort());
+		AgentResDto agentDto = SecurityUtil.getAuthenticatedAgent();
+		ContractListResDto response = contractService.findAllByStatusAndDateRange(agentDto.getId(), adjustedPageable);
 		return ResponseEntity.ok(SuccessResponse.success("계약 조회 성공", "FIND_CONTRACTS_SUCCESS", response));
 	}
 

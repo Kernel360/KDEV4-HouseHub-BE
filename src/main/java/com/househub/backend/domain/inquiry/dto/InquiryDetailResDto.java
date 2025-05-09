@@ -30,6 +30,7 @@ public class InquiryDetailResDto {
 	@AllArgsConstructor
 	public static class AnswerDto {
 		private Long questionId;
+		private String questionType;
 		private String questionContent;
 		private String answer;
 	}
@@ -43,6 +44,7 @@ public class InquiryDetailResDto {
 		List<AnswerDto> answers = inquiry.getAnswers().stream()
 			.map(a -> AnswerDto.builder()
 				.questionId(a.getQuestion().getId())
+				.questionType(a.getQuestion().getType().name())
 				.questionContent(a.getQuestion().getLabel())
 				.answer(a.getAnswer())
 				.build())

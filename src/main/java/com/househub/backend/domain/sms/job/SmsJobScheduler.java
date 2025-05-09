@@ -24,6 +24,9 @@ public class SmsJobScheduler {
 	@Qualifier("contractExpireSmsJob")
 	private final Job contractExpireSmsJob;
 
+	@Qualifier("birthdaySmsJob")
+	private final Job birthdaySmsJob;
+
 	@Scheduled(cron = "0 0 0 * * *")
 	public void runSmsResendJob() {
 		executeJob(smsResendJob, "SMS 재전송 Job");
@@ -33,6 +36,12 @@ public class SmsJobScheduler {
 	@Scheduled(cron = "0 0 0 1 * *")
 	public void runContractExpireSmsJob(){
 		executeJob(contractExpireSmsJob,"계약 만료 알림 SMS 전송 Job");
+	}
+
+	// 생일 대상자인 고객에게 축하 메세지 자동 전송
+	@Scheduled(cron = "0 0 12 * * *")
+	public void runBirthdaySmsJob(){
+		executeJob(birthdaySmsJob, "생일 축하 SMS 전송 Job");
 	}
 
 	private void executeJob(Job job, String jobName) {
@@ -48,8 +57,4 @@ public class SmsJobScheduler {
 			log.error("{} 실행 실패: {}", jobName, e.getMessage());
 		}
 	}
-
-	// 생일 대상자인 고객에게 축하 메세지 자동 전송
-
-
 }

@@ -14,4 +14,5 @@ public class UpdateAgentReqDto {
 	private String email;
 	private String contact;
 	private String licenseNumber;
+	private Long birthdayTemplateId;
 }

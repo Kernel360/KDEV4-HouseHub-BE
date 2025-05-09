@@ -5,6 +5,8 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import com.househub.backend.common.exception.BusinessException;
 import com.househub.backend.common.exception.ErrorCode;
@@ -27,6 +29,7 @@ public class NotificationService {
 	private final NotificationReader notificationReader;
 	private final NotificationExecutor notificationExecutor;
 
+	@Transactional
 	public void sendInquiryNotification(InquiryCreatedEvent event) {
 		Agent receiver = notificationReader.findReceiverById(event.getReceiverId());
 
@@ -42,7 +45,12 @@ public class NotificationService {
 		Notification saved = notificationStore.create(notification);
 
 		// 2. 실시간 전송
-		notificationExecutor.send(saved);
+		TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+			@Override
+			public void afterCommit() {
+				notificationExecutor.send(saved);
+			}
+		});
 	}
 
 	public NotificationListResDto findNotifications(Long receiverId, String filter, Pageable pageable) {
