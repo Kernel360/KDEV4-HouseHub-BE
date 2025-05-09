@@ -2,6 +2,9 @@ package com.househub.backend.domain.property.repository;
 
 import java.util.List;
 
+import com.househub.backend.domain.property.entity.QPropertyTagMap;
+import com.househub.backend.domain.tag.entity.QTag;
+import com.querydsl.jpa.JPAExpressions;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -33,23 +36,26 @@ public class PropertyRepositoryCustomImpl implements PropertyRepositoryCustom {
 		QAgent agent = QAgent.agent;
 		QCustomer customer = QCustomer.customer;
 		QContract contract = QContract.contract;
+		QPropertyTagMap propertyTagMap = QPropertyTagMap.propertyTagMap;
+		QTag tag = QTag.tag;
 
 		// 기본 쿼리 작성
 		JPAQuery<Property> query = queryFactory
-			.selectFrom(property)
-			.join(property.agent, agent)
-			.join(property.customer, customer)
-			.leftJoin(property.contracts, contract)  // 계약 정보와 조인
-			.where(
-				agent.id.eq(agentId),
-				provinceContains(searchDto.getProvince()),
-				cityContains(searchDto.getCity()),
-				dongContains(searchDto.getDong()),
-				propertyTypeEq(searchDto.getPropertyType()),
-				agentNameContains(searchDto.getAgentName()),
-				customerNameContains(searchDto.getCustomerName()),
-				activeEq(searchDto.getActive())
-			);
+				.selectFrom(property)
+				.join(property.agent, agent)
+				.join(property.customer, customer)
+				.leftJoin(property.contracts, contract)  // 계약 정보와 조인
+				.where(
+						agent.id.eq(agentId),
+						provinceContains(searchDto.getProvince()),
+						cityContains(searchDto.getCity()),
+						dongContains(searchDto.getDong()),
+						propertyTypeEq(searchDto.getPropertyType()),
+						agentNameContains(searchDto.getAgentName()),
+						customerNameContains(searchDto.getCustomerName()),
+						activeEq(searchDto.getActive()),
+						tagIdsIn(searchDto.getTagIds(), propertyTagMap, tag)
+				);
 
 		// 거래 유형과 가격 조건 추가
 		BooleanBuilder transactionBuilder = new BooleanBuilder();
@@ -98,10 +104,11 @@ public class PropertyRepositoryCustomImpl implements PropertyRepositoryCustom {
 		}
 
 		// 정렬 및 페이징
-		query.orderBy(customer.createdAt.desc());
+		query.orderBy(property.createdAt.desc())
+				.distinct(); // 태그 조인으로 인한 중복 결과 제거
 
 		// 전체 개수 조회를 위한 쿼리
-		long total = query.stream().count();
+		long total = query.stream().distinct().count();
 
 		// 실제 결과 조회
 		List<Property> results = query
@@ -154,4 +161,20 @@ public class PropertyRepositoryCustomImpl implements PropertyRepositoryCustom {
 		return active != null ? QProperty.property.active.eq(active) : null;
 	}
 
+	// 태그 ID 목록으로 필터링하는 메소드 추가
+	private BooleanExpression tagIdsIn(List<Long> tagIds, QPropertyTagMap propertyTagMap, QTag tag) {
+		if (tagIds == null || tagIds.isEmpty()) {
+			return null;
+		}
+
+		return JPAExpressions
+				.selectOne()
+				.from(propertyTagMap)
+				.join(propertyTagMap.tag, tag)
+				.where(
+						propertyTagMap.property.eq(QProperty.property),
+						tag.tagId.in(tagIds)
+				)
+				.exists();
+	}
 }
