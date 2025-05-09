@@ -1,8 +1,11 @@
 package com.househub.backend.domain.crawlingProperty.service.impl;
 
 import com.househub.backend.common.exception.ResourceNotFoundException;
+import com.househub.backend.domain.agent.dto.AgentResDto;
 import com.househub.backend.domain.crawlingProperty.dto.*;
 import com.househub.backend.domain.crawlingProperty.entity.CrawlingProperty;
+import com.househub.backend.domain.customer.entity.Customer;
+import com.househub.backend.domain.customer.service.CustomerReader;
 import com.househub.backend.domain.tag.entity.Tag;
 import com.househub.backend.domain.crawlingProperty.repository.CrawlingPropertyRepository;
 import com.househub.backend.domain.crawlingProperty.service.CrawlingPropertyService;
@@ -25,6 +28,7 @@ import java.util.stream.Collectors;
 public class CrawlingPropertyServiceImpl implements CrawlingPropertyService {
 
     private final CrawlingPropertyRepository crawlingPropertyRepository;
+    private final CustomerReader customerReader;
 
     // 조건만 검색하는 경우
     @Transactional(readOnly = true)
@@ -104,6 +108,15 @@ public class CrawlingPropertyServiceImpl implements CrawlingPropertyService {
 
             return CrawlingPropertyTagListResDto.fromPage(response);
         }
+    }
+
+    @Override
+    public List<CrawlingPropertyResDto> findRecommendProperties(Long id, int limit, AgentResDto agentDto) {
+        Customer customer = customerReader.findById(id,agentDto.getId());
+        List<Long> tagIds = customer.getCustomerTagMaps().stream().map(map -> map.getTag().getTagId()).toList();
+        List<CrawlingProperty> crawlingPropertyList = crawlingPropertyRepository.findTopNByMatchingTags(tagIds, limit, agentDto.getId());
+
+        return crawlingPropertyList.stream().map(CrawlingPropertyResDto::fromEntity).toList();
     }
 
     // 최소 가격을 0으로 설정

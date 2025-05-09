@@ -44,4 +44,9 @@ public class PropertyReaderImpl implements PropertyReader {
 			customerId
 		);
 	}
+
+	@Override
+	public List<Property> findTop5ByMatchingTags(List<Long> tagIds, Integer limit, Long agentId) {
+		return propertyRepository.findTopNByMatchingTags(tagIds, limit, agentId);
+	}
 }
