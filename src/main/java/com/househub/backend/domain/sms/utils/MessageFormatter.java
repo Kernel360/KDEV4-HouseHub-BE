@@ -26,7 +26,7 @@ public class MessageFormatter {
 		StringBuilder sb = new StringBuilder();
 		sb.append("보낸이: ");
 		if (realEstateName != null) {
-			sb.append(realEstateName).append(" ");
+			sb.append(realEstateName).append(" 중개사 ");
 		}
 		sb.append(senderName)
 			.append("\n\n")

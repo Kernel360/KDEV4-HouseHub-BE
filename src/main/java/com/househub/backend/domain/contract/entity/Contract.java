@@ -72,8 +72,6 @@ public class Contract {
 	private LocalDate expiredAt; // 계약 만료일
 	private LocalDate completedAt; // 계약 완료일시
 
-	private Boolean active; // 활성화 여부
-
 	@Column(nullable = false, updatable = false)
 	private LocalDateTime createdAt; // 등록일시
 
@@ -93,19 +91,11 @@ public class Contract {
 		updatedAt = LocalDateTime.now();
 	}
 
-	public void enable() {
-		this.active = true;
-	}
-
-	public void disable() {
-		this.active = false;
-	}
-
 	public void update(UpdateContractReqDto updateDto) {
 		if (updateDto.getContractStatus() != null) {
 			if(updateDto.getContractStatus() == ContractStatus.COMPLETED) {
-				// 해당 매물에 대한 모든 계약 disable, 해당 매물 disable
-				property.getContracts().forEach(Contract::disable);
+				// 해당 매물 disable
+//				property.getContracts().forEach(Contract::disable);
 				property.disable();
 			}
 			if (updateDto.getContractStatus() != ContractStatus.COMPLETED) {

@@ -92,6 +92,14 @@ public class CustomerServiceImpl implements CustomerService {
 		return CustomerListResDto.fromPage(response);
 	}
 
+	@Override
+	@Transactional(readOnly = true)
+	public CustomerListResDto findAllRecent(AgentResDto agentDto, Pageable pageable) {
+		Page<Customer> customers = customerReader.findNewCustomers(agentDto.getId(), pageable);
+		Page<CustomerResDto> response = customers.map(CustomerResDto::fromEntity);
+		return CustomerListResDto.fromPage(response);
+	}
+
 	public CustomerResDto findDetailsById(Long id, AgentResDto agentDto) {
 		Agent agent = agentDto.toEntity();
 		Customer customer = customerReader.findByIdOrThrow(id, agent.getId());

@@ -2,17 +2,14 @@ package com.househub.backend.domain.sms.service.impl;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import com.househub.backend.domain.sms.dto.AligoHistoryResDto;
 import com.househub.backend.domain.sms.dto.AligoSmsResDto;
 import com.househub.backend.domain.sms.dto.SendSmsReqDto;
-import com.househub.backend.domain.sms.enums.MessageType;
 import com.househub.backend.domain.sms.service.AligoGateway;
 import com.househub.backend.domain.sms.service.AligoService;
-import com.househub.backend.domain.sms.utils.MessageFormatter;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,22 +20,13 @@ import lombok.extern.slf4j.Slf4j;
 public class AligoServiceImpl implements AligoService {
 
 	private final AligoGateway aligoGateway;
-	private final MessageFormatter formatter;
 
 	public AligoSmsResDto sendSms(SendSmsReqDto request) {
 		request.setMsgType(request.getMsgType());
 		request.setTitle(processTitle(request.getTitle(), request.getMsgType().toString()));
 
-		return aligoGateway.sendApiRequest(request);
+		return aligoGateway.addParamsAndSend(request);
 	}
-
-	// // AligoServiceImpl 수정
-	// private MessageType determineMessageType(SendSmsReqDto request) {
-	// 	if (request.getMsg().length() > 90 || request.getTitle() != null) {
-	// 		return MessageType.LMS;
-	// 	}
-	// 	return MessageType.SMS; // 명시적 기본값 반환
-	// }
 
 	private String processTitle(String originalTitle, String msgType) {
 		return "LMS".equals(msgType)

@@ -61,6 +61,14 @@ public interface ContractRepository extends JpaRepository<Contract, Long> {
 		LocalDateTime endDate
 	);
 
+	Page<Contract> findAllByAgentIdAndStatusAndCreatedAtBetween(
+		Long agentId,
+		ContractStatus status,
+		LocalDateTime startDate,
+		LocalDateTime endDate,
+		Pageable pageable
+	);
+
 	List<Contract> findAllByAgentIdAndCreatedAtBetween(
 		Long agentId,
 		LocalDateTime startDate,
