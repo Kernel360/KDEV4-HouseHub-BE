@@ -35,6 +35,8 @@ import com.househub.backend.domain.inquiry.dto.InquiryListResDto;
 import com.househub.backend.domain.inquiry.service.InquiryService;
 import com.househub.backend.domain.property.entity.Property;
 import com.househub.backend.domain.property.service.PropertyService;
+import com.househub.backend.domain.sms.dto.SmsListResDto;
+import com.househub.backend.domain.sms.service.SmsService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
@@ -50,6 +52,7 @@ public class CustomerController {
 	private final ContractService contractService;
 	private final InquiryService inquiryService;
 	private final PropertyService propertyService;
+	private final SmsService smsService;
 
 	@Operation(
 		summary = "고객 등록",
@@ -155,6 +158,18 @@ public class CustomerController {
 	}
 
 	@Operation(
+		summary = "고객 문자 내역 조회",
+		description = "특정 고객에게 보낸 문자 내역을 조회합니다. 삭제된 고객이거나 본인이 등록하지 않은 고객은 조회할 수 없습니다."
+	)
+	@GetMapping("/{id}/sms")
+	public ResponseEntity<SuccessResponse<SmsListResDto>> findCustomerSms(@PathVariable Long id, Pageable pageable) {
+		Pageable adjustedPageable = PageRequest.of(Math.max(pageable.getPageNumber() -1, 0), pageable.getPageSize(), pageable.getSort());
+		AgentResDto agentDto = SecurityUtil.getAuthenticatedAgent();
+		SmsListResDto response = smsService.findAllByCustomer(id, adjustedPageable, agentDto);
+		return ResponseEntity.ok(SuccessResponse.success("고객 문자 목록 조회가 완료되었습니다.", "FIND_CUSTOMER_SMS_SUCCESS", response));
+	}
+
+	@Operation(
 		summary = "고객 정보 수정",
 		description = "특정 고객의 정보를 수정합니다. 이메일이 중복되거나 본인이 담당하지 않은 고객은 수정할 수 없습니다."
 	)
@@ -194,7 +209,7 @@ public class CustomerController {
 	}
 
 	@Operation(
-		summary = "엑셀 업로드",
+		summary = "고객 정보 엑셀 업로드",
 		description = "엑셀 파일을 업로드하여 여러 고객 정보를 한 번에 등록합니다."
 	)
 	@PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

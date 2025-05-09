@@ -40,13 +40,10 @@ public interface CustomerRepository extends JpaRepository<Customer, Long>, Custo
 
 	Optional<Customer> findByEmailAndAgentIdAndDeletedAtIsNull(String email, Long agentId);
 
-	List<Customer> findByBirthDate(LocalDate birthDate);
-
-	@Query("SELECT DISTINCT c FROM Customer c " +
-		"JOIN c.contracts contract " +
-		"WHERE contract.expiredAt = :today " +
-		"AND contract.deletedAt IS NULL")
-	List<Customer> findCustomersWithExpiringContracts(@Param("today") LocalDate today);
+	@Query("SELECT c FROM Customer c " +
+		"WHERE FUNCTION('MONTH', c.birthDate) = FUNCTION('MONTH', CURRENT_DATE) " +
+		"AND FUNCTION('DAY', c.birthDate) = FUNCTION('DAY', CURRENT_DATE)")
+	List<Customer> findByBirthDate();
 
 	Customer findByIdAndAgentId(Long id, Long agentId);
 }
