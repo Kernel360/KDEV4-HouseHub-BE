@@ -1,5 +1,7 @@
 package com.househub.backend.domain.notification.service;
 
+import java.util.concurrent.CompletableFuture;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
@@ -49,7 +51,7 @@ public class EmailService {
 	}
 
 	@Async
-	public void send(Notification notification) {
+	public CompletableFuture<Void> send(Notification notification) {
 		SimpleMailMessage message = new SimpleMailMessage();
 		message.setFrom(fromEmail);
 		message.setTo(notification.getReceiver().getEmail()); // 실제 수신자 이메일 주소
@@ -58,8 +60,12 @@ public class EmailService {
 
 		try {
 			mailSender.send(message);
+			return CompletableFuture.completedFuture(null); // 정상 종료
 		} catch (MailException e) {
-			throw new BusinessException(ErrorCode.EMAIL_SEND_FAILED);
+			// 예외 로깅
+			log.error("메일 전송 실패: {}", e.getMessage());
+			// 예외를 CompletableFuture로 반환
+			return CompletableFuture.failedFuture(new BusinessException(ErrorCode.EMAIL_SEND_FAILED));
 		}
 	}
 }
