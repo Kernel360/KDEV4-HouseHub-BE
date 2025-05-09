@@ -21,6 +21,8 @@ public interface CustomerService {
 
     CustomerListResDto findAll(String keyword, AgentResDto agentDto, Pageable pageable, boolean includeDeleted);
 
+    CustomerListResDto findAllRecent(AgentResDto agentDto, Pageable pageable);
+
     CustomerResDto findDetailsById(Long id, AgentResDto agentDto);
 
     CustomerResDto update(Long id, CustomerReqDto request, AgentResDto agentDto);

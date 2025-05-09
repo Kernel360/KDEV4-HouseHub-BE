@@ -50,10 +50,8 @@ public class PropertyController {
 	// 매물 상세 조회
 	@GetMapping("/{id}")
 	public ResponseEntity<SuccessResponse<FindPropertyDetailResDto>> findProperty(@PathVariable("id") Long id) {
-		log.info("findProperty: {}", id);
 		AgentResDto agentDto = SecurityUtil.getAuthenticatedAgent();
 		FindPropertyDetailResDto response = propertyService.findProperty(id, agentDto);
-		log.info("findProperty response: {}", response);
 		return ResponseEntity.ok(SuccessResponse.success("매물 상세 조회 성공", "FIND_DETAIL_PROPERTY_SUCCESS", response));
 	}
 

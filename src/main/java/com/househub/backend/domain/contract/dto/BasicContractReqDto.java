@@ -11,7 +11,7 @@ import jakarta.validation.constraints.Positive;
 import lombok.Getter;
 
 @Getter
-public class BasicContractDto {
+public class BasicContractReqDto {
     @NotNull(message = "거래 유형은 필수입니다.")
     private ContractType contractType; // 거래 유형 (매매, 전세, 월세)
     @Positive(message = "매매가는 0보다 큰 값이어야 합니다.")

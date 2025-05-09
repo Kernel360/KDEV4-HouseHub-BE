@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import com.househub.backend.domain.contract.enums.ContractStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
@@ -65,6 +66,12 @@ public class CustomerReaderImpl implements CustomerReader {
 			includeDeleted,
 			pageable
 		);
+	}
+
+	@Override
+	public Page<Customer> findNewCustomers(Long agentId, Pageable pageable) {
+		LocalDateTime sevenDaysAgo = LocalDateTime.now().minusDays(7);
+		return customerRepository.findNewCustomersInLast7DaysByAgentId(agentId, sevenDaysAgo, pageable);
 	}
 
 	// 고객을 연락처와 agentId 로 조회

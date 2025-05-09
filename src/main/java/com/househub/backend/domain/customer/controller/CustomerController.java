@@ -84,6 +84,14 @@ public class CustomerController {
         return ResponseEntity.ok(SuccessResponse.success("고객 목록 조회에 성공했습니다.", "FIND_ALL_CUSTOMER_SUCCESS", response));
     }
 
+	@GetMapping("/recent")
+	public ResponseEntity<SuccessResponse<CustomerListResDto>> getAllRecentCustomers(Pageable pageable) {
+		Pageable adjustedPageable = PageRequest.of(Math.max(pageable.getPageNumber() -1,0),pageable.getPageSize(), pageable.getSort());
+		AgentResDto agentDto = SecurityUtil.getAuthenticatedAgent();
+		CustomerListResDto response = customerService.findAllRecent(agentDto, adjustedPageable);
+		return ResponseEntity.ok(SuccessResponse.success("고객 목록 조회에 성공했습니다.", "FIND_ALL_CUSTOMER_SUCCESS", response));
+	}
+
 	@Operation(
 		summary = "고객 상세 정보 조회",
 		description = "특정 고객의 상세 정보 조회합니다. 삭제된 고객이거나 본인이 등록하지 않은 고객은 조회할 수 없습니다."
