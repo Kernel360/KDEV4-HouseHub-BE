@@ -170,7 +170,7 @@ public class PropertyServiceImpl implements PropertyService {
 		Customer customer = customerReader.findById(customerId, agentDto.getId());
 		List<Long> tagIds = customer.getCustomerTagMaps().stream().map(tagMap -> tagMap.getTag().getTagId()).toList();
 		// 추천 매물 조회
-		List<Property> propertyList = propertyReader.findTop5ByMatchingTags(tagIds, limit, agentDto.getId());
+		List<Property> propertyList = propertyReader.findTop5ByMatchingTags(customerId,tagIds, limit, agentDto.getId());
 
 		return propertyList.stream().map(FindPropertyResDto::fromEntity).toList();
 	}

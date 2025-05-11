@@ -55,7 +55,9 @@ public interface PropertyRepository extends JpaRepository<Property, Long>, Prope
     ) AS sub
     JOIN properties p ON p.id = sub.property_id
     WHERE p.agent_id = :agentId
+        AND p.active = true
+        AND p.customer_id != :customerId
     ORDER BY sub.match_count DESC
     """, nativeQuery = true)
-	List<Property> findTopNByMatchingTags(@Param("tagIds") List<Long> tagIds, @Param("limit")int limit, @Param("agentId")Long agentId);
+	List<Property> findTopNByMatchingTags(@Param("customerId") Long customerId, @Param("tagIds") List<Long> tagIds, @Param("limit")int limit, @Param("agentId")Long agentId);
 }

@@ -16,5 +16,5 @@ public interface PropertyReader {
 
 	List<Property> searchPropertiesByCustomer(Long agentId, Long customerId);
 
-	List<Property> findTop5ByMatchingTags(List<Long> tagIds, Integer limit, Long agentId);
+	List<Property> findTop5ByMatchingTags(Long customerId, List<Long> tagIds, Integer limit, Long agentId);
 }
