@@ -6,7 +6,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
-import com.househub.backend.common.exception.AlreadyExistsException;
 import com.househub.backend.common.exception.ResourceNotFoundException;
 import com.househub.backend.domain.property.dto.PropertySearchDto;
 import com.househub.backend.domain.property.entity.Property;
@@ -29,12 +28,11 @@ public class PropertyReaderImpl implements PropertyReader {
 
 	@Override
 	public Page<Property> findPageBySearchDto(PropertySearchDto searchDto, Pageable pageable, Long agentId) {
-		Page<Property> propertyList = propertyRepository.searchProperties(
+		return propertyRepository.searchProperties(
 			agentId,
 			searchDto,
 			pageable
 		);
-		return propertyList;
 	}
 
 	@Override
@@ -43,5 +41,10 @@ public class PropertyReaderImpl implements PropertyReader {
 			agentId,
 			customerId
 		);
+	}
+
+	@Override
+	public List<Property> findTop5ByMatchingTags(Long customerId, List<Long> tagIds, Integer limit, Long agentId) {
+		return propertyRepository.findTopNByMatchingTags(customerId, tagIds, limit, agentId);
 	}
 }

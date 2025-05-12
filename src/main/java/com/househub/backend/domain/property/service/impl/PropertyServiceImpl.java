@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.househub.backend.domain.contract.dto.BasicContractReqDto;
 import com.househub.backend.domain.contract.service.ContractStore;
+import com.househub.backend.domain.customer.entity.CustomerTagMap;
 import com.househub.backend.domain.property.service.PropertyTagMapStore;
 import com.househub.backend.domain.property.validator.PropertyValidator;
 import com.househub.backend.domain.tag.entity.Tag;
@@ -104,7 +105,7 @@ public class PropertyServiceImpl implements PropertyService {
 		// 페이지네이션, 검색 필터링 적용하여 매물 조회
 		Page<Property> propertyList = propertyReader.findPageBySearchDto(searchDto, pageable, agentDto.getId());
 		// 매물 엔티티를 dto 로 변환하여 리스트로 반환
-		return PropertyListResDto.fromPage(propertyList.map(FindPropertyResDto::toDto));
+		return PropertyListResDto.fromPage(propertyList.map(FindPropertyResDto::fromEntity));
 	}
 
 	/**
@@ -161,5 +162,16 @@ public class PropertyServiceImpl implements PropertyService {
 		Property property = propertyReader.findByIdOrThrow(propertyId, agentDto.getId());
 		// 매물 소프트 삭제
 		propertyStore.delete(property);
+	}
+
+	@Override
+	public List<FindPropertyResDto> findRecommendProperties(Long customerId, int limit ,AgentResDto agentDto) {
+		// 고객 태그 리스트 조회
+		Customer customer = customerReader.findById(customerId, agentDto.getId());
+		List<Long> tagIds = customer.getCustomerTagMaps().stream().map(tagMap -> tagMap.getTag().getTagId()).toList();
+		// 추천 매물 조회
+		List<Property> propertyList = propertyReader.findTop5ByMatchingTags(customerId,tagIds, limit, agentDto.getId());
+
+		return propertyList.stream().map(FindPropertyResDto::fromEntity).toList();
 	}
 }
