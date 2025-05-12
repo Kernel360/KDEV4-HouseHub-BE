@@ -44,8 +44,6 @@ public class ConsultationController {
 	public ResponseEntity<SuccessResponse<ConsultationResDto>> createConsultation(
 		@Valid @RequestBody ConsultationReqDto consultationReqDto
 	) {
-		log.info("{}", consultationReqDto.getNewCustomer().getName());
-		log.info("{}", consultationReqDto.getNewCustomer().getContact());
 		ConsultationResDto response = consultationService.create(consultationReqDto,
 			SecurityUtil.getAuthenticatedAgent());
 		return ResponseEntity.ok(SuccessResponse.success("상담 등록이 완료되었습니다.", "CONSULTATION_REGISTER_SUCCESS", response));
