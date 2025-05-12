@@ -10,7 +10,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import com.househub.backend.domain.agent.dto.AgentResDto;
 import com.househub.backend.domain.agent.entity.Agent;
-import com.househub.backend.domain.agent.entity.AgentStatus;
+import com.househub.backend.domain.agent.enums.AgentStatus;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;

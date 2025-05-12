@@ -1,6 +1,6 @@
 package com.househub.backend.domain.customer.entity;
 
-import com.househub.backend.domain.crawlingProperty.entity.Tag;
+import com.househub.backend.domain.tag.entity.Tag;
 import jakarta.persistence.*;
 import lombok.*;
 

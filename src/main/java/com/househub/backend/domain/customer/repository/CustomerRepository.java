@@ -30,15 +30,20 @@ public interface CustomerRepository extends JpaRepository<Customer, Long>, Custo
 	long countNewCustomersInLast7DaysByAgentId(@Param("agentId") Long agentId,
 		@Param("sevenDaysAgo") LocalDateTime sevenDaysAgo);
 
+	@Query("SELECT c FROM Customer c WHERE c.agent.id = :agentId AND c.createdAt >= :sevenDaysAgo")
+	Page<Customer> findNewCustomersInLast7DaysByAgentId(
+			@Param("agentId") Long agentId,
+			@Param("sevenDaysAgo") LocalDateTime sevenDaysAgo,
+			Pageable pageable
+	);
+
+
 	Optional<Customer> findByEmailAndAgentIdAndDeletedAtIsNull(String email, Long agentId);
 
-	List<Customer> findByBirthDate(LocalDate birthDate);
-
-	@Query("SELECT DISTINCT c FROM Customer c " +
-		"JOIN c.contracts contract " +
-		"WHERE contract.expiredAt = :today " +
-		"AND contract.deletedAt IS NULL")
-	List<Customer> findCustomersWithExpiringContracts(@Param("today") LocalDate today);
+	@Query("SELECT c FROM Customer c " +
+		"WHERE FUNCTION('MONTH', c.birthDate) = FUNCTION('MONTH', CURRENT_DATE) " +
+		"AND FUNCTION('DAY', c.birthDate) = FUNCTION('DAY', CURRENT_DATE)")
+	List<Customer> findByBirthDate();
 
 	Customer findByIdAndAgentId(Long id, Long agentId);
 }

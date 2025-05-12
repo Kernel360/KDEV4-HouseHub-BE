@@ -18,6 +18,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 public class InquiryTemplateSharedResDto {
+	private String type;
 	private String name;
 	private String description;
 	@JsonProperty("isActive")
@@ -26,6 +27,7 @@ public class InquiryTemplateSharedResDto {
 
 	public static InquiryTemplateSharedResDto fromEntity(InquiryTemplate inquiryTemplate, List<Question> questions) {
 		return InquiryTemplateSharedResDto.builder()
+			.type(inquiryTemplate.getType().getKoreanName())
 			.name(inquiryTemplate.getName())
 			.description(inquiryTemplate.getDescription())
 			.active(inquiryTemplate.getActive())

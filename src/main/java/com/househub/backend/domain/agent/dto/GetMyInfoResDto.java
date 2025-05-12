@@ -3,9 +3,9 @@ package com.househub.backend.domain.agent.dto;
 import java.time.LocalDateTime;
 
 import com.househub.backend.domain.agent.entity.Agent;
-import com.househub.backend.domain.agent.entity.AgentStatus;
+import com.househub.backend.domain.agent.enums.AgentStatus;
 import com.househub.backend.domain.agent.entity.RealEstate;
-import com.househub.backend.domain.agent.entity.Role;
+import com.househub.backend.domain.agent.enums.Role;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -20,6 +20,7 @@ public class GetMyInfoResDto {
 	private String licenseNumber;
 	private Role role;
 	private AgentStatus status;
+	private Long birthdayTemplateId;
 	private LocalDateTime createdAt;
 	private LocalDateTime updatedAt;
 	private RealEstateResDto realEstate;
@@ -51,6 +52,7 @@ public class GetMyInfoResDto {
 			.createdAt(agent.getCreatedAt())
 			.updatedAt(agent.getUpdatedAt())
 			.realEstate(realEstateResDto)
+			.birthdayTemplateId(agent.getBirthdayTemplateId())
 			.build();
 	}
 

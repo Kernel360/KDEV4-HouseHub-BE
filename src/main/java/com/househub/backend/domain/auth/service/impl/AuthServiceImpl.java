@@ -19,15 +19,15 @@ import com.househub.backend.common.exception.ResourceNotFoundException;
 import com.househub.backend.common.util.SessionManager;
 import com.househub.backend.domain.agent.entity.Agent;
 import com.househub.backend.domain.agent.entity.RealEstate;
-import com.househub.backend.domain.agent.entity.Role;
+import com.househub.backend.domain.agent.enums.Role;
 import com.househub.backend.domain.agent.repository.AgentRepository;
 import com.househub.backend.domain.auth.dto.SignInReqDto;
 import com.househub.backend.domain.auth.dto.SignInResDto;
 import com.househub.backend.domain.auth.dto.SignUpReqDto;
 import com.househub.backend.domain.auth.exception.EmailVerifiedException;
 import com.househub.backend.domain.auth.exception.InvalidPasswordException;
-import com.househub.backend.domain.auth.service.AuthCode;
 import com.househub.backend.domain.auth.service.AuthService;
+import com.househub.backend.domain.auth.service.EmailAuthCodeManager;
 import com.househub.backend.domain.realEstate.repository.RealEstateRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -42,7 +42,7 @@ public class AuthServiceImpl implements AuthService {
 	private final PasswordEncoder passwordEncoder;
 	private final AuthenticationManager authenticationManager;
 	private final SessionManager sessionManager;
-	private final AuthCode authCode;
+	private final EmailAuthCodeManager authCode;
 
 	/**
 	 * 부동산 공인중개사 회원가입
@@ -64,6 +64,9 @@ public class AuthServiceImpl implements AuthService {
 
 		// 자격증번호 값이 들어오면, 중개사의 자격증 번호 이미 존재하는지 확인
 		validateLicenseNumber(agentDto.getLicenseNumber());
+
+		// 전화번호 중복 여부 검증
+		checkContactDuplication(agentDto.getContact());
 
 		// 부동산 정보가 입력받은 게 없으면 기본값(null) 설정
 		// 부동산 사업자 등록 번호 이미 존재하는지 확인
@@ -151,6 +154,18 @@ public class AuthServiceImpl implements AuthService {
 		Optional<Agent> existingAgent = agentRepository.findByEmail(email);
 		if (existingAgent.isPresent()) {
 			throw new AlreadyExistsException("이미 등록된 이메일입니다.", "EMAIL_ALREADY_EXISTS");
+		}
+	}
+
+	/**
+	 * 전화번호 중복 여부를 확인하고, 이미 등록된 전화번호가 있는 경우, 예외를 발생시킵니다.
+	 * @param contact 중복을 확인할 전화번호
+	 * @throws AlreadyExistsException 전화번호가 이미 등록되어 있을 경우 발생
+	 */
+	private void checkContactDuplication(String contact) {
+		Optional<Agent> existingAgent = agentRepository.findByContact(contact);
+		if (existingAgent.isPresent()) {
+			throw new AlreadyExistsException("이미 등록된 전화번호입니다.", "CONTACT_ALREADY_EXISTS");
 		}
 	}
 

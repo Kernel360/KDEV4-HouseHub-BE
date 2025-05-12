@@ -1,16 +1,22 @@
 package com.househub.backend.domain.notification.service;
 
+import java.util.concurrent.CompletableFuture;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import com.househub.backend.common.exception.BusinessException;
 import com.househub.backend.common.exception.ErrorCode;
+import com.househub.backend.domain.notification.dto.EmailReqDto;
 import com.househub.backend.domain.notification.entity.Notification;
 
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -49,7 +55,7 @@ public class EmailService {
 	}
 
 	@Async
-	public void send(Notification notification) {
+	public CompletableFuture<Void> send(Notification notification) {
 		SimpleMailMessage message = new SimpleMailMessage();
 		message.setFrom(fromEmail);
 		message.setTo(notification.getReceiver().getEmail()); // 실제 수신자 이메일 주소
@@ -58,8 +64,32 @@ public class EmailService {
 
 		try {
 			mailSender.send(message);
+			return CompletableFuture.completedFuture(null); // 정상 종료
 		} catch (MailException e) {
-			throw new BusinessException(ErrorCode.EMAIL_SEND_FAILED);
+			// 예외 로깅
+			log.error("메일 전송 실패: {}", e.getMessage());
+			// 예외를 CompletableFuture로 반환
+			return CompletableFuture.failedFuture(new BusinessException(ErrorCode.EMAIL_SEND_FAILED));
+		}
+	}
+
+	@Async
+	public CompletableFuture<Void> sendEmail(EmailReqDto request) {
+		try {
+			MimeMessage message = mailSender.createMimeMessage();
+			MimeMessageHelper helper = new MimeMessageHelper(message, "UTF-8");
+
+			helper.setFrom(fromEmail);
+			helper.setTo(request.getTo());
+			helper.setSubject(request.getSubject());
+			helper.setText(request.getBody(), true); // true -> HTML
+
+			mailSender.send(message);
+			log.info("이메일 전송 완료 - to={}", request.getTo());
+			return CompletableFuture.completedFuture(null);
+		} catch (MessagingException | MailException e) {
+			log.error("이메일 전송 실패 - to={}, error={}", request.getTo(), e.getMessage());
+			return CompletableFuture.failedFuture(new BusinessException(ErrorCode.EMAIL_SEND_FAILED));
 		}
 	}
 }

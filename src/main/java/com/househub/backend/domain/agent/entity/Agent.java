@@ -4,6 +4,9 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.househub.backend.domain.agent.dto.UpdateAgentReqDto;
+import com.househub.backend.domain.agent.enums.AgentStatus;
+import com.househub.backend.domain.agent.enums.Role;
 import com.househub.backend.domain.customer.entity.Customer;
 
 import jakarta.persistence.CascadeType;
@@ -43,10 +46,10 @@ public class Agent {
 	@Column(nullable = false)
 	private String password;
 
-	@Column(nullable = false, length = 50)
+	@Column(nullable = true, length = 50)
 	private String name;
 
-	@Column(nullable = false, length = 50)
+	@Column(nullable = false, unique = true, length = 50)
 	private String contact;
 
 	@Column(nullable = true, unique = true, length = 20)
@@ -59,6 +62,9 @@ public class Agent {
 	@Column(nullable = false)
 	@Enumerated(EnumType.STRING)
 	private AgentStatus status; // PENDING(가입 대기중), ACTIVE(활성화), INACTIVE(비활성화), DELETED(탈퇴), BLOCKED(차단)
+
+	@Column(nullable = true)
+	private Long birthdayTemplateId;
 
 	@Column(nullable = false, updatable = false)
 	private LocalDateTime createdAt;
@@ -87,5 +93,21 @@ public class Agent {
 	@PreUpdate
 	protected void onUpdate() {
 		this.updatedAt = LocalDateTime.now();
+	}
+
+	public void update(UpdateAgentReqDto request) {
+		this.name = request.getName();
+		if (request.getEmail() != null && !request.getEmail().isEmpty()) {
+			this.email = request.getEmail();
+		}
+		if (request.getContact() != null && !request.getContact().isEmpty()) {
+			this.contact = request.getContact();
+		}
+		this.licenseNumber = request.getLicenseNumber();
+		this.birthdayTemplateId = request.getBirthdayTemplateId();
+	}
+
+	public void updatePassword(String password) {
+		this.password = password;
 	}
 }

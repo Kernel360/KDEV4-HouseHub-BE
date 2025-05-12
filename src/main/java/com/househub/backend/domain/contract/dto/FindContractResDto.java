@@ -2,13 +2,12 @@ package com.househub.backend.domain.contract.dto;
 
 import java.time.LocalDate;
 
-import com.househub.backend.domain.agent.dto.GetMyInfoResDto;
 import com.househub.backend.domain.contract.entity.Contract;
 import com.househub.backend.domain.contract.enums.ContractStatus;
 import com.househub.backend.domain.contract.enums.ContractType;
-import com.househub.backend.domain.customer.dto.CustomerResDto;
-import com.househub.backend.domain.property.dto.FindPropertyResDto;
+import com.househub.backend.domain.customer.dto.CustomerSummaryResDto;
 
+import com.househub.backend.domain.property.dto.PropertySummaryResDto;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -16,22 +15,20 @@ import lombok.Getter;
 @Builder
 public class FindContractResDto {
     private Long id; // 계약 ID
-    private GetMyInfoResDto agent;
-    private FindPropertyResDto property; // 매물
-    private CustomerResDto customer; // 고객
+//    private GetMyInfoResDto agent;
+//    private FindPropertyResDto property; // 매물
+//    private CustomerResDto customer; // 고객
     private ContractType contractType; // 거래 유형 (매매, 전세, 월세)
-
-    // private Long salePrice; // 매매가
-    // private Long jeonsePrice; // 전세가
-    // private Integer monthlyRentFee; // 월세 금액
-    // private Integer monthlyRentDeposit; // 월세 보증금
+    private PropertySummaryResDto property;
+    private CustomerSummaryResDto seeker; // 매수,임차
+    private CustomerSummaryResDto provider; // 매도,임대
 
     private String salePrice; // 매매가
     private String jeonsePrice; // 전세가
     private String monthlyRentFee; // 월세 금액
     private String monthlyRentDeposit; // 월세 보증금
 
-    private ContractStatus status; // 계약 상태 (ON_SALE, SOLD_OUT)
+    private ContractStatus status; // 계약 상태
     private String memo; // 계약 관련 메모
     private LocalDate startedAt; // 계약 시작 일시
     private LocalDate expiredAt; // 계약 만료 일시
@@ -39,13 +36,20 @@ public class FindContractResDto {
     // private Boolean active; // 계약 활성화 여부
 
     // Contract 엔티티를 DTO로 변환
-    public static FindContractResDto toDto(Contract contract) {
+    public static FindContractResDto fromEntity(Contract contract) {
         return FindContractResDto.builder()
                 .id(contract.getId())
-                .agent(GetMyInfoResDto.from(contract.getAgent()))
-                .property(FindPropertyResDto.toDto(contract.getProperty()))
-                .customer(contract.getCustomer() != null ?
-                        CustomerResDto.fromEntity(contract.getCustomer()) : null)
+//                .agent(GetMyInfoResDto.from(contract.getAgent()))
+//                .property(FindPropertyResDto.toDto(contract.getProperty()))
+//                .customer(contract.getCustomer() != null ?
+//                        CustomerResDto.fromEntity(contract.getCustomer()) : null)
+                .property(PropertySummaryResDto.fromEntity(contract.getProperty()))
+                // 매수,임차인
+                .seeker(contract.getCustomer() != null ?
+                        CustomerSummaryResDto.fromEntity(contract.getCustomer()) : null)
+                // 매도,임대인
+                .provider(contract.getProperty().getCustomer() != null ?
+                        CustomerSummaryResDto.fromEntity(contract.getProperty().getCustomer()) : null)
                 .contractType(contract.getContractType())
                 .salePrice(convertPriceFormat(contract.getSalePrice()))
                 .jeonsePrice(convertPriceFormat(contract.getJeonsePrice()))
@@ -84,17 +88,6 @@ public class FindContractResDto {
         }
 
         return sb.toString().trim();
-    }
-
-    private static String addComma(String price) {
-        String result;
-
-        if (price.length() == 4) {
-            result = price.substring(0, 1) + "," + price.substring(1);
-        } else {
-            result = price;
-        }
-        return result;
     }
 
 }

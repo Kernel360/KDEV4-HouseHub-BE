@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import com.househub.backend.domain.contract.enums.ContractStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
@@ -67,6 +68,12 @@ public class CustomerReaderImpl implements CustomerReader {
 		);
 	}
 
+	@Override
+	public Page<Customer> findNewCustomers(Long agentId, Pageable pageable) {
+		LocalDateTime sevenDaysAgo = LocalDateTime.now().minusDays(7);
+		return customerRepository.findNewCustomersInLast7DaysByAgentId(agentId, sevenDaysAgo, pageable);
+	}
+
 	// 고객을 연락처와 agentId 로 조회
 	@Override
 	public Optional<Customer> findByContactAndAgentId(String contact, Long agentId) {
@@ -74,12 +81,7 @@ public class CustomerReaderImpl implements CustomerReader {
 	}
 
 	@Override
-	public List<Customer> findAllByBirthDate(LocalDate birthDate) {
-		return customerRepository.findByBirthDate(birthDate);
-	}
-
-	@Override
-	public List<Customer> findAllByContractEndDate(LocalDateTime consultationDate) {
-		return customerRepository.findCustomersWithExpiringContracts(consultationDate.toLocalDate());
+	public List<Customer> findAllByBirthDate() {
+		return customerRepository.findByBirthDate();
 	}
 }

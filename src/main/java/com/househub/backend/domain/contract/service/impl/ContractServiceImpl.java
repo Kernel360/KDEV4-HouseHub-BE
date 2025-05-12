@@ -1,5 +1,7 @@
 package com.househub.backend.domain.contract.service.impl;
 
+import com.househub.backend.domain.contract.dto.*;
+import com.househub.backend.domain.contract.validator.ContractValidator;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -9,12 +11,6 @@ import com.househub.backend.common.exception.BusinessException;
 import com.househub.backend.common.exception.ErrorCode;
 import com.househub.backend.domain.agent.dto.AgentResDto;
 import com.househub.backend.domain.agent.entity.Agent;
-import com.househub.backend.domain.contract.dto.ContractListResDto;
-import com.househub.backend.domain.contract.dto.CreateContractReqDto;
-import com.househub.backend.domain.contract.dto.ContractSearchDto;
-import com.househub.backend.domain.contract.dto.CreateContractResDto;
-import com.househub.backend.domain.contract.dto.FindContractResDto;
-import com.househub.backend.domain.contract.dto.UpdateContractReqDto;
 import com.househub.backend.domain.contract.entity.Contract;
 import com.househub.backend.domain.contract.enums.ContractStatus;
 import com.househub.backend.domain.contract.service.ContractReader;
@@ -25,6 +21,8 @@ import com.househub.backend.domain.customer.service.CustomerReader;
 import com.househub.backend.domain.property.entity.Property;
 import com.househub.backend.domain.property.service.PropertyReader;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import lombok.RequiredArgsConstructor;
@@ -39,6 +37,7 @@ public class ContractServiceImpl implements ContractService {
 	private final ContractStore contractStore;
 	private final PropertyReader propertyReader;
 	private final CustomerReader customerReader;
+	private final ContractValidator contractValidator;
 
 	/**
 	 * 계약 등록
@@ -52,28 +51,24 @@ public class ContractServiceImpl implements ContractService {
 		// 계약할 매물 조회
 		Property property = propertyReader.findByIdOrThrow(dto.getPropertyId(), agentDto.getId());
 		Customer customer = null;
-
 		if (dto.getCustomerId() != null) {
 			// 계약자 존재할 경우 고객 조회
 			customer = customerReader.findByIdOrThrow(dto.getCustomerId(), agentDto.getId());
 			// 매물을 등록한 고객과 계약할 고객이 동일한 경우 예외 처리
 			validateCustomerIsNotPropertyOwner(customer, property);
 			// 같은 계약자가 동일한 매물에 대해 진행중인 계약이 있는지 확인
-			contractReader.validateNoInProgressContract(customer, property);
+			contractValidator.validateNoInProgressContract(customer, property);
 		}
 		// dto → entity 변환 후 저장
 		Agent agent = agentDto.toEntity();
 		Contract contract = dto.toEntity(property, customer, agent);
-		// 계약 가능 상태로 등록할 경우, 매물과 계약 상태 enable
+		// 계약 가능 상태로 등록할 경우, 매물 활성화 상태 enable
 		if(dto.getContractStatus() == ContractStatus.AVAILABLE) {
 			property.enable();
-			contract.enable();
-		} else {
-			contract.disable();
 		}
 		contract = contractStore.create(contract);
 		// 응답 객체 리턴
-		return CreateContractResDto.toDto(contract.getId());
+		return CreateContractResDto.fromEntity(contract);
 	}
 
 	/**
@@ -91,14 +86,15 @@ public class ContractServiceImpl implements ContractService {
 		}
 		// 매물 조회
 		Property property = contract.getProperty();
-		// 고객을 설정한 경우, 검증
+		// 계약자를 수정한 경우, 검증
 		if(dto.getCustomerId() != null) {
 			// 고객 조회
 			Customer customer = customerReader.findByIdOrThrow(dto.getCustomerId(), agentDto.getId());
 			// 매물을 등록한 고객과 계약할 고객이 동일한 경우 예외 처리
 			validateCustomerIsNotPropertyOwner(customer, property);
 			// 같은 계약자가 동일한 매물에 대해 진행중인 계약이 있는지 확인
-			contractReader.validateNoInProgressContract(customer, property);
+			contractValidator.validateNoInProgressContract(customer, property);
+			// 계약자 수정
 			contractStore.updateCustomer(contract, customer);
 		}
 		// 계약 정보 수정
@@ -116,15 +112,10 @@ public class ContractServiceImpl implements ContractService {
 	@Transactional(readOnly = true)
 	public ContractListResDto findContracts(ContractSearchDto searchDto, Pageable pageable, AgentResDto agentDto) {
 		Agent agent = agentDto.toEntity();
-		log.info("findContracts searchDto: {}", searchDto.getAgentName());
-		log.info("findContracts agent id: {}", agentDto.getId());
-
 		// 해당 공인중개사가 체결한 계약만 조회
 		Page<Contract> contractPage = contractReader.findPageBySearchDto(searchDto, pageable, agent.getId());
-		log.info("findContracts contractPage: {}", contractPage.getContent().size());
 		// 계약 엔티티를 dto 로 변환하여 리스트로 반환
-		Page<FindContractResDto> response = contractPage.map(FindContractResDto::toDto);
-		log.info("findContracts response size: {}", response.getContent().size());
+		Page<FindContractResDto> response = contractPage.map(FindContractResDto::fromEntity);
 		return ContractListResDto.fromPage(response);
 	}
 
@@ -139,7 +130,7 @@ public class ContractServiceImpl implements ContractService {
 			pageable
 		);
 		// 계약 엔티티를 dto 로 변환하여 리스트로 반환
-		Page<FindContractResDto> response = contractPage.map(FindContractResDto::toDto);
+		Page<FindContractResDto> response = contractPage.map(FindContractResDto::fromEntity);
 		return ContractListResDto.fromPage(response);
 	}
 
@@ -153,8 +144,21 @@ public class ContractServiceImpl implements ContractService {
 			pageable
 		);
 
-		Page<FindContractResDto> response = contractPage.map(FindContractResDto::toDto);
+		Page<FindContractResDto> response = contractPage.map(FindContractResDto::fromEntity);
 		return ContractListResDto.fromPage(response);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public ContractListResDto findAllByStatusAndDateRange(Long agentId, Pageable pageable) {
+		LocalDateTime startOfMonthLdt = LocalDate.now().withDayOfMonth(1).atStartOfDay();
+		LocalDateTime startOfNextMonthLdt = startOfMonthLdt.plusMonths(1);
+		Page<Contract> contracts = contractReader.findContractsByStatusAndCreatedAtBetween(
+				agentId, ContractStatus.COMPLETED,
+				startOfMonthLdt, startOfNextMonthLdt, pageable
+		);
+		Page<FindContractResDto> findContractResDtoPage = contracts.map(FindContractResDto::fromEntity);
+		return ContractListResDto.fromPage(findContractResDtoPage);
 	}
 
 	/**
@@ -167,7 +171,7 @@ public class ContractServiceImpl implements ContractService {
 	@Transactional(readOnly = true)
 	public FindContractResDto findContract(Long id, AgentResDto agentDto) {
 		Contract contract = contractReader.findByIdOrThrow(id, agentDto.getId());
-		return FindContractResDto.toDto(contract);
+		return FindContractResDto.fromEntity(contract);
 	}
 
 	/**

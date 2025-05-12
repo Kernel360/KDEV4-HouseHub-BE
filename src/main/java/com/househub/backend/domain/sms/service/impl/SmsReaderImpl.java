@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
+import com.househub.backend.domain.customer.entity.Customer;
 import com.househub.backend.domain.sms.dto.SmsTypeCountDto;
 import com.househub.backend.domain.sms.entity.Sms;
 import com.househub.backend.domain.sms.enums.SmsStatus;
@@ -28,6 +29,11 @@ public class SmsReaderImpl implements SmsReader {
 	public Page<Sms> findAllByKeyword(Long agentId, String receiver, String msg,Long templateId, Pageable pageable) {
 		receiver = receiver!=null?receiver.replace("-",""):null;
 		return smsRepository.findAllSmsByAgentIdAndFiltersAndDeletedAtIsNull(agentId, receiver, msg, templateId, pageable);
+	}
+
+	@Override
+	public Page<Sms> findAllBySenderAndReceiver(String receiver, String sender, Pageable pageable) {
+		return smsRepository.findAllSmsBySenderAndReceiverAndDeletedAtIsNull(sender, receiver, pageable);
 	}
 
 	@Override

@@ -1,5 +1,7 @@
 package com.househub.backend.domain.notification.service.impl;
 
+import java.util.concurrent.CompletableFuture;
+
 import org.springframework.stereotype.Component;
 
 import com.househub.backend.domain.notification.entity.Notification;
@@ -17,7 +19,7 @@ public class NotificationExecutorImpl implements NotificationExecutor {
 
 	@Override
 	public void send(Notification notification) {
-		emailService.send(notification);
-		sseEmitterService.send(notification);
+		CompletableFuture<Void> emailTask = CompletableFuture.runAsync(() -> emailService.send(notification));
+		emailTask.thenRun(() -> sseEmitterService.send(notification));
 	}
 }

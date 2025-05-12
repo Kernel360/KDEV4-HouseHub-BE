@@ -2,7 +2,7 @@ package com.househub.backend.domain.customer.service;
 
 import java.util.List;
 
-import com.househub.backend.domain.crawlingProperty.entity.Tag;
+import com.househub.backend.domain.tag.entity.Tag;
 import com.househub.backend.domain.customer.dto.CustomerReqDto;
 import com.househub.backend.domain.customer.entity.Customer;
 

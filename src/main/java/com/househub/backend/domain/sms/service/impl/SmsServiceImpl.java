@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import com.househub.backend.common.exception.SmsSendFailException;
 import com.househub.backend.domain.agent.dto.AgentResDto;
 import com.househub.backend.domain.agent.entity.Agent;
-import com.househub.backend.domain.sms.dto.AligoHistoryResDto;
 import com.househub.backend.domain.sms.dto.AligoSmsResDto;
 import com.househub.backend.domain.sms.dto.SendSmsReqDto;
 import com.househub.backend.domain.sms.dto.SendSmsResDto;
@@ -22,10 +21,12 @@ import com.househub.backend.domain.sms.entity.SmsTemplate;
 import com.househub.backend.domain.sms.enums.MessageType;
 import com.househub.backend.domain.sms.enums.SmsStatus;
 import com.househub.backend.domain.sms.service.AligoService;
+import com.househub.backend.domain.sms.service.SmsExecutor;
 import com.househub.backend.domain.sms.service.SmsReader;
 import com.househub.backend.domain.sms.service.SmsService;
 import com.househub.backend.domain.sms.service.SmsStore;
 import com.househub.backend.domain.sms.service.SmsTemplateReader;
+import com.househub.backend.domain.sms.utils.MessageFormatter;
 
 import lombok.RequiredArgsConstructor;
 
@@ -36,12 +37,16 @@ public class SmsServiceImpl implements SmsService {
 	private final AligoService aligoService;
 	private final SmsStore smsStore;
 	private final SmsReader smsReader;
+	private final SmsExecutor smsExecutor;
 	private final SmsTemplateReader smsTemplateReader;
+	private final MessageFormatter messageFormatter;
 
 	// send와 create 분리
 	public SendSmsResDto sendSms(SendSmsReqDto request, AgentResDto agentDto) {
 		Agent agent = agentDto.toEntity();
+		request.setMsg(messageFormatter.addAgentInfo(request.getMsg(), request.getSender()));
 		AligoSmsResDto aligoResponse = aligoService.sendSms(request);
+
 		SmsTemplate template = null;
 		if(request.getTemplateId() != null)
 			template = smsTemplateReader.findById(request.getTemplateId(),agent.getId());
@@ -50,16 +55,6 @@ public class SmsServiceImpl implements SmsService {
 		} else {
 			smsStore.create(request.toEntity(SmsStatus.FAIL,agent,template));
 			throw new SmsSendFailException(aligoResponse.getMessage(),"SMS_SEND_FAIL");
-		}
-	}
-	
-	public List<AligoHistoryResDto.HistoryDetailDto> getRecentMessages(Integer page, Integer pageSize, String startDate,
-		Integer limitDay) {
-		AligoHistoryResDto response = aligoService.getRecentMessages(page,pageSize,startDate,limitDay);
-		if (response.getResultCode() == 1) {
-			return response.getList();
-		} else {
-			throw new RuntimeException("전송 내역 조회 실패: " + response.getMessage());
 		}
 	}
 
@@ -73,6 +68,18 @@ public class SmsServiceImpl implements SmsService {
 			keyword,
 			templateId,
 			pageable
+		);
+		Page<SendSmsResDto> response = smsPage.map(SendSmsResDto::fromEntity);
+		return SmsListResDto.fromPage(response);
+	}
+
+	@Override
+	public SmsListResDto findAllByCustomer(Long id, Pageable pageable, AgentResDto agentDto) {
+		Agent agent = agentDto.toEntity();
+		Page<Sms> smsPage = smsExecutor.findAllByCustomer(
+			id,
+			pageable,
+			agent.getId()
 		);
 		Page<SendSmsResDto> response = smsPage.map(SendSmsResDto::fromEntity);
 		return SmsListResDto.fromPage(response);

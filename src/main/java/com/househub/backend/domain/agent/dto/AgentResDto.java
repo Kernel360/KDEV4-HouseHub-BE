@@ -4,8 +4,8 @@ import java.io.Serializable;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.househub.backend.domain.agent.entity.Agent;
-import com.househub.backend.domain.agent.entity.AgentStatus;
-import com.househub.backend.domain.agent.entity.Role;
+import com.househub.backend.domain.agent.enums.AgentStatus;
+import com.househub.backend.domain.agent.enums.Role;
 
 import lombok.Builder;
 import lombok.Getter;
