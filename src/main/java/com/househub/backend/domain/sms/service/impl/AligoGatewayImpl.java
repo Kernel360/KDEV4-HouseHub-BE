@@ -48,7 +48,7 @@ public class AligoGatewayImpl implements AligoGateway {
 
 		params.add("key", apiKey);
 		params.add("user_id", userId);
-		params.add("testmode_yn", "Y");
+		params.add("testmode_yn", "N");
 
 		try {
 			ResponseEntity<String> response = restTemplate.exchange(

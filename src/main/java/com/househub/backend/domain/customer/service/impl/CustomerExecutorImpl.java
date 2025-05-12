@@ -40,7 +40,7 @@ public class CustomerExecutorImpl implements CustomerExecutor {
 
 	@Override
 	public Customer validateAndRestore(Long id, Agent agent) {
-		Customer customer = customerReader.findById(id, agent.getId());
+		Customer customer = customerReader.findByIdOrThrow(id, agent.getId());
 		return customerStore.restore(customer);
 	}
 

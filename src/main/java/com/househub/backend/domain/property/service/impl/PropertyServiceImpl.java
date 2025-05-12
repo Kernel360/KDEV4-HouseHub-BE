@@ -167,7 +167,7 @@ public class PropertyServiceImpl implements PropertyService {
 	@Override
 	public List<FindPropertyResDto> findRecommendProperties(Long customerId, int limit ,AgentResDto agentDto) {
 		// 고객 태그 리스트 조회
-		Customer customer = customerReader.findById(customerId, agentDto.getId());
+		Customer customer = customerReader.findByIdOrThrow(customerId, agentDto.getId());
 		List<Long> tagIds = customer.getCustomerTagMaps().stream().map(tagMap -> tagMap.getTag().getTagId()).toList();
 		// 추천 매물 조회
 		List<Property> propertyList = propertyReader.findTop5ByMatchingTags(customerId,tagIds, limit, agentDto.getId());
