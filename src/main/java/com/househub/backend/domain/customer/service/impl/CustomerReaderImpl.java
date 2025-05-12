@@ -30,11 +30,6 @@ public class CustomerReaderImpl implements CustomerReader {
 	}
 
 	@Override
-	public Customer findById(Long id, Long agentId) {
-		return customerRepository.findByIdAndAgentId(id, agentId);
-	}
-
-	@Override
 	public Customer findByContactOrThrow(String contact, Long agentId) {
 		// 연락처로 고객 조회
 		return customerRepository.findByContactAndAgentIdAndDeletedAtIsNull(contact,agentId).orElseThrow(() -> new ResourceNotFoundException("해당 전화번호로(" + contact + ")로 생성되었던 계정이 존재하지 않습니다.","CUSTOMER_NOT_FOUND"));
