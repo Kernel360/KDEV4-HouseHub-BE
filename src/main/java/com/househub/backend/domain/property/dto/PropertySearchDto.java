@@ -9,6 +9,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @Setter
 @Getter
 @Builder
@@ -30,4 +32,6 @@ public class PropertySearchDto {
     private Long maxDeposit;     // 최대 보증금
     private Integer minMonthlyRent; // 최소 월세
     private Integer maxMonthlyRent; // 최대 월세
+
+    private List<Long> tagIds;
 }

@@ -6,7 +6,8 @@ import lombok.Getter;
 
 @Getter
 public enum ErrorCode {
-	CONTRACT_CUSTOMER_ALREADY_DELETED(HttpStatus.BAD_REQUEST, "CONTRACT_CUSTOMER_ALREADY_DELETED", "삭제된 고객이 연결된 계약은 수정할 수 없습니다."),
+	CONTRACT_CUSTOMER_ALREADY_DELETED(HttpStatus.BAD_REQUEST, "CONTRACT_CUSTOMER_ALREADY_DELETED",
+		"삭제된 고객이 연결된 계약은 수정할 수 없습니다."),
 	CONTRACT_PROPERTY_CUSTOMER_SAME(HttpStatus.BAD_REQUEST, "CONTRACT_PROPERTY_CUSTOMER_SAME", "매물 등록자와 계약 고객이 동일합니다."),
 
 	AUTH_CODE_MISMATCH(HttpStatus.BAD_REQUEST, "AUTH_CODE_MISMATCH", "인증번호가 일치하지 않습니다."),
@@ -35,7 +36,9 @@ public enum ErrorCode {
 		"INVALID_INQUIRY_TEMPLATE_TYPE_MODIFICATION",
 		"기존 템플릿의 유형은 수정할 수 없습니다."
 	),
-	INVALID_YEAR_MONTH(HttpStatus.BAD_REQUEST, "INVALID_YEAR_MONTH", "yearMonth는 yyyy-MM 형식이어야 합니다.");
+	INVALID_YEAR_MONTH(HttpStatus.BAD_REQUEST, "INVALID_YEAR_MONTH", "yearMonth는 yyyy-MM 형식이어야 합니다."),
+	INVALID_OR_EXPIRED_TOKEN(HttpStatus.UNAUTHORIZED, "INVALID_OR_EXPIRED_TOKEN", "유효하지 않거나 만료된 토큰입니다."),
+	INVALID_TOKEN_TYPE(HttpStatus.BAD_REQUEST, "INVALID_TOKEN_TYPE", "유효하지 않은 토큰 유형입니다.");
 
 	private final HttpStatus httpStatus;
 	private final String code;   // 프론트에서 오류 코드 구분용 (예: AUTH_CODE_INVALID)

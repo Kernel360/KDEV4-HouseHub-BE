@@ -14,6 +14,8 @@ public interface AgentRepository extends JpaRepository<Agent, Long> {
 
 	Optional<Agent> findByIdAndStatus(Long agentId, AgentStatus status);
 
+	Optional<Agent> findByEmailAndStatus(String email, AgentStatus status);
+
 	boolean existsByIdAndStatus(Long agentId, AgentStatus status);
 
 	boolean existsByEmail(String email);
@@ -23,4 +25,5 @@ public interface AgentRepository extends JpaRepository<Agent, Long> {
 	Optional<Agent> findByContact(String contact);
 
 	boolean existsByContact(String contact);
+
 }

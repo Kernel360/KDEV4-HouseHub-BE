@@ -42,4 +42,22 @@ public interface PropertyRepository extends JpaRepository<Property, Long>, Prope
 		"WHERE p.agent.id = :agentId " +
 		"GROUP BY p.propertyType")
 	List<PropertyTypeCount> countByTypeAndAgentId(@Param("agentId") Long agentId);
+
+	@Query(value = """
+    SELECT p.*, sub.match_count 
+    FROM (
+        SELECT pt.property_id, COUNT(*) AS match_count
+        FROM property_tag_map pt
+        WHERE pt.tag_id IN (:tagIds)
+        GROUP BY pt.property_id
+        ORDER BY match_count DESC
+        LIMIT :limit
+    ) AS sub
+    JOIN properties p ON p.id = sub.property_id
+    WHERE p.agent_id = :agentId
+        AND p.active = true
+        AND p.customer_id != :customerId
+    ORDER BY sub.match_count DESC
+    """, nativeQuery = true)
+	List<Property> findTopNByMatchingTags(@Param("customerId") Long customerId, @Param("tagIds") List<Long> tagIds, @Param("limit")int limit, @Param("agentId")Long agentId);
 }
