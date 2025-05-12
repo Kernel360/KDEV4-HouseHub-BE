@@ -9,7 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.househub.backend.domain.agent.entity.Agent;
 import com.househub.backend.domain.agent.service.AgentReader;
-import com.househub.backend.domain.agent.service.AgentStore;
 import com.househub.backend.domain.notification.dto.EmailReqDto;
 import com.househub.backend.domain.notification.service.EmailService;
 import com.househub.backend.domain.notification.service.impl.PasswordResetEmailContentProvider;
@@ -20,7 +19,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class PasswordResetService {
 	private final AgentReader agentReader;
-	private final AgentStore agentStore;
 	private final PasswordResetTokenManager tokenManager;
 	private final EmailService emailService;
 	private final PasswordResetEmailContentProvider contentProvider;
@@ -64,7 +62,6 @@ public class PasswordResetService {
 		Long agentId = tokenManager.extractAgentIdFromToken(token);
 		Agent agent = agentReader.findById(agentId);
 		agent.updatePassword(passwordEncoder.encode(newPassword));
-		agentStore.update(agent);
 		// Optional: 토큰 무효화 (예: Redis에서 삭제 등)
 		tokenManager.invalidateToken(token);
 	}
