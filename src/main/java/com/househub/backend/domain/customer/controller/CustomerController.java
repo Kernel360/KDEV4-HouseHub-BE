@@ -27,12 +27,15 @@ import com.househub.backend.domain.consultation.dto.ConsultationListResDto;
 import com.househub.backend.domain.consultation.service.ConsultationService;
 import com.househub.backend.domain.contract.dto.ContractListResDto;
 import com.househub.backend.domain.contract.service.ContractService;
+import com.househub.backend.domain.crawlingProperty.dto.CrawlingPropertyResDto;
+import com.househub.backend.domain.crawlingProperty.service.CrawlingPropertyService;
 import com.househub.backend.domain.customer.dto.CustomerReqDto;
 import com.househub.backend.domain.customer.dto.CustomerResDto;
 import com.househub.backend.domain.customer.dto.CustomerListResDto;
 import com.househub.backend.domain.customer.service.CustomerService;
 import com.househub.backend.domain.inquiry.dto.InquiryListResDto;
 import com.househub.backend.domain.inquiry.service.InquiryService;
+import com.househub.backend.domain.property.dto.FindPropertyResDto;
 import com.househub.backend.domain.property.entity.Property;
 import com.househub.backend.domain.property.service.PropertyService;
 import com.househub.backend.domain.sms.dto.SmsListResDto;
@@ -53,6 +56,7 @@ public class CustomerController {
 	private final InquiryService inquiryService;
 	private final PropertyService propertyService;
 	private final SmsService smsService;
+	private final CrawlingPropertyService crawlingPropertyService;
 
 	@Operation(
 		summary = "고객 등록",
@@ -167,6 +171,28 @@ public class CustomerController {
 		AgentResDto agentDto = SecurityUtil.getAuthenticatedAgent();
 		SmsListResDto response = smsService.findAllByCustomer(id, adjustedPageable, agentDto);
 		return ResponseEntity.ok(SuccessResponse.success("고객 문자 목록 조회가 완료되었습니다.", "FIND_CUSTOMER_SMS_SUCCESS", response));
+	}
+
+	@Operation(
+		summary = "고객 추천 매물 조회",
+		description = "특정 고객에게 추천할 매물을 최대 5개 조회합니다. 삭제된 고객이거나 본인이 등록하지 않은 고객은 조회할 수 없습니다."
+	)
+	@GetMapping("/{id}/recommend")
+	public ResponseEntity<SuccessResponse<List<FindPropertyResDto>>> findCustomerRecommend(@PathVariable Long id, @RequestParam int limit){
+		AgentResDto agentDto = SecurityUtil.getAuthenticatedAgent();
+		List<FindPropertyResDto> response = propertyService.findRecommendProperties(id, limit, agentDto);
+		return ResponseEntity.ok(SuccessResponse.success("고객 추천 매물 조회가 완료되었습니다.", "FIND_CUSTOMER_RECOMMEND_SUCCESS",response));
+	}
+
+	@Operation(
+		summary = "고객 추천 공개 매물 조회",
+		description = "특정 고객에게 추천할 공개 매물을 최대 5개 조회합니다. 삭제된 고객이거나 본인이 등록하지 않은 고객은 조회할 수 없습니다."
+	)
+	@GetMapping("/{id}/recommend-crawl")
+	public ResponseEntity<SuccessResponse<List<CrawlingPropertyResDto>>> findCustomerRecommendCrawl(@PathVariable Long id, @RequestParam int limit) {
+		AgentResDto agentDto = SecurityUtil.getAuthenticatedAgent();
+		List<CrawlingPropertyResDto> response = crawlingPropertyService.findRecommendProperties(id, limit, agentDto);
+		return ResponseEntity.ok(SuccessResponse.success("고객 추천 공개 매물 조회가 완료되었습니다.", "FIND_CUSTOMER_RECOMMEND_CRAWL_SUCCESS",response));
 	}
 
 	@Operation(
