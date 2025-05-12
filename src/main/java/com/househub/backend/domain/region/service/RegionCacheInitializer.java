@@ -26,7 +26,7 @@ public class RegionCacheInitializer implements CommandLineRunner {
 	@Override
 	public void run(String... args) {
 		// '도' 단위(광역시 포함) Region만 조회
-		List<Region> doRegions = regionRepository.findByLevel(RegionLevel.DO)
+		List<Region> doRegions = regionRepository.findByLevelOrderByNameAsc(RegionLevel.DO)
 			.stream()
 			.filter(region -> !region.getName().contains("특별") && !region.getName().contains("직할"))
 			.toList();

@@ -21,16 +21,15 @@ public class RegionReadService {
 
 	@Cacheable(value = "regions:do", key = "'regions:do'")
 	public List<RegionDto> getDoList() {
-		return regionRepository.findByLevel(RegionLevel.DO)
+		return regionRepository.findByLevelOrderByNameAsc(RegionLevel.DO)
 			.stream()
-			.filter(region -> !region.getName().contains("특별") && !region.getName().contains("직할"))
 			.map(RegionDto::fromEntity)
 			.toList();
 	}
 
 	@Cacheable(value = "regions:sigungu", key = "#doCode", unless = "#result.isEmpty()")
 	public List<RegionDto> getSigunguList(String doCode) {
-		List<Region> sigunguList = regionRepository.findByParentCode(doCode);
+		List<Region> sigunguList = regionRepository.findByParentCodeOrderByNameAsc(doCode);
 
 		return sigunguList
 			.stream()
@@ -40,7 +39,7 @@ public class RegionReadService {
 
 	@Cacheable(value = "regions:dong", key = "#sigunguCode", unless = "#result.isEmpty()")
 	public List<RegionDto> getDongList(String sigunguCode) {
-		return regionRepository.findByParentCode(sigunguCode)
+		return regionRepository.findByParentCodeOrderByNameAsc(sigunguCode)
 			.stream()
 			.map(RegionDto::fromEntity)
 			.toList();
