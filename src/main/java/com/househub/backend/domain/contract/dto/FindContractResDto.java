@@ -48,7 +48,7 @@ public class FindContractResDto {
                 .seeker(contract.getCustomer() != null ?
                         CustomerSummaryResDto.fromEntity(contract.getCustomer()) : null)
                 // 매도,임대인
-                .provider(contract.getCustomer() != null ?
+                .provider(contract.getProperty().getCustomer() != null ?
                         CustomerSummaryResDto.fromEntity(contract.getProperty().getCustomer()) : null)
                 .contractType(contract.getContractType())
                 .salePrice(convertPriceFormat(contract.getSalePrice()))
