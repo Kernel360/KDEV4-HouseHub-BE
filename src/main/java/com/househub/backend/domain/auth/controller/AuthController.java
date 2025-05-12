@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.househub.backend.common.exception.ResourceNotFoundException;
@@ -16,16 +17,21 @@ import com.househub.backend.common.util.SecurityUtil;
 import com.househub.backend.common.util.SessionManager;
 import com.househub.backend.domain.agent.dto.AgentResDto;
 import com.househub.backend.domain.auth.dto.GetSessionResDto;
+import com.househub.backend.domain.auth.dto.ResetPasswordReqDto;
 import com.househub.backend.domain.auth.dto.SendEmailReqDto;
 import com.househub.backend.domain.auth.dto.SendEmailResDto;
 import com.househub.backend.domain.auth.dto.SignInReqDto;
 import com.househub.backend.domain.auth.dto.SignInResDto;
 import com.househub.backend.domain.auth.dto.SignUpReqDto;
+import com.househub.backend.domain.auth.dto.ValidateTokenResDto;
 import com.househub.backend.domain.auth.dto.VerifyEmailReqDto;
+import com.househub.backend.domain.auth.enums.TokenType;
 import com.househub.backend.domain.auth.exception.EmailVerifiedException;
 import com.househub.backend.domain.auth.exception.InvalidPasswordException;
 import com.househub.backend.domain.auth.service.AuthService;
-import com.househub.backend.domain.notification.service.EmailService;
+import com.househub.backend.domain.auth.service.EmailVerificationService;
+import com.househub.backend.domain.auth.service.PasswordResetService;
+import com.househub.backend.domain.auth.service.TokenValidateService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -40,7 +46,9 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class AuthController {
 	private final AuthService authService;
-	private final EmailService emailService;
+	private final PasswordResetService passwordResetService;
+	private final EmailVerificationService emailVerificationService;
+	private final TokenValidateService tokenValidationService;
 
 	/**
 	 * 회원가입
@@ -93,19 +101,36 @@ public class AuthController {
 
 	@PostMapping("/email/send")
 	public ResponseEntity<SuccessResponse<SendEmailResDto>> sendEmail(@Valid @RequestBody SendEmailReqDto request) {
-		// 이미 가입된 사용자인지 확인
-		authService.checkEmailAlreadyExists(request.getEmail());
-		String authCode = authService.generateAndSaveAuthCode(request.getEmail());
-		emailService.sendVerificationCode(request.getEmail(), authCode);
-		log.info("인증 코드: {}", authCode);
-		return ResponseEntity.ok(SuccessResponse.success("이메일 발송 성공", "EMAIL_SEND_SUCCESS",
-			SendEmailResDto.builder().expiresIn(180).build()));
+		if (request.getType() == TokenType.PASSWORD_RESET) {
+			passwordResetService.sendPasswordResetEmail(request.getEmail());
+			return ResponseEntity.ok(SuccessResponse.success("비밀번호 재설정 이메일 발송 성공", "PASSWORD_RESET_EMAIL_SEND_SUCCESS",
+				SendEmailResDto.builder().expiresIn(180).build()));
+		} else {
+			emailVerificationService.sendEmailVerificationCode(request.getEmail());
+			return ResponseEntity.ok(SuccessResponse.success("이메일 발송 성공", "EMAIL_SEND_SUCCESS",
+				SendEmailResDto.builder().expiresIn(180).build()));
+		}
 	}
 
 	@PostMapping("/email/verify")
 	public ResponseEntity<SuccessResponse<Void>> verifyEmail(@Valid @RequestBody VerifyEmailReqDto request) {
 		authService.verifyCode(request.getEmail(), request.getCode());
 		return ResponseEntity.ok(SuccessResponse.success("이메일 인증 성공", "EMAIL_VERIFY_SUCCESS", null));
+	}
+
+	@PostMapping("/reset-password")
+	public ResponseEntity<SuccessResponse<Void>> resetPassword(@Valid @RequestBody ResetPasswordReqDto request) {
+		passwordResetService.resetPassword(request.getToken(), request.getNewPassword());
+		return ResponseEntity.ok(SuccessResponse.success("비밀번호 재설정 성공", "PASSWORD_RESET_SUCCESS", null));
+	}
+
+	@GetMapping("/validate-token")
+	public ResponseEntity<SuccessResponse<ValidateTokenResDto>> validateToken(
+		@RequestParam("token") String token,
+		@RequestParam("type") String type
+	) {
+		ValidateTokenResDto result = tokenValidationService.validate(token, type);
+		return ResponseEntity.ok(SuccessResponse.success("유효한 토큰입니다.", "VALID_TOKEN", result));
 	}
 
 	@ExceptionHandler({

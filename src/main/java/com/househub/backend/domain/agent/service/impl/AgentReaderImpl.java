@@ -39,7 +39,15 @@ public class AgentReaderImpl implements AgentReader {
 
 	@Override
 	public Agent findByContact(String contact) {
-		return agentRepository.findByContact(contact).orElseThrow(() -> new ResourceNotFoundException("해당 중개사를 찾을 수 없습니다.", "AGENT_NOT_FOUND"));
+		return agentRepository.findByContact(contact)
+			.orElseThrow(() -> new ResourceNotFoundException("해당 중개사를 찾을 수 없습니다.", "AGENT_NOT_FOUND"));
+	}
+
+	@Override
+	public Agent findByEmail(String email) {
+		// agentId 로 중개사 조회하는데, status 가 반드시 ACTIVE 인 중개사만 조회
+		return agentRepository.findByEmailAndStatus(email, AgentStatus.ACTIVE)
+			.orElseThrow(() -> new ResourceNotFoundException("해당 중개사를 찾을 수 없습니다.", "AGENT_NOT_FOUND"));
 	}
 
 }
