@@ -12,7 +12,6 @@ import com.househub.backend.domain.customer.entity.Customer;
 
 public interface CustomerReader {
 	Customer findByIdOrThrow(Long id, Long agentId);
-	Customer findById(Long id, Long agentId);
 	Customer findByContactOrThrow(String contact, Long agentId);
 	void checkDuplicatedByContact(String contact, Long agentId);
 	void checkDuplicatedByEmail(String email, Long agentId);
