@@ -26,8 +26,8 @@ import com.househub.backend.domain.auth.dto.SignInResDto;
 import com.househub.backend.domain.auth.dto.SignUpReqDto;
 import com.househub.backend.domain.auth.exception.EmailVerifiedException;
 import com.househub.backend.domain.auth.exception.InvalidPasswordException;
-import com.househub.backend.domain.auth.service.AuthCode;
 import com.househub.backend.domain.auth.service.AuthService;
+import com.househub.backend.domain.auth.service.EmailAuthCodeManager;
 import com.househub.backend.domain.realEstate.repository.RealEstateRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -42,7 +42,7 @@ public class AuthServiceImpl implements AuthService {
 	private final PasswordEncoder passwordEncoder;
 	private final AuthenticationManager authenticationManager;
 	private final SessionManager sessionManager;
-	private final AuthCode authCode;
+	private final EmailAuthCodeManager authCode;
 
 	/**
 	 * 부동산 공인중개사 회원가입
@@ -164,7 +164,7 @@ public class AuthServiceImpl implements AuthService {
 	 */
 	private void checkContactDuplication(String contact) {
 		Optional<Agent> existingAgent = agentRepository.findByContact(contact);
-		if(existingAgent.isPresent()) {
+		if (existingAgent.isPresent()) {
 			throw new AlreadyExistsException("이미 등록된 전화번호입니다.", "CONTACT_ALREADY_EXISTS");
 		}
 	}
