@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.househub.backend.common.response.SuccessResponse;
-import com.househub.backend.domain.region.dto.RegionOptionDto;
+import com.househub.backend.domain.region.dto.RegionDto;
 import com.househub.backend.domain.region.service.RegionCsvImportService;
 import com.househub.backend.domain.region.service.RegionReadService;
 
@@ -23,7 +23,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/regions")
 @RequiredArgsConstructor
@@ -51,34 +53,52 @@ public class RegionController {
 		}
 	}
 
+	// 2. 도 목록 조회 (코드 기반)
 	@Operation(summary = "도/특별시/광역시 목록 조회")
-	@GetMapping("/provinces")
-	public ResponseEntity<SuccessResponse<List<RegionOptionDto>>> getProvinces() {
-		List<RegionOptionDto> provinces = regionReadService.getProvinces();
-		return ResponseEntity.ok(
-			SuccessResponse.success("도/특별시/광역시 목록을 성공적으로 조회했습니다.", "FIND_PROVINCES_SUCCESS", provinces));
-	}
-
-	@Operation(summary = "시/군/구 목록 조회", parameters = {
-		@Parameter(name = "province", description = "도/특별시/광역시 이름", required = true)
+	@ApiResponses(value = {
+		@ApiResponse(responseCode = "200", description = "도 목록 조회 성공"),
+		@ApiResponse(responseCode = "500", description = "서버 오류")
 	})
-	@GetMapping("/cities")
-	public ResponseEntity<SuccessResponse<List<RegionOptionDto>>> getCities(@RequestParam String province) {
-		List<RegionOptionDto> cities = regionReadService.getCities(province);
-		return ResponseEntity.ok(SuccessResponse.success("시/군/구 목록을 성공적으로 조회했습니다.", "FIND_CITIES_SUCCESS", cities));
+	@GetMapping("/dos")
+	public ResponseEntity<SuccessResponse<List<RegionDto>>> getDoList() {
+		List<RegionDto> doList = regionReadService.getDoList();
+		return ResponseEntity.ok(
+			SuccessResponse.success("도/광역시 목록을 성공적으로 조회했습니다.", "FIND_DO_LIST_SUCCESS", doList));
 	}
 
+	// 3. 시군구 목록 조회 (도 코드 기반)
+	@Operation(summary = "시/군/구 목록 조회", parameters = {
+		@Parameter(name = "doCode", description = "도/특별시/광역시 코드", required = true)
+	})
+	@ApiResponses(value = {
+		@ApiResponse(responseCode = "200", description = "시군구 목록 조회 성공"),
+		@ApiResponse(responseCode = "400", description = "잘못된 요청"),
+		@ApiResponse(responseCode = "500", description = "서버 오류")
+	})
+	@GetMapping("/sigungus")
+	public ResponseEntity<SuccessResponse<List<RegionDto>>> getSigunguList(@RequestParam String doCode) {
+		log.info("doCode: {}", doCode);
+		List<RegionDto> sigunguList = regionReadService.getSigunguList(doCode);
+		log.info("sigunguList: {}", sigunguList.size() > 0 ? sigunguList : "No data found");
+		return ResponseEntity.ok(
+			SuccessResponse.success("시/군/구 목록을 성공적으로 조회했습니다.", "FIND_CITIES_SUCCESS", sigunguList));
+	}
+
+	// 4. 읍/면/동 목록 조회 (시군구 코드 기반)
 	@Operation(summary = "읍/면/동 목록 조회", parameters = {
-		@Parameter(name = "province", description = "도/특별시/광역시 이름", required = true),
-		@Parameter(name = "city", description = "시/군/구 이름", required = true)
+		@Parameter(name = "sigunguCode", description = "시/군/구 코드", required = true)
+	})
+	@ApiResponses(value = {
+		@ApiResponse(responseCode = "200", description = "읍면동 목록 조회 성공"),
+		@ApiResponse(responseCode = "400", description = "잘못된 요청"),
+		@ApiResponse(responseCode = "500", description = "서버 오류")
 	})
 	@GetMapping("/dongs")
-	public ResponseEntity<SuccessResponse<List<RegionOptionDto>>> getDongs(
-		@RequestParam String province,
-		@RequestParam String city
+	public ResponseEntity<SuccessResponse<List<RegionDto>>> getDongList(
+		@RequestParam String sigunguCode
 	) {
-		List<RegionOptionDto> dongs = regionReadService.getDongs(province, city);
-		return ResponseEntity.ok(SuccessResponse.success("읍/면/동 목록을 성공적으로 조회했습니다.", "FIND_DONGS_SUCCESS", dongs));
+		List<RegionDto> dongList = regionReadService.getDongList(sigunguCode);
+		return ResponseEntity.ok(
+			SuccessResponse.success("읍/면/동 목록을 성공적으로 조회했습니다.", "FIND_DONG_LIST_SUCCESS", dongList));
 	}
-
 }

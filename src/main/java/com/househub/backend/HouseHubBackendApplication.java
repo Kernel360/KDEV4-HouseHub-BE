@@ -4,14 +4,15 @@ import java.util.TimeZone;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
 
 import jakarta.annotation.PostConstruct;
 
-@SpringBootApplication
+@EnableCaching
+// @EnableScheduling
 @EnableRedisHttpSession // Redis를 세션저장소로 사용
-@EnableScheduling
+@SpringBootApplication
 public class HouseHubBackendApplication {
 
 	public static void main(String[] args) {
