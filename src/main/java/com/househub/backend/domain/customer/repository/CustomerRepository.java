@@ -45,5 +45,5 @@ public interface CustomerRepository extends JpaRepository<Customer, Long>, Custo
 		"AND FUNCTION('DAY', c.birthDate) = FUNCTION('DAY', CURRENT_DATE)")
 	List<Customer> findByBirthDate();
 
-	Customer findByIdAndAgentId(Long id, Long agentId);
+	Optional<Customer> findByIdAndAgentId(Long id, Long agentId);
 }

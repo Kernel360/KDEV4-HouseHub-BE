@@ -1,30 +1,38 @@
 package com.househub.backend.domain.region.entity;
 
+import com.househub.backend.domain.region.enums.RegionLevel;
+
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
 @Table(name = "regions")
 @Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Region {
 
 	@Id
-	private Long code;
+	private String code; // ex: 1101053
 
-	private String name;
+	@Column(nullable = false)
+	private String name; // ex: 사직동
 
-	private String province;  // 시도명
-	private String city;  // 시군구명
-	private String dong;  // 읍면동명
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
+	private RegionLevel level; // DO, SIGUNGU, DONG
+
+	@Column(name = "parent_code")
+	private String parentCode; // 상위 행정코드 (ex: 11010)
 }
 

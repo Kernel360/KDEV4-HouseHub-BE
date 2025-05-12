@@ -112,7 +112,7 @@ public class CrawlingPropertyServiceImpl implements CrawlingPropertyService {
 
     @Override
     public List<CrawlingPropertyResDto> findRecommendProperties(Long id, int limit, AgentResDto agentDto) {
-        Customer customer = customerReader.findById(id,agentDto.getId());
+        Customer customer = customerReader.findByIdOrThrow(id,agentDto.getId());
         List<Long> tagIds = customer.getCustomerTagMaps().stream().map(map -> map.getTag().getTagId()).toList();
         List<CrawlingProperty> crawlingPropertyList = crawlingPropertyRepository.findTopNByMatchingTags(tagIds, limit, agentDto.getId());
 

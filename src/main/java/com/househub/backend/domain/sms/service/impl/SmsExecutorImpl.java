@@ -25,7 +25,7 @@ public class SmsExecutorImpl implements SmsExecutor {
 
 	@Override
 	public Page<Sms> findAllByCustomer(Long customerId, Pageable pageable, Long agentId) {
-		Customer customer = customerReader.findById(customerId, agentId);
+		Customer customer = customerReader.findByIdOrThrow(customerId, agentId);
 		Agent agent = agentReader.findById(agentId);
 
 		String sender = agent.getContact();
