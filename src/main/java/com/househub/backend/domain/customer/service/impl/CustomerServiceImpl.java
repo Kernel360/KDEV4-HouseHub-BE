@@ -102,7 +102,7 @@ public class CustomerServiceImpl implements CustomerService {
 
 	public CustomerResDto findDetailsById(Long id, AgentResDto agentDto) {
 		Agent agent = agentDto.toEntity();
-		Customer customer = customerReader.findByIdOrThrow(id, agent.getId());
+		Customer customer = customerReader.findByIdAndDeletedAtIsNotNullOrThrow(id, agent.getId());
 		return CustomerResDto.fromEntity(customer);
 	}
 
