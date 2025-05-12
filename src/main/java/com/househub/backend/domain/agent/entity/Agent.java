@@ -106,4 +106,8 @@ public class Agent {
 		this.licenseNumber = request.getLicenseNumber();
 		this.birthdayTemplateId = request.getBirthdayTemplateId();
 	}
+
+	public void updatePassword(String password) {
+		this.password = password;
+	}
 }
