@@ -68,7 +68,7 @@ class CustomerReaderImplTest {
 			// when & then
 			assertThatThrownBy(() -> customerReader.findByIdAndDeletedAtIsNotNullOrThrow(id, agentId))
 				.isInstanceOf(ResourceNotFoundException.class)
-				.hasMessageContaining("해당 ID로(" + id + ")로 생성된 계정이 존재하지 않습니다.");
+				.hasMessageContaining("고객이 삭제되었거나 존재하지 않습니다.");
 		}
 	}
 
