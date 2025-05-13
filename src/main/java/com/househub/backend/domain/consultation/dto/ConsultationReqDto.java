@@ -43,7 +43,7 @@ public class ConsultationReqDto {
 	@NotNull(message = "상담 상태를 입력하세요.")
 	private ConsultationStatus status; // RESERVED, COMPLETED, CANCELED
 
-	private List<Long> selectedPropertyIds;
+	private List<Long> shownPropertyIds;
 
 	public Consultation toEntity(Agent agent, Customer customer) {
 		return Consultation.builder()

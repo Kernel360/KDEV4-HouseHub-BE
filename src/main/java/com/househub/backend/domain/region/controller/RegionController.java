@@ -45,7 +45,7 @@ public class RegionController {
 		@RequestParam("file") MultipartFile file
 	) {
 		try {
-			regionCsvImportService.loadRegionData(file);
+			regionCsvImportService.loadRegionDataFast(file);
 			return ResponseEntity.ok("지역 데이터가 성공적으로 업로드되었습니다.");
 		} catch (Exception e) {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

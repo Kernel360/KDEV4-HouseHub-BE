@@ -78,7 +78,7 @@ public class ConsultationServiceImpl implements ConsultationService {
 		Consultation consultation = consultationReqDto.toEntity(agent, customer);
 
 		// 선택된 매물 ID 리스트 처리
-		List<Long> selectedPropertyIds = Optional.ofNullable(consultationReqDto.getSelectedPropertyIds())
+		List<Long> selectedPropertyIds = Optional.ofNullable(consultationReqDto.getShownPropertyIds())
 			.orElse(Collections.emptyList())
 			.stream()
 			.distinct()
@@ -194,6 +194,18 @@ public class ConsultationServiceImpl implements ConsultationService {
 			.orElseThrow(() -> new ResourceNotFoundException("해당 상담 내역이 존재하지 않습니다:" + id, "CONSULTATION_NOT_FOUND"));
 
 		consultation.update(consultationReqDto);
+
+		if (consultationReqDto.getShownPropertyIds() != null) {
+			// 기존 매물 관계 제거
+			consultation.clearShownProperties();
+
+			// 신규 매물 추가
+			List<Property> properties = propertyReader.findAgentOwnedPropertiesByIds(
+				consultationReqDto.getShownPropertyIds(),
+				agent.getId()
+			);
+			properties.forEach(consultation::addShownProperty);
+		}
 
 		return ConsultationResDto.fromEntity(consultation);
 	}

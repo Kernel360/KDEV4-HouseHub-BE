@@ -1,6 +1,7 @@
 package com.househub.backend.domain.consultation.dto;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import com.househub.backend.domain.consultation.enums.ConsultationStatus;
 import com.househub.backend.domain.consultation.enums.ConsultationType;
@@ -26,4 +27,7 @@ public class UpdateConsultationReqDto {
 	private LocalDateTime consultationDate;  // 상담 날짜 수정 시 사용
 
 	private ConsultationStatus status;  // 상담 상태 변경 시 사용
+
+	// 보여준 매물 ID 리스트
+	private List<Long> shownPropertyIds;
 }

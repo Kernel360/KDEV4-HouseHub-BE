@@ -9,6 +9,7 @@ import com.househub.backend.domain.consultation.dto.UpdateConsultationReqDto;
 import com.househub.backend.domain.consultation.enums.ConsultationStatus;
 import com.househub.backend.domain.consultation.enums.ConsultationType;
 import com.househub.backend.domain.customer.entity.Customer;
+import com.househub.backend.domain.property.entity.Property;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -137,8 +138,16 @@ public class Consultation {
 		}
 	}
 
-	public void addConsultationProperty(ConsultationProperty cp) {
-		consultationProperties.add(cp);
-		cp.setConsultation(this);
+	public void clearShownProperties() {
+		this.consultationProperties.clear();
+	}
+
+	public void addShownProperty(Property property) {
+		this.consultationProperties.add(
+			ConsultationProperty.builder()
+				.property(property)
+				.consultation(this)
+				.build()
+		);
 	}
 }
