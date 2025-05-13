@@ -157,10 +157,10 @@ public class CrawlingPropertyRepositoryImpl implements CrawlingPropertyRepositor
 			builder.and(crawlingProperty.propertyType.eq(propertyType));
 		}
 		if (province != null) {
-			builder.and(crawlingProperty.province.eq(province));
+			builder.and(crawlingProperty.province.like("%" + province + "%"));
 		}
 		if (city != null) {
-			builder.and(crawlingProperty.city.eq(city));
+			builder.and(crawlingProperty.city.like("%" + city + "%"));
 		}
 		if (dong != null) {
 			builder.and(crawlingProperty.dong.like("%" + dong + "%"));
