@@ -6,6 +6,7 @@ import lombok.Getter;
 
 @Getter
 public enum ErrorCode {
+	EMAIL_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "EMAIL_ALREADY_EXISTS", "이미 가입된 이메일입니다."),
 	CONTRACT_CUSTOMER_ALREADY_DELETED(HttpStatus.BAD_REQUEST, "CONTRACT_CUSTOMER_ALREADY_DELETED",
 		"삭제된 고객이 연결된 계약은 수정할 수 없습니다."),
 	CONTRACT_PROPERTY_CUSTOMER_SAME(HttpStatus.BAD_REQUEST, "CONTRACT_PROPERTY_CUSTOMER_SAME", "매물 등록자와 계약 고객이 동일합니다."),
