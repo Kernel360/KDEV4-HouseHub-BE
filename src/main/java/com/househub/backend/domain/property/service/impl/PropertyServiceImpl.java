@@ -4,7 +4,6 @@ import java.util.List;
 
 import com.househub.backend.domain.contract.dto.BasicContractReqDto;
 import com.househub.backend.domain.contract.service.ContractStore;
-import com.househub.backend.domain.customer.entity.CustomerTagMap;
 import com.househub.backend.domain.property.service.PropertyTagMapStore;
 import com.househub.backend.domain.property.validator.PropertyValidator;
 import com.househub.backend.domain.tag.entity.Tag;
@@ -58,7 +57,7 @@ public class PropertyServiceImpl implements PropertyService {
 		// 로그인한 공인중개사 조회
 		Agent agent = agentDto.toEntity();
 		// 의뢰인(임대인 또는 매도인) 존재 여부 확인
-		Customer customer = customerReader.findByIdOrThrow(dto.getCustomerId(), agentDto.getId());
+		Customer customer = customerReader.findByIdAndDeletedAtIsNotNullOrThrow(dto.getCustomerId(), agentDto.getId());
 		// 동일한 고객이 동일한 주소의 매물을 등록할 수 없도록 처리
 		propertyValidator.validateUniqueAddressForCustomer(dto.getRoadAddress(), dto.getJibunAddress(), dto.getCustomerId());
 		// dto -> entity
@@ -136,7 +135,7 @@ public class PropertyServiceImpl implements PropertyService {
 		Customer customer = null;
 		// 의뢰인을 수정한 경우
 		if(updateDto.getCustomerId() != null) {
-			customer = customerReader.findByIdOrThrow(updateDto.getCustomerId(), agentDto.getId());
+			customer = customerReader.findByIdAndDeletedAtIsNotNullOrThrow(updateDto.getCustomerId(), agentDto.getId());
 		}
 		// 매물 조회
 		Property property = propertyReader.findByIdOrThrow(propertyId, agentDto.getId());
@@ -167,7 +166,7 @@ public class PropertyServiceImpl implements PropertyService {
 	@Override
 	public List<FindPropertyResDto> findRecommendProperties(Long customerId, int limit ,AgentResDto agentDto) {
 		// 고객 태그 리스트 조회
-		Customer customer = customerReader.findByIdOrThrow(customerId, agentDto.getId());
+		Customer customer = customerReader.findByIdAndDeletedAtIsNotNullOrThrow(customerId, agentDto.getId());
 		List<Long> tagIds = customer.getCustomerTagMaps().stream().map(tagMap -> tagMap.getTag().getTagId()).toList();
 		// 추천 매물 조회
 		List<Property> propertyList = propertyReader.findTop5ByMatchingTags(customerId,tagIds, limit, agentDto.getId());

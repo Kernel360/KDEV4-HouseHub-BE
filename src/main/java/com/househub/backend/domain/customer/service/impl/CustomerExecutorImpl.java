@@ -59,7 +59,7 @@ public class CustomerExecutorImpl implements CustomerExecutor {
 
 	@Override
 	public Customer validateAndUpdate(Long id, CustomerReqDto request, Agent agent) {
-		Customer customer = customerReader.findByIdOrThrow(id, agent.getId());
+		Customer customer = customerReader.findByIdAndDeletedAtIsNotNullOrThrow(id, agent.getId());
 		if (!customer.getContact().equals(request.getContact())) {
 			customerReader.checkDuplicatedByContact(request.getContact(), agent.getId());
 		}
@@ -73,7 +73,7 @@ public class CustomerExecutorImpl implements CustomerExecutor {
 
 	@Override
 	public Customer validateAndDelete(Long id, Agent agent) {
-		Customer customer = customerReader.findByIdOrThrow(id, agent.getId());
+		Customer customer = customerReader.findByIdAndDeletedAtIsNotNullOrThrow(id, agent.getId());
 		return customerStore.delete(customer);
 	}
 }

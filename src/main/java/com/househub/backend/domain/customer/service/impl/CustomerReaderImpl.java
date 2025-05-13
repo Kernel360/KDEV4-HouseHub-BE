@@ -25,8 +25,13 @@ public class CustomerReaderImpl implements CustomerReader {
 	private final CustomerRepository customerRepository;
 
 	@Override
+	public Customer findByIdAndDeletedAtIsNotNullOrThrow(Long id, Long agentId) {
+		return customerRepository.findByIdAndAgentIdAndDeletedAtIsNull(id, agentId).orElseThrow(() -> new ResourceNotFoundException("고객이 삭제되었거나 존재하지 않습니다.","CUSTOMER_NOT_FOUND"));
+	}
+
+	@Override
 	public Customer findByIdOrThrow(Long id, Long agentId) {
-		return customerRepository.findByIdAndAgentIdAndDeletedAtIsNull(id, agentId).orElseThrow(() -> new ResourceNotFoundException("해당 ID로(" + id + ")로 생성된 계정이 존재하지 않습니다.","CUSTOMER_NOT_FOUND"));
+		return customerRepository.findByIdAndAgentId(id, agentId).orElseThrow(() -> new ResourceNotFoundException("고객이 삭제되었거나 존재하지 않습니다.","CUSTOMER_NOT_FOUND"));
 	}
 
 	@Override

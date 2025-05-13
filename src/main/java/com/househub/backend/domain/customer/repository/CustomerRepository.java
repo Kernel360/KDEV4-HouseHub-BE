@@ -1,6 +1,5 @@
 package com.househub.backend.domain.customer.repository;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -12,7 +11,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import com.househub.backend.domain.consultation.entity.Consultation;
+import com.househub.backend.domain.agent.entity.Agent;
 import com.househub.backend.domain.customer.entity.Customer;
 
 @Repository
@@ -46,4 +45,6 @@ public interface CustomerRepository extends JpaRepository<Customer, Long>, Custo
 	List<Customer> findByBirthDate();
 
 	Optional<Customer> findByIdAndAgentId(Long id, Long agentId);
+
+	Long agent(Agent agent);
 }

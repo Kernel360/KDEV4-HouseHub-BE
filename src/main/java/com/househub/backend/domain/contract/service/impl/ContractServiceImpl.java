@@ -53,7 +53,7 @@ public class ContractServiceImpl implements ContractService {
 		Customer customer = null;
 		if (dto.getCustomerId() != null) {
 			// 계약자 존재할 경우 고객 조회
-			customer = customerReader.findByIdOrThrow(dto.getCustomerId(), agentDto.getId());
+			customer = customerReader.findByIdAndDeletedAtIsNotNullOrThrow(dto.getCustomerId(), agentDto.getId());
 			// 매물을 등록한 고객과 계약할 고객이 동일한 경우 예외 처리
 			validateCustomerIsNotPropertyOwner(customer, property);
 			// 같은 계약자가 동일한 매물에 대해 진행중인 계약이 있는지 확인
@@ -89,7 +89,7 @@ public class ContractServiceImpl implements ContractService {
 		// 계약자를 수정한 경우, 검증
 		if(dto.getCustomerId() != null) {
 			// 고객 조회
-			Customer customer = customerReader.findByIdOrThrow(dto.getCustomerId(), agentDto.getId());
+			Customer customer = customerReader.findByIdAndDeletedAtIsNotNullOrThrow(dto.getCustomerId(), agentDto.getId());
 			// 매물을 등록한 고객과 계약할 고객이 동일한 경우 예외 처리
 			validateCustomerIsNotPropertyOwner(customer, property);
 			// 같은 계약자가 동일한 매물에 대해 진행중인 계약이 있는지 확인
