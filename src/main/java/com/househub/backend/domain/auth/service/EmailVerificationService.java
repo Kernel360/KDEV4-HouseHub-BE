@@ -4,7 +4,8 @@ import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
-import com.househub.backend.domain.agent.entity.Agent;
+import com.househub.backend.common.exception.BusinessException;
+import com.househub.backend.common.exception.ErrorCode;
 import com.househub.backend.domain.agent.service.AgentReader;
 import com.househub.backend.domain.notification.dto.EmailReqDto;
 import com.househub.backend.domain.notification.service.EmailService;
@@ -26,7 +27,10 @@ public class EmailVerificationService {
 	 */
 	public void sendEmailVerificationCode(String email) {
 		// --- 1. 유저 존재 검증 ---
-		Agent agent = agentReader.findByEmail(email);
+		boolean isEmailAlreadyExist = agentReader.existsByEmail(email);
+		if (isEmailAlreadyExist) {
+			throw new BusinessException(ErrorCode.EMAIL_ALREADY_EXISTS);
+		}
 
 		// --- 2. 인증 코드 생성 및 Redis 저장 (3분 TTL 등) ---
 		String code = authCodeManager.generateAndSaveCode(email);
