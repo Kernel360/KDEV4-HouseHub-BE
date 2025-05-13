@@ -1,6 +1,5 @@
 package com.househub.backend.domain.sms.service.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
@@ -25,7 +24,7 @@ public class SmsExecutorImpl implements SmsExecutor {
 
 	@Override
 	public Page<Sms> findAllByCustomer(Long customerId, Pageable pageable, Long agentId) {
-		Customer customer = customerReader.findByIdOrThrow(customerId, agentId);
+		Customer customer = customerReader.findByIdAndDeletedAtIsNotNullOrThrow(customerId, agentId);
 		Agent agent = agentReader.findById(agentId);
 
 		String sender = agent.getContact();

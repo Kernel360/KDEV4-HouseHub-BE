@@ -3,14 +3,13 @@ package com.househub.backend.domain.customer.service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 import com.househub.backend.domain.customer.entity.Customer;
 
 public interface CustomerReader {
+	Customer findByIdAndDeletedAtIsNotNullOrThrow(Long id, Long agentId);
 	Customer findByIdOrThrow(Long id, Long agentId);
 	Customer findByContactOrThrow(String contact, Long agentId);
 	void checkDuplicatedByContact(String contact, Long agentId);

@@ -51,7 +51,7 @@ class CustomerReaderImplTest {
 				Optional.of(customer));
 
 			// when
-			Customer result = customerReader.findByIdOrThrow(id, agentId);
+			Customer result = customerReader.findByIdAndDeletedAtIsNotNullOrThrow(id, agentId);
 
 			// then
 			assertThat(result).isEqualTo(customer);
@@ -66,9 +66,9 @@ class CustomerReaderImplTest {
 			when(customerRepository.findByIdAndAgentIdAndDeletedAtIsNull(id, agentId)).thenReturn(Optional.empty());
 
 			// when & then
-			assertThatThrownBy(() -> customerReader.findByIdOrThrow(id, agentId))
+			assertThatThrownBy(() -> customerReader.findByIdAndDeletedAtIsNotNullOrThrow(id, agentId))
 				.isInstanceOf(ResourceNotFoundException.class)
-				.hasMessageContaining("해당 ID로(" + id + ")로 생성된 계정이 존재하지 않습니다.");
+				.hasMessageContaining("고객이 삭제되었거나 존재하지 않습니다.");
 		}
 	}
 
