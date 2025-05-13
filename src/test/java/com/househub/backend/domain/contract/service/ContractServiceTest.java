@@ -1,7 +1,5 @@
 package com.househub.backend.domain.contract.service;
 
-import static org.mockito.Mockito.eq;
-
 import java.util.ArrayList;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -11,8 +9,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.househub.backend.domain.agent.entity.Agent;
-import com.househub.backend.domain.agent.enums.AgentStatus;
 import com.househub.backend.domain.agent.entity.RealEstate;
+import com.househub.backend.domain.agent.enums.AgentStatus;
 import com.househub.backend.domain.agent.repository.AgentRepository;
 import com.househub.backend.domain.contract.entity.Contract;
 import com.househub.backend.domain.contract.repository.ContractRepository;
