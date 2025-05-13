@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import org.springframework.data.domain.Pageable;
 
 import com.househub.backend.domain.agent.dto.AgentResDto;
+import com.househub.backend.domain.consultation.dto.ConsultationDetailResDto;
 import com.househub.backend.domain.consultation.dto.ConsultationListResDto;
 import com.househub.backend.domain.consultation.dto.ConsultationReqDto;
 import com.househub.backend.domain.consultation.dto.ConsultationResDto;
@@ -16,7 +17,7 @@ public interface ConsultationService {
 
 	ConsultationResDto create(ConsultationReqDto consultationReqDto, AgentResDto agent);
 
-	ConsultationResDto findOne(Long id, Long agentId);
+	ConsultationDetailResDto findOne(Long id, Long agentId);
 
 	ConsultationListResDto findAll(Long agentId, String keyword, LocalDate startDate, LocalDate endDate,
 		ConsultationType type, ConsultationStatus status, Pageable pageable);
