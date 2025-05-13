@@ -1,13 +1,17 @@
 package com.househub.backend.domain.consultation.entity;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.househub.backend.domain.agent.entity.Agent;
 import com.househub.backend.domain.consultation.dto.UpdateConsultationReqDto;
 import com.househub.backend.domain.consultation.enums.ConsultationStatus;
 import com.househub.backend.domain.consultation.enums.ConsultationType;
 import com.househub.backend.domain.customer.entity.Customer;
+import com.househub.backend.domain.property.entity.Property;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -18,6 +22,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
@@ -67,6 +72,11 @@ public class Consultation {
 	private LocalDateTime updatedAt;
 
 	private LocalDateTime deletedAt;
+
+	// 상담에서 어떤 매물들을 보여줬는지 조회
+	@OneToMany(mappedBy = "consultation", cascade = CascadeType.ALL, orphanRemoval = true)
+	@Builder.Default
+	private List<ConsultationProperty> consultationProperties = new ArrayList<>();
 
 	@PrePersist
 	public void onCreate() {
@@ -126,5 +136,18 @@ public class Consultation {
 		} else {
 			throw new IllegalStateException("상담 상태가 예약되지 않은 경우 상태를 변경할 수 없습니다.");
 		}
+	}
+
+	public void clearShownProperties() {
+		this.consultationProperties.clear();
+	}
+
+	public void addShownProperty(Property property) {
+		this.consultationProperties.add(
+			ConsultationProperty.builder()
+				.property(property)
+				.consultation(this)
+				.build()
+		);
 	}
 }

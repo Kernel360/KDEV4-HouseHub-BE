@@ -4,96 +4,124 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
+import org.springframework.jdbc.core.BatchPreparedStatementSetter;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.househub.backend.domain.region.entity.Region;
 import com.househub.backend.domain.region.enums.RegionLevel;
-import com.househub.backend.domain.region.repository.RegionRepository;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class RegionCsvImportService {
 
-	private final RegionRepository regionRepository;
-	private final Map<String, String> regionCodeMap = new ConcurrentHashMap<>();
+	private final JdbcTemplate jdbcTemplate;
 
-	@Transactional
-	public void loadRegionData(MultipartFile file) throws IOException {
+	public void loadRegionDataFast(MultipartFile file) throws IOException {
+		List<Region> regions = parseCsv(file);
+		batchInsert(regions);
+	}
+
+	private List<Region> parseCsv(MultipartFile file) throws IOException {
+		List<Region> regions = new ArrayList<>();
+		Map<String, String> regionCodeMap = new HashMap<>();
+
 		try (BufferedReader br = new BufferedReader(
 			new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8))) {
 
-			// 헤더 스킵
-			br.readLine();
-
+			br.readLine(); // skip header
 			String line;
 
-			// 이미 존재하는 code들을 가져와서 중복 삽입을 방지
-			List<String> existingCodes = regionRepository.findAllCodes(); // SELECT code FROM region;
-			Set<String> existingCodeSet = new HashSet<>(existingCodes);
-
-			List<Region> regions = new ArrayList<>();
 			while ((line = br.readLine()) != null) {
-				String[] tokens = line.split(",", -1); // 빈 문자열 포함
+				String[] tokens = line.split(",", -1);
 
 				String code = tokens[0].trim();
-				if (existingCodeSet.contains(code)) {
-					continue;
-				}
-
 				String province = tokens[1].trim();
 				String city = tokens[2].trim();
 				String dong = tokens[3].trim();
 				String name;
-
-				// 계층형 RegionLevel 설정
 				RegionLevel level;
 				String parentCode = null;
 
 				if (!province.isEmpty() && city.isEmpty() && dong.isEmpty()) {
-					// 시도(DO)
 					level = RegionLevel.DO;
 					name = province;
-					parentCode = null; // 시도의 상위 행정코드는 없음
-					regionCodeMap.put(province, code); // 시도의 코드와 이름을 맵에 저장
+					regionCodeMap.put(province, code);
 				} else if (!province.isEmpty() && !city.isEmpty() && dong.isEmpty()) {
-					// 시군구(SIGUNGU)
 					level = RegionLevel.SIGUNGU;
 					name = city;
-					parentCode = regionCodeMap.get(province); // 시군구의 상위 행정코드는 시도
-					regionCodeMap.put(city, code); // 시도의 코드와 이름을 맵에 저장
+					parentCode = regionCodeMap.get(province);
+					regionCodeMap.put(city, code);
 				} else {
-					// 읍면동(DONG)
 					level = RegionLevel.DONG;
 					name = dong;
-					parentCode = regionCodeMap.get(city); // 읍면동의 상위 행정코드는 시군구
+					parentCode = regionCodeMap.get(city);
 				}
 
-				// 새로운 Region 엔티티 생성
-				Region region = Region.builder()
-					.code(code)
-					.name(name)
-					.level(level)
-					.parentCode(parentCode)
-					.build();
+				regions.add(new Region(code, name, level.name(), parentCode));
+			}
+		}
 
-				regions.add(region);
+		return regions;
+	}
+
+	private void batchInsert(List<Region> regions) {
+		String sql = "INSERT INTO region (code, name, level, parent_code) VALUES (?, ?, ?, ?)";
+
+		jdbcTemplate.batchUpdate(sql, new BatchPreparedStatementSetter() {
+			@Override
+			public void setValues(PreparedStatement ps, int i) throws SQLException {
+				Region r = regions.get(i);
+				ps.setString(1, r.getCode());
+				ps.setString(2, r.getName());
+				ps.setString(3, r.getLevel());
+				ps.setString(4, r.getParentCode());
 			}
 
-			// 데이터베이스에 저장
-			regionRepository.saveAll(regions);
-		} catch (Exception e) {
-			e.printStackTrace();
+			@Override
+			public int getBatchSize() {
+				return regions.size();
+			}
+		});
+	}
+
+	// Region DTO class for insert only
+	static class Region {
+		private final String code;
+		private final String name;
+		private final String level;
+		private final String parentCode;
+
+		public Region(String code, String name, String level, String parentCode) {
+			this.code = code;
+			this.name = name;
+			this.level = level;
+			this.parentCode = parentCode;
+		}
+
+		public String getCode() {
+			return code;
+		}
+
+		public String getName() {
+			return name;
+		}
+
+		public String getLevel() {
+			return level;
+		}
+
+		public String getParentCode() {
+			return parentCode;
 		}
 	}
 }

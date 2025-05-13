@@ -1,6 +1,7 @@
 package com.househub.backend.domain.consultation.dto;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.househub.backend.domain.agent.entity.Agent;
@@ -41,6 +42,8 @@ public class ConsultationReqDto {
 
 	@NotNull(message = "상담 상태를 입력하세요.")
 	private ConsultationStatus status; // RESERVED, COMPLETED, CANCELED
+
+	private List<Long> shownPropertyIds;
 
 	public Consultation toEntity(Agent agent, Customer customer) {
 		return Consultation.builder()
