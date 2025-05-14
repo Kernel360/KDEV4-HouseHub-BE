@@ -87,7 +87,7 @@ public class ContractServiceImpl implements ContractService {
 		// 매물 조회
 		Property property = contract.getProperty();
 		// 계약자를 수정한 경우, 검증
-		if(dto.getCustomerId() != null) {
+		if(dto.getCustomerId() != null && dto.getCustomerId() != contract.getCustomer().getId()) {
 			// 고객 조회
 			Customer customer = customerReader.findByIdAndDeletedAtIsNotNullOrThrow(dto.getCustomerId(), agentDto.getId());
 			// 매물을 등록한 고객과 계약할 고객이 동일한 경우 예외 처리
