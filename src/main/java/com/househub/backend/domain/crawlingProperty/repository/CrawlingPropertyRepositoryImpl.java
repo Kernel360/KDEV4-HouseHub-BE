@@ -91,7 +91,7 @@ public class CrawlingPropertyRepositoryImpl implements CrawlingPropertyRepositor
 			.toList();
 
 		// 7. Page로 변환
-		return new PageImpl<>(dtoList, pageable, propertyIds.size());
+		return new PageImpl<>(dtoList, pageable, dtoList.size());
 	}
 
 	public Page<CrawlingProperty> findAllWithTags(
