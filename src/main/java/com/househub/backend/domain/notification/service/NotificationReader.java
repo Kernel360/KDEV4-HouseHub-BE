@@ -17,6 +17,8 @@ public interface NotificationReader {
 
 	Page<Notification> findAllByReceiverIdAndIsRead(Long receiverId, Boolean isRead, Pageable pageable);
 
+	List<Notification> findUnreadNotifications(Long receiverId);
+
 	List<Notification> findAllByIds(List<Long> ids);
 
 	List<Notification> findAllByReceiverIdAndIds(Long receiverId, List<Long> ids);

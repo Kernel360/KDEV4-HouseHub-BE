@@ -43,6 +43,11 @@ public class NotificationReaderImpl implements NotificationReader {
 	}
 
 	@Override
+	public List<Notification> findUnreadNotifications(Long receiverId) {
+		return notificationRepository.findAllByReceiverIdAndIsReadAndNotDeletedOrderByCreatedAtDesc(receiverId, false);
+	}
+
+	@Override
 	public Notification findById(Long notificationId) {
 		return notificationRepository.findById(notificationId)
 			.orElseThrow(() -> new BusinessException(ErrorCode.RESOURCE_NOT_FOUND));
