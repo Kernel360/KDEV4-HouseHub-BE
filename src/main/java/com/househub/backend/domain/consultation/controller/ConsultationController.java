@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.househub.backend.common.response.SuccessResponse;
 import com.househub.backend.common.util.SecurityUtil;
+import com.househub.backend.domain.consultation.dto.ConsultationDetailResDto;
 import com.househub.backend.domain.consultation.dto.ConsultationListResDto;
 import com.househub.backend.domain.consultation.dto.ConsultationReqDto;
 import com.househub.backend.domain.consultation.dto.ConsultationResDto;
@@ -75,9 +76,9 @@ public class ConsultationController {
 	}
 
 	@GetMapping("/{id}")
-	public ResponseEntity<SuccessResponse<ConsultationResDto>> findOneConsultation(@PathVariable Long id) {
+	public ResponseEntity<SuccessResponse<ConsultationDetailResDto>> findOneConsultation(@PathVariable Long id) {
 		Long agentId = SecurityUtil.getAuthenticatedAgent().getId();
-		ConsultationResDto response = consultationService.findOne(id, agentId);
+		ConsultationDetailResDto response = consultationService.findOne(id, agentId);
 		return ResponseEntity.ok(SuccessResponse.success("상담 상세 조회에 성공했습니다.", "FIND_CONSULTATION_SUCCESS", response));
 	}
 

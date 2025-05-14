@@ -6,7 +6,7 @@ import com.househub.backend.common.exception.ErrorCode;
 public enum TokenType {
 
 	PASSWORD_RESET("PASSWORD_RESET"),
-	EMAIL_VERIFICATION("EMAIL_VERIFICATION");
+	SIGNUP("SIGNUP");
 
 	private final String type;
 
