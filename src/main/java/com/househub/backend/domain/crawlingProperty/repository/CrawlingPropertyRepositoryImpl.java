@@ -205,8 +205,8 @@ public class CrawlingPropertyRepositoryImpl implements CrawlingPropertyRepositor
 			.where(
 				transactionType != null ? crawlingProperty.transactionType.eq(transactionType) : null,
 				propertyType != null ? crawlingProperty.propertyType.eq(propertyType) : null,
-				province != null ? crawlingProperty.province.eq(province) : null,
-				city != null ? crawlingProperty.city.eq(city) : null,
+				province != null ? crawlingProperty.province.contains(province) : null,
+				city != null ? crawlingProperty.city.contains(city) : null,
 				dong != null ? crawlingProperty.dong.contains(dong) : null,
 				minSalePrice != null ? crawlingProperty.salePrice.goe(minSalePrice) : null,
 				maxSalePrice != null ? crawlingProperty.salePrice.loe(maxSalePrice) : null,
