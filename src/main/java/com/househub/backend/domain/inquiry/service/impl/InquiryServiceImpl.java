@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.househub.backend.domain.agent.entity.Agent;
 import com.househub.backend.domain.customer.entity.Customer;
 import com.househub.backend.domain.customer.service.CustomerExecutor;
 import com.househub.backend.domain.inquiry.dto.CreateInquiryCommand;
@@ -20,7 +21,11 @@ import com.househub.backend.domain.inquiry.service.InquiryReader;
 import com.househub.backend.domain.inquiry.service.InquiryService;
 import com.househub.backend.domain.inquiryTemplate.entity.InquiryTemplate;
 import com.househub.backend.domain.inquiryTemplate.service.InquiryTemplateReader;
+import com.househub.backend.domain.notification.entity.Notification;
+import com.househub.backend.domain.notification.enums.NotificationType;
 import com.househub.backend.domain.notification.event.InquiryCreatedEvent;
+import com.househub.backend.domain.notification.service.NotificationReader;
+import com.househub.backend.domain.notification.service.NotificationStore;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +38,8 @@ public class InquiryServiceImpl implements InquiryService {
 	private final InquiryTemplateReader inquiryTemplateReader;
 	private final InquiryExecutor inquiryExecutor;
 	private final InquiryReader inquiryReader;
+	private final NotificationReader notificationReader;
+	private final NotificationStore notificationStore;
 	private final ApplicationEventPublisher eventPublisher;
 
 	/**
@@ -62,12 +69,32 @@ public class InquiryServiceImpl implements InquiryService {
 
 		Inquiry inquiry = inquiryExecutor.executeInquiryCreation(command);
 
+		String notificationContent = buildInquiryNotificationContent(reqDto);
+		log.info("문의 알림 컨텐츠 내용: {}",
+			notificationContent);
+
+		Agent receiver = notificationReader.findReceiverById(template.getAgent().getId());
+
+		Notification notification = Notification.builder()
+			.receiver(receiver)
+			.url("/inquiries/" + inquiry.getId() + "/answers")
+			.content(notificationContent)
+			.type(NotificationType.INQUIRY_CREATED)
+			.isRead(false)
+			.build();
+
+		log.info("Creating notification: {}", notification);
+		// 1. 저장
+		Notification saved = notificationStore.create(notification);
+
+		log.info("문의 알림 이벤트 발행");
 		// 알림 이벤트 발행
 		eventPublisher.publishEvent(
 			InquiryCreatedEvent.builder()
 				.receiverId(template.getAgent().getId())
 				.inquiryId(inquiry.getId())
-				.content("새로운 문의가 도착했습니다.")
+				.content(notificationContent)
+				.notification(saved)
 				.build()
 		);
 
@@ -109,4 +136,18 @@ public class InquiryServiceImpl implements InquiryService {
 
 		return InquiryListResDto.fromPage(dtoPage);
 	}
+
+	private String buildInquiryNotificationContent(CreateInquiryReqDto reqDto) {
+		String phone = reqDto.getPhone();
+
+		// 첫 번째 답변 → 문의 유형
+		String inquiryType = reqDto.getAnswers().stream()
+			.findFirst()
+			.map(CreateInquiryReqDto.AnswerDto::getAnswerText)
+			.map(Object::toString)
+			.orElse("문의");
+
+		return String.format("[%s] 고객님의 '%s' 문의가 접수되었습니다.", phone, inquiryType);
+	}
+
 }

@@ -19,6 +19,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import com.househub.backend.common.response.SuccessResponse;
 import com.househub.backend.common.util.SecurityUtil;
+import com.househub.backend.domain.notification.dto.NotificationDto;
 import com.househub.backend.domain.notification.dto.NotificationIdsReqDto;
 import com.househub.backend.domain.notification.dto.NotificationIdsResDto;
 import com.househub.backend.domain.notification.dto.NotificationListResDto;
@@ -54,6 +55,18 @@ public class NotificationController {
 		SseEmitter emitter = sseEmitterService.createEmitter(receiverId);
 
 		return emitter;
+	}
+
+	/**
+	 * 읽지 않은 알림 목록을 조회합니다.
+	 * 사용자가 앱에 접속했을 때 SSE로 수신하지 못한 알림을 확인하는 용도입니다.
+	 */
+	@GetMapping("/unread")
+	public ResponseEntity<SuccessResponse<List<NotificationDto>>> getUnreadNotifications() {
+		List<NotificationDto> notifications = notificationService.getUnreadNotifications(
+			SecurityUtil.getAuthenticatedAgent());
+		return ResponseEntity.ok(SuccessResponse.success(
+			"읽지 않은 알림 목록 조회 성공", "FIND_UNREAD_NOTIFICATIONS_SUCCESS", notifications));
 	}
 
 	@GetMapping

@@ -73,7 +73,7 @@ public class EmailService {
 		}
 	}
 
-	@Async
+	@Async("asyncExecutor")
 	public CompletableFuture<Void> sendEmail(EmailReqDto request) {
 		try {
 			MimeMessage message = mailSender.createMimeMessage();
@@ -92,4 +92,23 @@ public class EmailService {
 			return CompletableFuture.failedFuture(new BusinessException(ErrorCode.EMAIL_SEND_FAILED));
 		}
 	}
+
+	public void sendEmailSync(EmailReqDto request) {
+		try {
+			MimeMessage message = mailSender.createMimeMessage();
+			MimeMessageHelper helper = new MimeMessageHelper(message, "UTF-8");
+
+			helper.setFrom(fromEmail);
+			helper.setTo(request.getTo());
+			helper.setSubject(request.getSubject());
+			helper.setText(request.getBody(), true); // true -> HTML
+
+			mailSender.send(message);
+			log.info("이메일 전송 완료 - to={}", request.getTo());
+		} catch (MessagingException | MailException e) {
+			log.error("이메일 전송 실패 - to={}, error={}", request.getTo(), e.getMessage());
+			throw new BusinessException(ErrorCode.EMAIL_SEND_FAILED);
+		}
+	}
+
 }
