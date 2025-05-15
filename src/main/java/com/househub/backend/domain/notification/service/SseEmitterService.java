@@ -28,6 +28,7 @@ public class SseEmitterService {
 
 	// 알림을 클라이언트로 전달하는 메서드
 	public void send(Notification notification) {
+		log.info("[SSE] 알림 전송 시작: {}", notification.getId());
 		Long receiverId = notification.getReceiver().getId();
 		List<SseEmitter> emitters = emitterRepository.findAll(receiverId);
 
@@ -36,7 +37,9 @@ public class SseEmitterService {
 
 			for (SseEmitter emitter : emitters) {
 				try {
+					log.info("[SSE] 알림 전송: receiverId={}, emitterId={}", receiverId, emitter.toString());
 					emitter.send(NotificationDto.from(notification));
+					log.info("[SSE] 알림 전송 완료: receiverId={}, emitterId={}", receiverId, emitter.toString());
 				} catch (IOException e) {
 					String message = e.getMessage();
 					if (message != null && message.contains("Broken pipe")) {
