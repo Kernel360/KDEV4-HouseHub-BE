@@ -34,13 +34,37 @@ public class CrawlingPropertyRepositoryImpl implements CrawlingPropertyRepositor
 
 	private final JPAQueryFactory queryFactory;
 
-	// 태그 및 조건 조회
-	public Page<CrawlingPropertyTagResDto> findByTags(List<String> propertyIds, List<Long> tagIds, Pageable pageable) {
+	/**
+	 * 태그로 크롤링 매물 응답 리스트 조회
+	 * @param propertyIds 조회된 매물 아이디 리스트
+	 * @param tagIds 조회할 태그 아이디 리스트
+	 * @param pageable 페이지네이션 정보
+	 * @return 페이지네이션 된 크롤링 매물 정보 리스트
+	 */
+	public Page<CrawlingPropertyTagResDto> findAllByTags(List<String> propertyIds, List<Long> tagIds, Pageable pageable) {
 		QCrawlingProperty cp = crawlingProperty;
 		QCrawlingPropertyTagMap cptm = QCrawlingPropertyTagMap.crawlingPropertyTagMap;
 		QTag tag = QTag.tag;
 
 		List<CrawlingProperty> crawlingProperties;
+
+
+		// ✅ 전체 매물 개수 count 쿼리 (그룹핑된 매물 수)
+		Long totalCount = queryFactory
+				.select(cp.crawlingPropertiesId.countDistinct())
+				.from(cp)
+				.join(cp.crawlingPropertyTagMaps, cptm)
+				.join(cptm.tag, tag)
+				.where(
+						tag.tagId.in(tagIds),
+						cp.crawlingPropertiesId.in(propertyIds)
+				)
+				.fetchOne();
+
+		if (totalCount == null || totalCount == 0) {
+			return Page.empty(pageable);
+		}
+
 
 		// 1. tuple 조회
 		List<Tuple> tupleContent = queryFactory
@@ -91,7 +115,7 @@ public class CrawlingPropertyRepositoryImpl implements CrawlingPropertyRepositor
 			.toList();
 
 		// 7. Page로 변환
-		return new PageImpl<>(dtoList, pageable, dtoList.size());
+		return new PageImpl<>(dtoList, pageable, totalCount);
 	}
 
 	public Page<CrawlingProperty> findAllWithTags(

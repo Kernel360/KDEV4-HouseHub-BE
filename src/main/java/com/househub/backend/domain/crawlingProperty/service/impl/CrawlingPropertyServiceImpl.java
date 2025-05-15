@@ -38,6 +38,7 @@ public class CrawlingPropertyServiceImpl implements CrawlingPropertyService {
         Pageable pageable
     ) {
         log.info("{}", crawlingPropertyReqDto.getTagIds());
+        // 조건만 1차 검색
         if (crawlingPropertyReqDto.getTagIds() == null) {
             Field[] fields = CrawlingPropertyReqDto.class.getDeclaredFields();
 
@@ -83,7 +84,7 @@ public class CrawlingPropertyServiceImpl implements CrawlingPropertyService {
             Page<CrawlingPropertyTagResDto> response = new PageImpl<>(dtoList, pageable, crawlingPropertyList.getTotalElements());
 
             return CrawlingPropertyTagListResDto.fromPage(response);
-        } else {
+        } else {// 태그 같이 검색
             // 1차 필터
             List<CrawlingProperty> crawlingPropertyList = crawlingPropertyRepository.findByDto(
                     crawlingPropertyReqDto.getTransactionType(),
@@ -104,7 +105,7 @@ public class CrawlingPropertyServiceImpl implements CrawlingPropertyService {
                     .map(CrawlingProperty::getCrawlingPropertiesId)
                     .toList();
 
-            Page<CrawlingPropertyTagResDto> response = crawlingPropertyRepository.findByTags(propertyIds, crawlingPropertyReqDto.getTagIds(), pageable);
+            Page<CrawlingPropertyTagResDto> response = crawlingPropertyRepository.findAllByTags(propertyIds, crawlingPropertyReqDto.getTagIds(), pageable);
 
             return CrawlingPropertyTagListResDto.fromPage(response);
         }

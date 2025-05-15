@@ -1,6 +1,5 @@
 package com.househub.backend.domain.crawlingProperty.repository;
 
-import com.househub.backend.domain.crawlingProperty.dto.CrawlingPropertyResDto;
 import com.househub.backend.domain.crawlingProperty.dto.CrawlingPropertyTagResDto;
 import com.househub.backend.domain.crawlingProperty.entity.CrawlingProperty;
 import com.househub.backend.domain.crawlingProperty.enums.PropertyType;
@@ -42,7 +41,7 @@ public interface CrawlingPropertyRepositoryCustom {
             Float maxMonthlyRentFee
     );
 
-    Page<CrawlingPropertyTagResDto> findByTags(List<String> propertyIds, List<Long> tagIds, Pageable pageable);
+    Page<CrawlingPropertyTagResDto> findAllByTags(List<String> propertyIds, List<Long> tagIds, Pageable pageable);
 
     Optional<CrawlingPropertyTagResDto> findCrawlingPropertyById(String crawlingPropertyId);
 }
