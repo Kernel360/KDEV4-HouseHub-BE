@@ -24,6 +24,8 @@ import com.househub.backend.domain.tag.entity.QTag;
 import com.househub.backend.domain.tag.entity.Tag;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.Tuple;
+import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import lombok.RequiredArgsConstructor;
@@ -106,44 +108,93 @@ public class CrawlingPropertyRepositoryImpl implements CrawlingPropertyRepositor
 		Float maxDeposit,
 		Float minMonthlyRentFee,
 		Float maxMonthlyRentFee,
+		List<Long> tagIds,
 		Pageable pageable
 	) {
 		QCrawlingProperty cp = crawlingProperty;
 		QCrawlingPropertyTagMap cptm = QCrawlingPropertyTagMap.crawlingPropertyTagMap;
 		QTag tag = QTag.tag;
 
-		// 1단계: 페이징을 적용하여 CrawlingProperty ID만 먼저 가져옵니다.
-		List<String> propertyIds = queryFactory
-			.select(cp.crawlingPropertiesId)
-			.from(cp)
-			.where(buildConditions(transactionType, propertyType, province, city, dong, minSalePrice, maxSalePrice,
-				minDeposit, maxDeposit, minMonthlyRentFee, maxMonthlyRentFee))
-			.offset(pageable.getOffset())
-			.limit(pageable.getPageSize())
-			.fetch();
+		BooleanBuilder baseConditions = buildConditions(transactionType, propertyType, province, city, dong,
+			minSalePrice, maxSalePrice, minDeposit, maxDeposit, minMonthlyRentFee, maxMonthlyRentFee);
+
+		// tagIds가 비어있지 않으면 tag 조건 추가
+		BooleanBuilder tagCondition = new BooleanBuilder();
+		boolean hasTagFilter = tagIds != null && !tagIds.isEmpty();
+		if (hasTagFilter) {
+			tagCondition.and(tag.tagId.in(tagIds));
+		}
+
+		// 1단계: ID 조회 쿼리
+		JPAQuery<String> idQuery = queryFactory.select(cp.crawlingPropertiesId)
+			.from(cp);
+
+		if (hasTagFilter) {
+			idQuery.leftJoin(cp.crawlingPropertyTagMaps, cptm)
+				.leftJoin(cptm.tag, tag)
+				.where(baseConditions.and(tagCondition))
+				.groupBy(cp.crawlingPropertiesId)
+				.orderBy(Expressions.numberTemplate(Long.class, "count({0})", tag.tagId).desc());
+		} else {
+			idQuery.where(baseConditions);
+		}
+
+		idQuery.offset(pageable.getOffset())
+			.limit(pageable.getPageSize());
+
+		List<String> propertyIds = idQuery.fetch();
 
 		if (propertyIds.isEmpty()) {
 			return Page.empty(pageable);
 		}
 
-		// 2단계: ID 목록을 기준으로 CrawlingProperty와 관련된 데이터들만 로딩
+		// 2단계: ID 목록 기준으로 엔티티 fetch join 로딩
 		List<CrawlingProperty> contents = queryFactory
 			.selectDistinct(cp)
 			.from(cp)
 			.leftJoin(cp.crawlingPropertyTagMaps, cptm).fetchJoin()
 			.leftJoin(cptm.tag, tag).fetchJoin()
-			.where(cp.crawlingPropertiesId.in(propertyIds)) // 첫 번째 단계에서 얻은 ID 목록을 기준으로 로딩
+			.where(cp.crawlingPropertiesId.in(propertyIds))
 			.fetch();
 
-		// 3단계: total count 조회
-		Long total = queryFactory
-			.select(cp.count())
-			.from(cp)
-			.where(buildConditions(transactionType, propertyType, province, city, dong, minSalePrice, maxSalePrice,
-				minDeposit, maxDeposit, minMonthlyRentFee, maxMonthlyRentFee))
-			.fetchOne();
+		// 3단계: total count 쿼리도 tag 필터 조건 반영
+		JPAQuery<Long> countQuery = queryFactory.select(cp.count())
+			.from(cp);
 
-		return new PageImpl<>(contents, pageable, total == null ? 0 : total);
+		if (hasTagFilter) {
+			countQuery.leftJoin(cp.crawlingPropertyTagMaps, cptm)
+				.leftJoin(cptm.tag, tag)
+				.where(baseConditions.and(tagCondition))
+				.groupBy(cp.crawlingPropertiesId);
+
+			// 총 개수를 구하기 위해 그룹핑 없이 countDistinct로 변경
+			Long totalCount;
+
+			if (hasTagFilter) {
+				totalCount = queryFactory
+					.select(cp.countDistinct())
+					.from(cp)
+					.leftJoin(cp.crawlingPropertyTagMaps, cptm)
+					.leftJoin(cptm.tag, tag)
+					.where(baseConditions.and(tagCondition))
+					.fetchOne();
+			} else {
+				totalCount = queryFactory
+					.select(cp.count())
+					.from(cp)
+					.where(baseConditions)
+					.fetchOne();
+			}
+
+			if (totalCount == null)
+				totalCount = 0L;
+
+			return new PageImpl<>(contents, pageable, totalCount);
+		} else {
+			countQuery.where(baseConditions);
+			Long totalCount = countQuery.fetchOne();
+			return new PageImpl<>(contents, pageable, totalCount == null ? 0 : totalCount);
+		}
 	}
 
 	private BooleanBuilder buildConditions(TransactionType transactionType, PropertyType propertyType, String province,
