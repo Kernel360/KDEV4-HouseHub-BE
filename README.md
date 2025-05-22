@@ -12,8 +12,7 @@
 </div>
 
 ## 시연 영상
-[![썸네일 이미지](https://img.youtube.com/vi/NZXvngEb1k0/0.jpg)](https://www.youtube.com/watch?v=NZXvngEb1k0)
-
+[![프로젝트 시연 영상](https://img.youtube.com/vi/NZXvngEb1k0/0.jpg)](https://github.com/user-attachments/assets/4f39d132-417e-47da-b14a-aeb3be425b21)
  
 ## 배포 링크
 https://www.house-hub.store
